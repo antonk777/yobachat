@@ -1,0 +1,40 @@
+{
+  "name": "yobachat-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:ws --external:tmi.js --external:node-telegram-bot-api",
+    "start": "node dist/index.js",
+    "start:console": "node dist/index.js --console",
+    "dev": "npm run build && npm run start",
+    "dev:console": "npm run build && npm run start:console",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "centrifuge": "^5.5.2",
+    "chalk": "^5.3.0",
+    "express": "^4.21.2",
+    "node-telegram-bot-api": "^0.66.0",
+    "reflect-metadata": "^0.2.2",
+    "tmi.js": "^1.8.5",
+    "tsyringe": "^4.10.0",
+    "ws": "^8.16.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/gapi.client.youtube": "^3.0.4",
+    "@types/node": "^20.10.0",
+    "@types/node-telegram-bot-api": "^0.64.12",
+    "@types/tmi.js": "^1.8.6",
+    "@types/ws": "^8.5.10",
+    "esbuild": "^0.27.0",
+    "rimraf": "^6.1.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "overrides": {
+    "form-data": "^4.0.0",
+    "tough-cookie": "^4.1.3"
+  }
+}

@@ -1,0 +1,205 @@
+/**
+ * Box model normalization
+ */
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+/**
+ * Remove left padding from list elements that have a class attribute
+ */
+:where(ul, ol):where([class]) {
+  padding-left: 0;
+}
+
+/**
+ * Remove margins from body and other elements that have a class attribute
+ */
+body,
+:where(blockquote, figure, fieldset):where([class]) {
+  margin: 0;
+}
+
+/**
+ * Remove vertical margins from headings and other elements that have a class attribute
+ */
+:where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ul,
+  ol,
+  dl
+):where([class]) {
+  margin-block: 0;
+}
+
+:where(dd[class]) {
+  margin-left: 0;
+}
+
+:where(fieldset[class]) {
+  padding: 0;
+  border: none;
+}
+
+/**
+ * Remove default list marker from ul elements that have a class attribute
+ */
+:where(ul[class]) {
+  list-style: none;
+}
+
+:where(address[class]) {
+  font-style: normal;
+}
+
+/**
+ * Reset vertical margins for paragraphs,
+ * declare a local variable for bottom margin to avoid conflicts
+ */
+p {
+  --paragraphMarginBottom: 24px;
+
+  margin-block: 0;
+}
+
+/**
+ * Bottom margin for paragraphs without a class attribute,
+ * which are not the last child among their siblings
+ */
+p:where(:not([class]):not(:last-child)) {
+  margin-bottom: var(--paragraphMarginBottom);
+}
+
+/**
+ * Simplify work with images and video
+ */
+img,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/**
+ * Inherit font properties for form inputs
+ */
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+html {
+  /**
+   * Useful in most situations
+   * (e.g., when you need to "pin" the footer to the bottom of the site)
+   */
+  height: 100%;
+  /**
+   * Remove horizontal interface jump
+   * when scrollbar appears/disappears
+   */
+  scrollbar-gutter: stable;
+  /**
+   * Smooth scrolling
+   */
+  scroll-behavior: smooth;
+}
+
+body {
+  /**
+   * Useful in most situations
+   * (e.g., when you need to "pin" the footer to the bottom of the site)
+   */
+  min-height: 100%;
+  /**
+   * Unified line height
+   */
+  line-height: 1.5;
+}
+
+/**
+ * Normalize link element height when inspecting in DevTools
+ */
+a:where([class]) {
+  display: inline-flex;
+}
+
+/**
+ * Pointer cursor on hover
+ */
+button,
+label {
+  cursor: pointer;
+}
+
+/**
+ * Remove gray highlight on tap on mobile devices (iOS/Android)
+ */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/**
+ * Normalize SVG elements to a uniform color
+ * (except those that already have a fill attribute
+ * with value 'none' or starting with 'url')
+ */
+:where([fill]:not(
+  [fill="none"],
+  [fill^="url"]
+)) {
+  fill: currentColor;
+}
+
+/**
+ * Normalize SVG elements to a uniform color
+ * (except those that already have a stroke attribute
+ * with value 'none')
+ */
+:where([stroke]:not(
+  [stroke="none"],
+  [stroke^="url"]
+)) {
+  stroke: currentColor;
+}
+
+/**
+ * Fix delay bug when changing color on interaction with SVG elements
+ */
+svg * {
+  transition-property: fill, stroke;
+}
+
+/**
+ * Normalize table borders to classic 'collapse' style
+ */
+:where(table) {
+  border-collapse: collapse;
+  border-color: currentColor;
+}
+
+/**
+ * Remove all animations and transitions for people
+ * who prefer not to use them
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

@@ -1,0 +1,40 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.env
+.env.local
+*.local
+*.conf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+server/dist/
+client/dist/
+client/.vite/
+
+# Vue Language Server auto-generated files
+client/src/types/vue-global.d.ts
+
+# Censor file
+server/src/config.ts
+
+# Server configuration file (contains sensitive credentials)
+server/server-config.json
+
+# Deleted messages file
+server/deleted-messages.json
+
+# Settings file
+server/settings.json
+
+# BetterTTV emotes file
+server/betterttv-emotes.json
+
+# Badges filter file
+server/badges-filter.json

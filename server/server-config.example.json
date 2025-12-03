@@ -1,0 +1,63 @@
+{
+  "consoleMode": false,
+  "enableConsoleOutput": false,
+  "apiPort": 9010,
+  "wsPort": 9011,
+  "webhookPort": 9012,
+  "webhookPath": "/webhook/",
+  "telegram": {
+    "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
+    "chatId": -1337,
+    "certificatePath": "/etc/letsencrypt/live/your-domain.com/fullchain.pem"
+  },
+  "youtube": {
+    "apiKey": "YOUR_YOUTUBE_API_KEY",
+    "channelId": "YOUR_YOUTUBE_CHANNEL_ID",
+    "pollInterval": 9000
+  },
+  "twitch": {
+    "channelId": "YOUR_TWITCH_CHANNEL_ID"
+  },
+  "vkvideo": {
+    "channelId": "YOUR_VKVIDEO_CHANNEL_ID",
+    "clientId": "YOUR_VKVIDEO_CLIENT_ID",
+    "clientSecret": "YOUR_VKVIDEO_CLIENT_SECRET"
+  },
+  "kick": {
+    "channel": "YOUR_KICK_CHANNEL_ID",
+    "pollInterval": 5000
+  },
+  "betterttv": {
+    "channelId": "YOUR_CHANNEL_ID",
+    "includeGlobal": true,
+    "includeChannel": true,
+    "color": "#d50014"
+  },
+  "platforms": [
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "abbr": "TG",
+      "color": "#00FFFF"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "abbr": "YT",
+      "color": "#FF0000"
+    },
+    {
+      "id": "twitch",
+      "name": "Twitch",
+      "abbr": "TW",
+      "color": "#FF00FF"
+    },
+    {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "abbr": "VK",
+      "color": "#0077FF"
+    }
+  ]
+}
+

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    },
+    "types": ["node"],
+    "lib": ["ES2022"]
+  },
+  "include": ["vite.config.ts", "scripts/**/*.ts", "../shared/**/*"]
+}
+

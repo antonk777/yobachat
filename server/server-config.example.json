@@ -4,7 +4,7 @@
   "apiPort": 9010,
   "wsPort": 9011,
   "webhookPort": 9012,
-  "webhookPath": "/webhook/",
+  "webhookPath": "webhook/",
   "telegram": {
     "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
     "chatId": -1337,

@@ -1,9 +1,12 @@
 import { z } from 'zod';
+import chalk from 'chalk';
 
 import type { ChatMessage, ChatSettings, Platform, PlatformType, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, BetterTTVConfig, SharedConfig } from '@shared/shared-types.js';
 import { kWSMessageType } from '@shared/shared-types.js';
 import type { ServerConfigFile } from '@/types';
 
+
+const kLogPrefix = chalk.cyan('[Validation]');
 
 /**
  * Sanitize a string by removing control characters and limiting length
@@ -256,8 +259,9 @@ export function validateWSMessage(input: unknown): WSMessage | null {
     return WSMessageSchema.parse(input);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('[Validation] WSMessage validation failed:', error.issues);
+      console.error(`${kLogPrefix} WSMessage validation failed:`, error.issues);
     }
+
     return null;
   }
 }
@@ -273,13 +277,16 @@ export function validateChatSettings(input: unknown): ChatSettings | null {
         ...input,
         badWords: sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100)
       };
+
       return ChatSettingsSchema.parse(sanitized);
     }
+
     return ChatSettingsSchema.parse(input);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('[Validation] ChatSettings validation failed:', error.issues);
+      console.error(`${kLogPrefix} ChatSettings validation failed:`, error.issues);
     }
+
     return null;
   }
 }
@@ -295,13 +302,16 @@ export function validatePartialChatSettings(input: unknown): Partial<ChatSetting
         ...input,
         badWords: sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100)
       };
+
       return PartialChatSettingsSchema.parse(sanitized);
     }
+
     return PartialChatSettingsSchema.parse(input);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('[Validation] Partial ChatSettings validation failed:', error.issues);
+      console.error(`${kLogPrefix} Partial ChatSettings validation failed:`, error.issues);
     }
+
     return null;
   }
 }
@@ -384,8 +394,9 @@ export function validateServerConfigFile(config: unknown): ServerConfigFile {
     return ServerConfigSchema.parse(config) as ServerConfigFile;
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('[Validation] ServerConfig validation failed:', error.issues);
+      console.error(`${kLogPrefix} ServerConfig validation failed:`, error.issues);
     }
+
     throw error;
   }
 }

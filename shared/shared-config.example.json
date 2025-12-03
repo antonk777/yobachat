@@ -1,5 +1,6 @@
 {
   "host": "yourdomain.com",
   "apiHost": "api.yourdomain.com",
+  "basePath": "/",
   "wsPath": "/ws/"
 }

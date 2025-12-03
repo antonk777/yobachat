@@ -1,18 +1,21 @@
 import { readFile, writeFile, access } from 'fs/promises';
 import { constants } from 'fs';
 import { join } from 'path';
+import chalk from 'chalk';
 
 import type { ChatSettings } from '@shared/shared-types.js';
 import { kDefaultChatSettings } from '@shared/shared-config.js';
 import { validateChatSettings, validatePartialChatSettings } from '@/validation.js';
 
 
-const kConfigFilePath = join(process.cwd(), 'config.json');
+const kConfigFilePath = join(process.cwd(), 'storage', 'settings.json');
 
 /**
  * Unified storage service for chat settings, deleted messages, and bad words
  */
 export class SettingsService {
+  public logPrefix = chalk.cyan('[Settings]');
+
   private settings: ChatSettings = { ...kDefaultChatSettings };
   private filePath: string;
 
@@ -50,11 +53,11 @@ export class SettingsService {
       if (validated) {
         this.settings = validated;
       } else {
-        console.warn(`[SettingsService] Invalid settings loaded, using defaults`);
+        console.warn(`${this.logPrefix} Invalid settings loaded, using defaults`);
         this.settings = { ...kDefaultChatSettings };
       }
     } catch (error) {
-      console.warn(`[SettingsService] Failed to load settings: ${error}`);
+      console.warn(`${this.logPrefix} Failed to load settings: ${error}`);
       this.settings = { ...kDefaultChatSettings };
     }
   }
@@ -63,7 +66,7 @@ export class SettingsService {
     try {
       await writeFile(this.filePath, JSON.stringify(this.settings, null, 2), 'utf-8');
     } catch (error) {
-      console.error(`[SettingsService] Failed to save settings: ${error}`);
+      console.error(`${this.logPrefix} Failed to save settings: ${error}`);
     }
   }
 

@@ -10,8 +10,9 @@ import { useUIStore } from '@/stores/ui';
 
 import sharedConfig from '@shared/shared-config.json';
 
+
 export function useWSConnection() {
-  const url = `wss://${sharedConfig.apiHost}${sharedConfig.basePath ?? '/'}${sharedConfig.wsPath}`;
+  const url = `wss://${sharedConfig.apiHost}${sharedConfig.basePath}${sharedConfig.wsPath}`;
 
   const
     messagesStore = useMessagesStore(),

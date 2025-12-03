@@ -18,6 +18,10 @@ server/dist/
 client/dist/
 client/.vite/
 
+# Shared files directory symlinks
+client/shared/
+server/shared/
+
 # Vue Language Server auto-generated files
 client/src/types/vue-global.d.ts
 

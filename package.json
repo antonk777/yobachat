@@ -4,6 +4,7 @@
   "type": "module",
   "description": "OBS chat widget for Twitch, YouTube, and Telegram",
   "scripts": {
+    "postinstall": "node scripts/setup-shared-symlinks.js",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
 
     "dev:server": "cd server && npm run dev",
@@ -23,6 +24,7 @@
   "license": "MIT",
   "devDependencies": {
     "pm2": "^5.3.0",
+    "symlink-dir": "^7.0.1",
     "typescript": "^5.3.3"
   }
 }

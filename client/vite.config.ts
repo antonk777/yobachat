@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import sharedConfig from '../shared/shared-config.json';
+import sharedConfig from './shared/shared-config.json';
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,7 +14,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@shared': path.resolve(__dirname, '../shared'),
+      '@shared': path.resolve(__dirname, './shared'),
     },
   },
   build: {

@@ -1,7 +1,7 @@
 import { computed, watch } from 'vue';
 import { useWebSocket } from '@vueuse/core';
 
-import { ChatSettings, kWSMessageType, WSMessage } from '@shared/shared-types.js';
+import { ChatSettings, kWSMessageType, WSMessage } from '@shared/shared-types';
 
 import { decodeWSMessage, encodeWSMessage } from '@shared/shared-messenger';
 import { useMessagesStore } from '@/stores/messages';

@@ -28,6 +28,9 @@ client/src/types/vue-global.d.ts
 # Censor file
 server/src/config.ts
 
+# Shared configuration file
+shared/shared-config.json
+
 # Server configuration file (contains sensitive credentials)
 server/server-config.json
 

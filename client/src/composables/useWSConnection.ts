@@ -8,11 +8,11 @@ import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
 
-import sharedConfig from '@shared/shared-config.json';
+import { kSharedConfig } from '@/config';
 
 
 export function useWSConnection() {
-  const url = `wss://${sharedConfig.apiHost}${sharedConfig.basePath}${sharedConfig.wsPath}`;
+  const url = `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`;
 
   const
     messagesStore = useMessagesStore(),

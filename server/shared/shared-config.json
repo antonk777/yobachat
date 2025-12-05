@@ -1,6 +1,6 @@
 {
-  "host": "manul.lol",
-  "apiHost": "api.manul.lol",
-  "basePath": "/yobachat/",
+  "host": "yobachat.manul.lol",
+  "apiHost": "yobachat-api.manul.lol",
+  "basePath": "/",
   "wsPath": "ws/"
 }

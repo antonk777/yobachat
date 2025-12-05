@@ -8,7 +8,8 @@
     "start:console": "node dist/index.js --console",
     "dev": "npm run build && npm run start",
     "dev:console": "npm run build && npm run start:console",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "benchmark:validation": "tsx src/benchmark-ws-validation.ts"
   },
   "dependencies": {
     "centrifuge": "^5.5.2",

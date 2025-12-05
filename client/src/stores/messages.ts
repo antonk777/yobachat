@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 
 import type { ChatMessage, ChatMessageSegment, ChatMessageWithSegments } from '@shared/shared-types.js';
 
-import { kMaxMessages } from '@/constants';
+import { kMaxMessages } from '@/config';
 import { useSettingsStore } from '@/stores/settings';
 
 export const useMessagesStore = defineStore('messages', () => {

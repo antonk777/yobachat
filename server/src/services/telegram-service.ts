@@ -1,11 +1,16 @@
 import TelegramBot, { Message } from 'node-telegram-bot-api';
 import { EventEmitter } from 'node:events';
-import { Request, Response } from 'express';
+import { randomUUID } from 'node:crypto';
 import chalk from 'chalk';
 
 import type { ChatMessage, Platform, TelegramServiceConfig } from '@shared/shared-types.js';
-import type { PlatformService, PlatformWithConfig, PlatformServiceEvents } from '@/types.js';
-import type { WebhookHandler } from '@/services/webhook-service.js';
+import type { PlatformService, PlatformWithConfig, PlatformServiceEvents, WebhookHandler } from '@/types.js';
+
+type TelegramServiceOptions = {
+  webhookUrl: string;
+  registerHandler: (path: string, handler: WebhookHandler) => void;
+  unregisterHandler: (path: string) => void;
+}
 
 /**
  * Service for watching Telegram group messages
@@ -25,11 +30,7 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
 
   constructor(
     platformConfig: PlatformWithConfig<TelegramServiceConfig>,
-    options: {
-      webhookUrl: string;
-      registerHandler: (path: string, handler: WebhookHandler) => void;
-      unregisterHandler: (path: string) => void;
-    }
+    options: TelegramServiceOptions
   ) {
     super();
 
@@ -42,7 +43,7 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
 
     this.config = platformConfig.config as TelegramServiceConfig;
     this.webhookUrl = options.webhookUrl;
-    this.webhookPath = `/webhook/telegram/${this.config.botToken}`;
+    this.webhookPath = `/webhook/telegram/${randomUUID()}`;
     this.registerHandler = options.registerHandler;
     this.unregisterHandler = options.unregisterHandler;
 
@@ -97,8 +98,8 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
 
       this.setupEventHandlers();
       this.setActive(true);
-      console.log(`${this.logPrefix} Webhook set up at ${fullWebhookUrl}`);
-      console.log(`${this.logPrefix} Connected to chat ${this.config.chatId}`);
+
+      console.log(`${this.logPrefix} Webhook listening at ${fullWebhookUrl}`);
     } catch (error) {
       console.error(`${this.logPrefix} Error setting up webhook:`, error);
       this.setActive(false);
@@ -146,6 +147,9 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       }
     });
 
+    this.bot.on('webhook_error', (error) => {
+      console.error(`${this.logPrefix} Webhook error:`, error);
+    });
   }
 
   private processMessage(msg: Message, isEdit: boolean = false): ChatMessage | null {

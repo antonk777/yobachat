@@ -1,0 +1,4 @@
+# zsetup/
+
+# Server configuration file (contains sensitive credentials)
+server/server-config.json

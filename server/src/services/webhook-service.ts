@@ -1,8 +1,10 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import { createServer, Server as HttpServer } from 'http';
 import chalk from 'chalk';
 
-export type WebhookHandler = (req: Request, res: Response) => void;
+import type { WebhookHandler } from '../types.js';
+
+const kMaxRequestSize = '1mb';
 
 /**
  * Service for handling webhook requests (HTTP server behind nginx SSL termination)
@@ -19,7 +21,7 @@ export class WebhookService {
     this.app = express();
 
     // Parse JSON bodies
-    this.app.use(express.json());
+    this.app.use(express.json({ limit: kMaxRequestSize }));
 
     // Handle all POST requests - route to registered handlers
     this.app.post('*', (req, res) => {

@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import type { Request, Response } from 'express';
 
 import type { BetterTTVConfig, ChatMessage, ChatMessageDelete, Platform, PlatformType, TelegramServiceConfig, TwitchServiceConfig, VKVideoServiceConfig, YouTubeServiceConfig, KickServiceConfig, SharedConfig } from '@shared/shared-types.js';
 
@@ -145,3 +146,6 @@ export type YouTubeSearchResponse = gapi.client.youtube.SearchListResponse;
 export type YouTubeVideoResponse = gapi.client.youtube.VideoListResponse;
 export type YouTubeLiveChatResponse = gapi.client.youtube.LiveChatMessageListResponse;
 export type YouTubeLiveChatMessage = gapi.client.youtube.LiveChatMessage;
+
+// Webhook types
+export type WebhookHandler = (req: Request, res: Response) => void;

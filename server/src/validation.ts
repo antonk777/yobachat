@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import chalk from 'chalk';
 
-import type { ChatMessage, ChatSettings, Platform, PlatformType, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, BetterTTVConfig, SharedConfig } from '@shared/shared-types.js';
+import type { ChatMessage, ChatSettings, Platform, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, BetterTTVConfig, SharedConfig } from '@shared/shared-types.js';
 import { kWSMessageType } from '@shared/shared-types.js';
 import type { ServerConfigFile } from '@/types';
 
@@ -170,7 +170,7 @@ const ChatSettingsWSSchema = z.object({
 const AdminDeleteMessageSchema = z.object({
   type: z.literal(kWSMessageType.adminDeleteMessage),
   data: z.object({
-    id: MessageIdSchema
+    ids: z.array(MessageIdSchema).min(1).max(1000)
   })
 });
 

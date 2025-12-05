@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '..');
 
-async function setupSymlinks() {
+async function setupSymlinks(): Promise<void> {
   const sharedPath = join(rootDir, 'shared');
   const clientSharedPath = join(rootDir, 'client', 'shared');
   const serverSharedPath = join(rootDir, 'server', 'shared');
@@ -30,11 +30,12 @@ async function setupSymlinks() {
     console.log(`✓ Created symlink: server/shared -> shared`);
 
     console.log('✓ All symlinks created successfully!');
-  } catch (error) {
-    if (error.code === 'EEXIST') {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'EEXIST') {
       console.log('⚠ Symlinks may already exist, skipping...');
     } else {
-      console.error('✗ Failed to create symlinks:', error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('✗ Failed to create symlinks:', errorMessage);
       process.exit(1);
     }
   }

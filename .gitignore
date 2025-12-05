@@ -6,6 +6,9 @@ dist/
 .env.local
 *.local
 *.conf
+*.dev*
+
+zsetup/
 
 # IDE
 .vscode/
@@ -24,9 +27,6 @@ server/shared/
 
 # Vue Language Server auto-generated files
 client/src/types/vue-global.d.ts
-
-# Censor file
-server/src/config.ts
 
 # Shared configuration file
 shared/shared-config.json

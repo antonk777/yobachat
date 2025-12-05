@@ -20,7 +20,8 @@ import type {
   PlatformService,
   PlatformWithConfig,
   PlatformWithService,
-  ServerConfig
+  ServerConfig,
+  WebhookHandler
 } from '@/types.js';
 
 import { TwitchService } from '@/services/twitch-service.js';
@@ -31,7 +32,7 @@ import { KickService } from '@/services/kick-service.js';
 import { SettingsService } from '@/services/settings-service.js';
 import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
 import { BetterTTVService } from '@/services/betterttv-service.js';
-import { WebhookService, type WebhookHandler } from '@/services/webhook-service.js';
+import { WebhookService } from '@/services/webhook-service.js';
 
 import { encodeWSMessage, decodeWSMessage } from '@shared/shared-messenger.js';
 import { kWSMessageType } from '@shared/shared-types.js';
@@ -189,11 +190,7 @@ class ChatServer {
       data: messageData
     });
 
-    this.wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(messageJson);
-      }
-    });
+    this.broadcastWSMessage(messageJson);
   }
 
   /**
@@ -206,18 +203,14 @@ class ChatServer {
 
     const allDeletedIds = this.deletedMessages.getAll();
 
-    const messageJson = encodeWSMessage({
+    const messageJSON = encodeWSMessage({
       type: kWSMessageType.messageUpdateDeletedIds,
       data: {
         ids: allDeletedIds
       }
     });
 
-    this.wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(messageJson);
-      }
-    });
+    this.broadcastWSMessage(messageJSON);
   }
 
   /**
@@ -228,16 +221,12 @@ class ChatServer {
       return;
     }
 
-    const messageJson = encodeWSMessage({
+    const messageJSON = encodeWSMessage({
       type: kWSMessageType.messageClearAll,
       data: {}
     });
 
-    this.wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(messageJson);
-      }
-    });
+    this.broadcastWSMessage(messageJSON);
   }
 
   /**
@@ -250,14 +239,26 @@ class ChatServer {
 
     const settings = this.settings.getChatSettings();
 
-    const messageJson = encodeWSMessage({
+    const messageJSON = encodeWSMessage({
       type: kWSMessageType.chatSettings,
       data: settings
     });
 
+    this.broadcastWSMessage(messageJSON);
+  }
+
+  private broadcastWSMessage(messageJSON: string): void {
+    if (this.config.consoleMode || !this.wss) {
+      return;
+    }
+
     this.wss.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(messageJson);
+        try {
+          client.send(messageJSON);
+        } catch (error) {
+          console.error(`${this.logPrefix} Failed to broadcast WebSocket message:`, error);
+        }
       }
     });
   }
@@ -350,7 +351,8 @@ class ChatServer {
           break;
         case 'telegram':
           // Construct webhook URL from server config (API host + webhook path)
-          const webhookUrl = `https://${this.config.sharedConfig.apiHost}${this.config.webhookPath}`;
+          const webhookUrl = `https://${this.config.sharedConfig.apiHost}${this.config.sharedConfig.basePath}${this.config.webhookPath}`;
+
           service = new TelegramService(
             platform as PlatformWithConfig<TelegramServiceConfig>,
             {

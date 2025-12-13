@@ -42,6 +42,3 @@ server/settings.json
 
 # BetterTTV emotes file
 server/betterttv-emotes.json
-
-# Badges filter file
-server/badges-filter.json

@@ -35,7 +35,6 @@ shared/shared-config.dev.json
 # Server configuration file (contains sensitive credentials)
 server/server-config.json
 server/server-config.dev.json
-server/server-config.local.json
 
 # Deleted messages file
 server/deleted-messages.json

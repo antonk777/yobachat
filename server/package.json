@@ -5,7 +5,6 @@
   "scripts": {
     "build:prod": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api",
     "build:dev": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api",
-    "start:local": "node dist/index.js --console --server-config=server-config.local.json",
     "clean": "rimraf dist"
   },
   "dependencies": {

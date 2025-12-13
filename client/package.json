@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "build:prod": "vue-tsc && vite build",
-    "build:dev": "cross-env-shell SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development \"vue-tsc && vite build\"",
-    "start:local": "cross-env SHARED_CONFIG_PATH=./shared/shared-config.json vite"
+    "build:dev": "cross-env-shell SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development \"vue-tsc && vite build\""
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",

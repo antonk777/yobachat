@@ -60,6 +60,12 @@ export default defineConfig({
   base: sharedConfig.basePath,
   plugins: [vue()],
   mode: kIsDevelopment ? 'development' : 'production',
+  build: {
+    sourcemap: kIsDevelopment ? 'inline' : false,
+    minify: kIsDevelopment ? false : 'esbuild',
+    cssCodeSplit: kIsDevelopment ? true : false,
+    cssMinify: kIsDevelopment ? false : 'esbuild'
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

@@ -62,6 +62,33 @@ function sanitizeUrl(input: unknown): string | undefined {
 }
 
 /**
+ * Validate and sanitize a Google Fonts CSS URL
+ */
+function sanitizeGoogleFontsUrl(input: unknown): string | undefined {
+  if (typeof input !== 'string' || input.length === 0) {
+    return undefined;
+  }
+
+  const sanitized = sanitizeString(input, 2048);
+
+  // Validate URL format
+  try {
+    new URL(sanitized);
+  } catch {
+    return undefined;
+  }
+
+  // Verify it's a Google Fonts CSS URL
+  const lowerUrl = sanitized.toLowerCase();
+
+  if (!lowerUrl.startsWith('https://fonts.googleapis.com/css')) {
+    return undefined;
+  }
+
+  return sanitized;
+}
+
+/**
  * Sanitize a color hex string
  */
 function sanitizeColor(input: unknown): string | undefined {
@@ -119,6 +146,30 @@ export const ChatMessageSchema = z.object({
 }) satisfies z.ZodType<ChatMessage>;
 
 // ChatSettings schema
+const FontSettingsSchema = {
+  fontFamily: z.string().max(200).optional(),
+  fontWeight: z.preprocess(
+    (val) => {
+      if (val === undefined || val === null) return undefined;
+      const num = typeof val === 'string' ? parseInt(val, 10) : (typeof val === 'number' ? val : NaN);
+      if (typeof num === 'number' && isFinite(num) && !isNaN(num) && num >= 100 && num <= 900) {
+        return num;
+      }
+      return undefined;
+    },
+    z.number().int().min(100).max(900).optional()
+  ),
+  googleFontsCssUrl: z.string()
+    .max(2048)
+    .refine((url) => {
+      if (!url) return true; // Optional field
+      return sanitizeGoogleFontsUrl(url) !== undefined;
+    }, {
+      message: 'Must be a valid Google Fonts CSS URL (fonts.googleapis.com/css)'
+    })
+    .optional()
+};
+
 export const ChatSettingsSchema = z.object({
   showAvatars: z.boolean(),
   showBadges: z.boolean(),
@@ -128,7 +179,15 @@ export const ChatSettingsSchema = z.object({
   showVipBadges: z.boolean(),
   showEmotes: z.boolean(),
   filterBadWords: z.boolean(),
-  badWords: z.array(z.string().min(1).max(100))
+  badWords: z.array(z.string().min(1).max(100)),
+  // User widget font settings
+  userFontFamily: FontSettingsSchema.fontFamily,
+  userFontWeight: FontSettingsSchema.fontWeight,
+  userGoogleFontsCssUrl: FontSettingsSchema.googleFontsCssUrl,
+  // Admin panel font settings
+  adminFontFamily: FontSettingsSchema.fontFamily,
+  adminFontWeight: FontSettingsSchema.fontWeight,
+  adminGoogleFontsCssUrl: FontSettingsSchema.googleFontsCssUrl,
 }) satisfies z.ZodType<ChatSettings>;
 
 // Partial ChatSettings schema for updates
@@ -271,12 +330,20 @@ export function validateWSMessage(input: unknown): WSMessage | null {
  */
 export function validateChatSettings(input: unknown): ChatSettings | null {
   try {
-    // Sanitize bad words array
-    if (typeof input === 'object' && input !== null && 'badWords' in input) {
-      const sanitized = {
-        ...input,
-        badWords: sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100)
-      };
+    // Sanitize bad words array and Google Fonts URLs
+    if (typeof input === 'object' && input !== null) {
+      const sanitized: any = { ...input };
+
+      if ('badWords' in input) {
+        sanitized.badWords = sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100);
+      }
+
+      if ('userGoogleFontsCssUrl' in input && (input as any).userGoogleFontsCssUrl) {
+        sanitized.userGoogleFontsCssUrl = sanitizeGoogleFontsUrl((input as any).userGoogleFontsCssUrl);
+      }
+      if ('adminGoogleFontsCssUrl' in input && (input as any).adminGoogleFontsCssUrl) {
+        sanitized.adminGoogleFontsCssUrl = sanitizeGoogleFontsUrl((input as any).adminGoogleFontsCssUrl);
+      }
 
       return ChatSettingsSchema.parse(sanitized);
     }
@@ -296,12 +363,20 @@ export function validateChatSettings(input: unknown): ChatSettings | null {
  */
 export function validatePartialChatSettings(input: unknown): Partial<ChatSettings> | null {
   try {
-    // Sanitize bad words array if present
-    if (typeof input === 'object' && input !== null && 'badWords' in input) {
-      const sanitized = {
-        ...input,
-        badWords: sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100)
-      };
+    // Sanitize bad words array and Google Fonts URLs if present
+    if (typeof input === 'object' && input !== null) {
+      const sanitized: any = { ...input };
+
+      if ('badWords' in input) {
+        sanitized.badWords = sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100);
+      }
+
+      if ('userGoogleFontsCssUrl' in input && (input as any).userGoogleFontsCssUrl) {
+        sanitized.userGoogleFontsCssUrl = sanitizeGoogleFontsUrl((input as any).userGoogleFontsCssUrl);
+      }
+      if ('adminGoogleFontsCssUrl' in input && (input as any).adminGoogleFontsCssUrl) {
+        sanitized.adminGoogleFontsCssUrl = sanitizeGoogleFontsUrl((input as any).adminGoogleFontsCssUrl);
+      }
 
       return PartialChatSettingsSchema.parse(sanitized);
     }
@@ -344,7 +419,7 @@ const VKVideoServiceConfigSchema = z.object({
 
 const KickServiceConfigSchema = z.object({
   channel: z.string().min(1).max(100),
-  pollInterval: z.number().int().positive().max(3600000) // Max 1 hour
+  pollInterval: z.number().int().positive().max(3600000).optional() // Deprecated: no longer used (WebSocket-based)
 }) satisfies z.ZodType<KickServiceConfig>;
 
 const BetterTTVConfigSchema = z.object({

@@ -3,13 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:ws --external:tmi.js --external:node-telegram-bot-api",
-    "start": "node dist/index.js",
-    "start:console": "node dist/index.js --console",
-    "dev": "npm run build && npm run start",
-    "dev:console": "npm run build && npm run start:console",
-    "clean": "rimraf dist",
-    "benchmark:validation": "tsx src/benchmark-ws-validation.ts"
+    "build:prod": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api",
+    "build:dev": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api",
+    "start:local": "node dist/index.js --console --server-config=server-config.local.json",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "centrifuge": "^5.5.2",
@@ -19,7 +16,8 @@
     "reflect-metadata": "^0.2.2",
     "tmi.js": "^1.8.5",
     "tsyringe": "^4.10.0",
-    "ws": "^8.16.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.56.0",
+    "ws": "^8.18.3",
     "zod": "^4.1.13"
   },
   "devDependencies": {
@@ -28,7 +26,7 @@
     "@types/node": "^20.10.0",
     "@types/node-telegram-bot-api": "^0.64.12",
     "@types/tmi.js": "^1.8.6",
-    "@types/ws": "^8.5.10",
+    "@types/ws": "^8.18.1",
     "esbuild": "^0.27.0",
     "rimraf": "^6.1.2",
     "tsx": "^4.7.0",

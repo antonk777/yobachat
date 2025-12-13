@@ -6,6 +6,7 @@ import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
 import { useWSConnection } from '@/composables/useWSConnection';
 import { useUIStore } from '@/stores/ui';
+import { useFontSettings } from '@/composables/useFontSettings';
 
 
 const container = ref<HTMLElement | null>(null);
@@ -15,6 +16,9 @@ const
   settingsStore = useSettingsStore(),
   ws = useWSConnection(),
   uiStore = useUIStore();
+
+// Apply font settings for user widget
+useFontSettings(() => settingsStore.settings, 'user');
 
 // Auto-scroll to bottom when new messages arrive
 watch(() => messagesStore.messages, async () => {

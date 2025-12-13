@@ -1,36 +1,35 @@
 {
   "consoleMode": false,
   "enableConsoleOutput": false,
-  "apiPort": 9010,
-  "wsPort": 9011,
-  "webhookPort": 9012,
+  "apiPort": 8010,
+  "wsPort": 8011,
+  "webhookPort": 8012,
   "webhookPath": "webhook/",
   "telegram": {
-    "mode": "webhook",
-    "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
-    "chatId": -1337,
-    "certificatePath": "/etc/letsencrypt/live/your-domain.com/fullchain.pem",
-    "pollInterval": 1000
+    "mode": "polling",
+    "botToken": "8390455084:AAGaDpEewCn8A5XfdE8rzHITxtJvU0adT6M",
+    "chatId": -5094240928,
+    "pollInterval": 2500
   },
   "youtube": {
-    "apiKey": "YOUR_YOUTUBE_API_KEY",
-    "channelId": "YOUR_YOUTUBE_CHANNEL_ID",
+    "apiKey": "AIzaSyAwL2xdnDDhM7ZiXrC35xeQ23AT9X2kXhc",
+    "channelId": "UC8IkqvttLQ0BUaEPMwukDgA",
     "pollInterval": 9000
   },
   "twitch": {
-    "channelId": "YOUR_TWITCH_CHANNEL_ID"
+    "channelId": "silentium_vulpes"
   },
   "vkvideo": {
-    "channelId": "YOUR_VKVIDEO_CHANNEL_ID",
-    "clientId": "YOUR_VKVIDEO_CLIENT_ID",
-    "clientSecret": "YOUR_VKVIDEO_CLIENT_SECRET"
+    "channelId": "silentium_vulpes",
+    "clientId": "0bs3sq1i44lgkai6",
+    "clientSecret": "IHdVOReRa9w18fAC5MHKs1VLCvnGuNVfB9EhAm7jdmhTMfRZYa6pRONR1Sndn2I1"
   },
   "kick": {
-    "channel": "YOUR_KICK_CHANNEL_ID",
+    "channel": "62986250",
     "pollInterval": 5000
   },
   "betterttv": {
-    "channelId": "YOUR_CHANNEL_ID",
+    "channelId": "silentium_vulpes",
     "includeGlobal": true,
     "includeChannel": true,
     "color": "#d50014"
@@ -62,4 +61,3 @@
     }
   ]
 }
-

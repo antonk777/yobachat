@@ -9,8 +9,6 @@ import { kDefaultChatSettings } from '@shared/shared-config.js';
 import { validateChatSettings, validatePartialChatSettings } from '@/validation.js';
 
 
-const kConfigFilePath = join(process.cwd(), 'storage', 'settings.json');
-
 /**
  * Unified storage service for chat settings, deleted messages, and bad words
  */
@@ -21,7 +19,7 @@ export class SettingsService {
   private filePath: string;
 
   constructor() {
-    this.filePath = kConfigFilePath;
+    this.filePath = join(process.cwd(), 'storage', 'settings.json');
   }
 
   /**
@@ -42,13 +40,13 @@ export class SettingsService {
 
     try {
       const content = await readFile(this.filePath, 'utf-8');
+
       const parsed = JSON.parse(content) as Partial<ChatSettings>;
 
       // Validate loaded settings
       const validated = validateChatSettings({
         ...kDefaultChatSettings,
-        ...parsed,
-        badWords: parsed.badWords ?? []
+        ...parsed
       });
 
       if (validated) {

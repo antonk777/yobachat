@@ -29,8 +29,7 @@
   --emote-size: 1.58rem;
   --avatar-size: 1.58rem;
 
-  --font-family: 'Futura PT', sans-serif;
-  --font-family-condensed: 'Futura PT Condensed', sans-serif;
+  --font-family: sans-serif;
   --font-size: 1rem;
   --font-weight: 500;
   --font-size-small: .84rem;

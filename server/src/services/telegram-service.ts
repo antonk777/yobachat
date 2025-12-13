@@ -7,9 +7,9 @@ import type { ChatMessage, Platform, TelegramServiceConfig } from '@shared/share
 import type { PlatformService, PlatformWithConfig, PlatformServiceEvents, WebhookHandler } from '@/types.js';
 
 type TelegramServiceOptions = {
-  webhookUrl: string;
-  registerHandler: (path: string, handler: WebhookHandler) => void;
-  unregisterHandler: (path: string) => void;
+  webhookUrl?: string;
+  registerHandler?: (path: string, handler: WebhookHandler) => void;
+  unregisterHandler?: (path: string) => void;
 }
 
 /**
@@ -18,12 +18,13 @@ type TelegramServiceOptions = {
 export class TelegramService extends EventEmitter<PlatformServiceEvents> implements PlatformService {
   public readonly platform: Platform;
   private active: boolean = false;
-  private readonly config: TelegramServiceConfig;
   private logPrefix: string;
-  private webhookUrl: string;
+  private readonly config: TelegramServiceConfig;
+  private useWebhook: boolean = false;
+  private webhookUrl?: string;
   private webhookPath: string;
-  private registerHandler: (path: string, handler: WebhookHandler) => void;
-  private unregisterHandler: (path: string) => void;
+  private registerHandler?: (path: string, handler: WebhookHandler) => void;
+  private unregisterHandler?: (path: string) => void;
 
   private bot: TelegramBot | null = null;
   private messageIds: Set<number> = new Set();
@@ -46,6 +47,21 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
     this.webhookPath = `/webhook/telegram/${randomUUID()}`;
     this.registerHandler = options.registerHandler;
     this.unregisterHandler = options.unregisterHandler;
+
+    // Determine mode: use config.mode if specified, otherwise default to polling
+    const configuredMode = this.config.mode;
+
+    if (configuredMode === 'polling') {
+      this.useWebhook = false;
+    } else if (configuredMode === 'webhook') {
+      this.useWebhook = true;
+      if (!this.webhookUrl) {
+        throw new Error('webhookUrl is required when mode is set to "webhook"');
+      }
+      if (!this.config.certificatePath) {
+        throw new Error('certificatePath is required when mode is set to "webhook"');
+      }
+    }
 
     this.logPrefix = chalk.hex(this.platform.color)(`[${this.platform.abbr}]`);
   }
@@ -71,40 +87,97 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
     }
 
     try {
-      // Create bot instance without polling
-      this.bot = new TelegramBot(this.config.botToken, { polling: false });
-
-      // Register webhook handler with main server
-      this.registerHandler(this.webhookPath, (req, res) => {
-        try {
-          const update = req.body;
-          if (this.bot) {
-            // Process the update through the bot
-            this.bot.processUpdate(update);
-          }
-          res.status(200).json({ ok: true });
-        } catch (error) {
-          console.error(`${this.logPrefix} Error processing webhook update:`, error);
-          res.status(500).json({ ok: false, error: 'Failed to process update' });
-        }
-      });
-
-      // Set webhook with certificate path (for Telegram to verify SSL)
-      const fullWebhookUrl = `${this.webhookUrl}${this.webhookPath}`;
-
-      await this.bot.setWebHook(fullWebhookUrl, {
-        certificate: this.config.certificatePath
-      });
-
-      this.setupEventHandlers();
-      this.setActive(true);
-
-      console.log(`${this.logPrefix} Webhook listening at ${fullWebhookUrl}`);
+      if (this.useWebhook) {
+        await this.startWebhook();
+      } else {
+        await this.startPolling();
+      }
     } catch (error) {
-      console.error(`${this.logPrefix} Error setting up webhook:`, error);
+      console.error(`${this.logPrefix} Error starting service:`, error);
       this.setActive(false);
       throw error;
     }
+  }
+
+  /**
+   * Start the bot in polling mode
+   */
+  private async startPolling(): Promise<void> {
+    const pollingOptions: TelegramBot.PollingOptions = {
+      interval: this.config.pollInterval ?? 1000,
+      autoStart: true,
+      params: {
+        allowed_updates: ['message', 'edited_message']
+      }
+    };
+
+    this.bot = new TelegramBot(this.config.botToken, { polling: pollingOptions });
+    this.setupEventHandlers();
+    this.setActive(true);
+    console.log(`${this.logPrefix} Started polling for chat ${this.config.chatId} (interval: ${pollingOptions.interval}ms)`);
+  }
+
+  /**
+   * Start the bot in webhook mode
+   */
+  private async startWebhook(): Promise<void> {
+    this.validateWebhookRequirements();
+
+    // Create bot instance without polling
+    this.bot = new TelegramBot(this.config.botToken, { polling: false });
+
+    // Register webhook handler with main server
+    this.registerWebhookHandler();
+
+    // Set webhook with certificate path (for Telegram to verify SSL)
+    const fullWebhookUrl = `${this.webhookUrl}${this.webhookPath}`;
+    await this.bot.setWebHook(fullWebhookUrl, {
+      certificate: this.config.certificatePath
+    });
+
+    this.setupEventHandlers();
+    this.setActive(true);
+
+    console.log(`${this.logPrefix} Webhook listening at ${fullWebhookUrl}`);
+  }
+
+  /**
+   * Validate that all required fields are present for webhook mode
+   */
+  private validateWebhookRequirements(): void {
+    if (!this.webhookUrl) {
+      throw new Error('webhookUrl is required for webhook mode');
+    }
+    if (!this.config.certificatePath) {
+      throw new Error('certificatePath is required for webhook mode');
+    }
+    if (!this.registerHandler || !this.unregisterHandler) {
+      throw new Error('registerHandler and unregisterHandler are required for webhook mode');
+    }
+  }
+
+  /**
+   * Register the webhook handler with the main server
+   */
+  private registerWebhookHandler(): void {
+    if (!this.registerHandler) {
+      return;
+    }
+
+    this.registerHandler(this.webhookPath, (req, res) => {
+      try {
+        const update = req.body;
+
+        if (this.bot) {
+          // Process the update through the bot
+          this.bot.processUpdate(update);
+        }
+        res.status(200).json({ ok: true });
+      } catch (error) {
+        console.error(`${this.logPrefix} Error processing webhook update:`, error);
+        res.status(500).json({ ok: false, error: 'Failed to process update' });
+      }
+    });
   }
 
   /**
@@ -147,9 +220,12 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       }
     });
 
-    this.bot.on('webhook_error', (error) => {
-      console.error(`${this.logPrefix} Webhook error:`, error);
-    });
+    // Only register webhook_error handler in webhook mode
+    if (this.useWebhook) {
+      this.bot.on('webhook_error', (error) => {
+        console.error(`${this.logPrefix} Webhook error:`, error);
+      });
+    }
   }
 
   private processMessage(msg: Message, isEdit: boolean = false): ChatMessage | null {
@@ -193,15 +269,24 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
 
   async stop(): Promise<void> {
     try {
-      // Unregister webhook handler
-      this.unregisterHandler(this.webhookPath);
+      if (this.useWebhook) {
+        // Unregister webhook handler
+        if (this.unregisterHandler) {
+          this.unregisterHandler(this.webhookPath);
+        }
 
-      // Delete webhook
-      if (this.bot) {
-        await this.bot.deleteWebHook();
-        this.bot = null;
+        // Delete webhook
+        if (this.bot) {
+          await this.bot.deleteWebHook();
+        }
+      } else {
+        // Stop polling
+        if (this.bot) {
+          this.bot.stopPolling();
+        }
       }
 
+      this.bot = null;
       this.setActive(false);
       this.messageIds.clear();
       console.log(`${this.logPrefix} Stopped watching chat ${this.config.chatId}`);

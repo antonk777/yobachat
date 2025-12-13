@@ -5,6 +5,7 @@ import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
 import { useWSConnection } from '@/composables/useWSConnection';
+import { useFontSettings } from '@/composables/useFontSettings';
 
 import TwitchIcon from '@/assets/twitch.svg';
 import YouTubeIcon from '@/assets/youtube.svg';
@@ -16,7 +17,10 @@ const
   ws = useWSConnection(),
   settingsStore = useSettingsStore(),
   messagesStore = useMessagesStore(),
-  uiStore = useUIStore()
+  uiStore = useUIStore();
+
+// Apply font settings for admin panel
+useFontSettings(() => settingsStore.settings, 'admin');
 
 function handleMessageClick(messageId: string) {
   if (!messagesStore.isSelectionMode) {

@@ -2,6 +2,8 @@
 
 export type PlatformType = 'twitch' | 'youtube' | 'telegram' | 'vkvideo' | 'kick';
 
+export type WidgetType = 'user' | 'admin';
+
 // Interfaces
 
 export interface BetterTTVConfig {
@@ -24,7 +26,9 @@ export interface YouTubeServiceConfig {
 export interface TelegramServiceConfig {
   chatId: number;
   botToken: string;
-  certificatePath: string;
+  mode?: 'polling' | 'webhook'; // Default: 'webhook' if webhookUrl is provided, otherwise 'polling'
+  certificatePath?: string; // Required only for webhook mode
+  pollInterval?: number; // Polling interval in milliseconds (default: 1000)
 }
 
 export interface VKVideoServiceConfig {
@@ -35,7 +39,7 @@ export interface VKVideoServiceConfig {
 
 export interface KickServiceConfig {
   channel: string; // Channel name or chat ID
-  pollInterval: number;
+  pollInterval?: number; // Deprecated: no longer used (WebSocket-based)
 }
 
 export interface SharedConfig {
@@ -121,6 +125,14 @@ export interface ChatSettings {
   showEmotes: boolean;
   filterBadWords: boolean;
   badWords: string[];
+  // User widget font settings
+  userFontFamily?: string;
+  userFontWeight?: number;
+  userGoogleFontsCssUrl?: string;
+  // Admin panel font settings
+  adminFontFamily?: string;
+  adminFontWeight?: number;
+  adminGoogleFontsCssUrl?: string;
 }
 
 export enum kWSMessageType {
@@ -198,6 +210,23 @@ export interface WSAdminPlatformsStatus {
 export interface WSAdminPlatformStatusUpdate {
   type: kWSMessageType.adminPlatformStatusUpdate;
   data: { platform: PlatformWithStatus };
+}
+
+export type WSMessageTypeMap = {
+  // Client responses (server -> client)
+  [kWSMessageType.serverStatus]: WSServerStatus;
+  [kWSMessageType.messageUpdate]: WSMessageUpdate;
+  [kWSMessageType.messageUpdateDeletedIds]: WSMessageUpdateDeletedIds;
+  [kWSMessageType.messageClearAll]: WSMessageClearAll;
+  [kWSMessageType.chatSettings]: WSMessageChatSettings;
+
+  // Admin commands (client -> server)
+  [kWSMessageType.adminDeleteMessage]: WSAdminDeleteMessage;
+  [kWSMessageType.adminUpdateSettings]: WSAdminUpdateSettings;
+  [kWSMessageType.adminClearAllMessages]: WSAdminClearAllMessages;
+  [kWSMessageType.adminRefreshBetterTTV]: WSAdminRefreshBetterTTV;
+  [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
+  [kWSMessageType.adminPlatformStatusUpdate]: WSAdminPlatformStatusUpdate;
 }
 
 export type WSMessage =

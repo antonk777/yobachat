@@ -183,12 +183,17 @@ During installation, you may see deprecation warnings for `har-validator`, `uuid
 
 `npm audit` may report vulnerabilities from `node-telegram-bot-api`'s transitive dependencies. Critical vulnerabilities in `form-data` and `tough-cookie` are addressed via npm overrides in `package.json` to force secure versions.
 
-Remaining moderate vulnerabilities are in the deprecated `request` package, which `node-telegram-bot-api` depends on internally. These cannot be fixed without downgrading the package (a breaking change). The risk is limited as:
+Remaining moderate vulnerabilities are in the deprecated `request` package, which `node-telegram-bot-api` depends on internally. These cannot be fixed at this time because:
+- The `request` package is deprecated and has no secure version available
+- All versions of `node-telegram-bot-api` (including 0.63.0 and 0.66.0) depend on vulnerable versions of `request`
+- There is no workaround without the package maintainers updating `node-telegram-bot-api` to use a different HTTP client
+
+The risk is limited as:
 - The vulnerabilities are moderate severity (not critical)
-- The `request` package is only used internally by the Telegram bot library
+- The `request` package is only used internally by the Telegram bot library for API calls
 - We're using the latest version of `node-telegram-bot-api` (0.66.0)
 
-The package maintainers are aware of these issues and will address them in future updates.
+The package maintainers are aware of these issues and will address them in future updates by migrating away from the deprecated `request` package.
 
 ## License
 

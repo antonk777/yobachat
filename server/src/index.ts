@@ -1,4 +1,3 @@
-import { WebSocketServer, WebSocket } from 'ws';
 import chalk from 'chalk';
 
 import type {
@@ -17,6 +16,7 @@ import type {
   YouTubeServiceConfig
 } from '@shared/shared-types.js';
 import type {
+  PlatformConfig,
   PlatformService,
   PlatformWithConfig,
   PlatformWithService,
@@ -33,8 +33,8 @@ import { SettingsService } from '@/services/settings-service.js';
 import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
 import { BetterTTVService } from '@/services/betterttv-service.js';
 import { WebhookService } from '@/services/webhook-service.js';
+import { WebSocketService } from '@/services/websocket-service.js';
 
-import { encodeWSMessage, decodeWSMessage } from '@shared/shared-messenger.js';
 import { kWSMessageType } from '@shared/shared-types.js';
 
 import {
@@ -42,8 +42,6 @@ import {
   kServerConfig
 } from '@/config';
 import {
-  validateWSMessage,
-  validateChatMessage,
   validatePartialChatSettings
 } from '@/validation.js';
 
@@ -51,7 +49,7 @@ import {
 class ChatServer {
   public logPrefix = chalk.yellow('[ChatServer]');
 
-  private wss: WebSocketServer | null = null;
+  private websocketService: WebSocketService;
   private platforms: Map<string, PlatformWithService> = new Map();
 
   private readonly config: ServerConfig;
@@ -61,9 +59,20 @@ class ChatServer {
   private betterttvService: BetterTTVService | null = null;
   private webhookService: WebhookService;
 
+  private _handleWSConnection = this.handleWSConnection.bind(this);
+  private _handleWSMessage = this.handleWSMessage.bind(this);
+  private _handleWSError = this.handleWSError.bind(this);
+
   constructor(config: ServerConfig) {
     this.config = config;
     this.webhookService = new WebhookService(config.webhookPort);
+    this.websocketService = new WebSocketService(config);
+
+    // Set up WebSocket event listeners
+    this.websocketService
+      .on('connection', this._handleWSConnection)
+      .on('message', this._handleWSMessage)
+      .on('error', this._handleWSError);
   }
 
   async start(): Promise<void> {
@@ -92,13 +101,8 @@ class ChatServer {
         console.log(`${this.logPrefix} Running in console-output mode`);
       }
 
-      const port = this.config.wsPort;
-
-      this.wss = new WebSocketServer({ port });
-
-      this.setupWsConnectionHandlers();
-
-      console.log(`${this.logPrefix} WebSocket server listening on port ${port}`);
+      // Start WebSocket server
+      await this.websocketService.start();
     }
   }
 
@@ -172,7 +176,7 @@ class ChatServer {
    * Broadcast chat message to all connected WebSocket clients
    */
   private broadcastChatMessage(message: ChatMessage, platform: Platform): void {
-    if (!this.wss) {
+    if (!this.websocketService) {
       return;
     }
 
@@ -185,83 +189,48 @@ class ChatServer {
       message
     };
 
-    const messageJson = encodeWSMessage({
-      type: kWSMessageType.messageUpdate,
-      data: messageData
-    });
-
-    this.broadcastWSMessage(messageJson);
+    this.websocketService.broadcast(kWSMessageType.messageUpdate, messageData);
   }
 
   /**
    * Broadcast chat message delete to all connected WebSocket clients
    */
   private broadcastChatMessageDeletion(): void {
-    if (this.config.consoleMode || !this.wss) {
+    if (this.config.consoleMode || !this.websocketService) {
       return;
     }
 
     const allDeletedIds = this.deletedMessages.getAll();
 
-    const messageJSON = encodeWSMessage({
-      type: kWSMessageType.messageUpdateDeletedIds,
-      data: {
-        ids: allDeletedIds
-      }
+    this.websocketService.broadcast(kWSMessageType.messageUpdateDeletedIds, {
+      ids: allDeletedIds
     });
-
-    this.broadcastWSMessage(messageJSON);
   }
 
   /**
    * Broadcast clear all messages to all connected WebSocket clients
    */
   private broadcastClearAllMessages(): void {
-    if (this.config.consoleMode || !this.wss) {
+    if (this.config.consoleMode || !this.websocketService) {
       return;
     }
 
-    const messageJSON = encodeWSMessage({
-      type: kWSMessageType.messageClearAll,
-      data: {}
-    });
-
-    this.broadcastWSMessage(messageJSON);
+    this.websocketService.broadcast(kWSMessageType.messageClearAll, {});
   }
 
   /**
    * Broadcast chat settings to all connected WebSocket clients
    */
   private broadcastChatSettings(): void {
-    if (this.config.consoleMode || !this.wss) {
+    if (this.config.consoleMode || !this.websocketService) {
       return;
     }
 
     const settings = this.settings.getChatSettings();
 
-    const messageJSON = encodeWSMessage({
-      type: kWSMessageType.chatSettings,
-      data: settings
-    });
-
-    this.broadcastWSMessage(messageJSON);
+    this.websocketService.broadcast(kWSMessageType.chatSettings, settings);
   }
 
-  private broadcastWSMessage(messageJSON: string): void {
-    if (this.config.consoleMode || !this.wss) {
-      return;
-    }
-
-    this.wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        try {
-          client.send(messageJSON);
-        } catch (error) {
-          console.error(`${this.logPrefix} Failed to broadcast WebSocket message:`, error);
-        }
-      }
-    });
-  }
 
   private processMessage(message: ChatMessage): ChatMessage {
     // Skip if message was deleted
@@ -291,13 +260,13 @@ class ChatServer {
   private handleIncomingMessage(platform: PlatformWithConfig, message: ChatMessage): void {
     try {
       // Validate and sanitize the incoming message (always use fast validation)
-      const validatedMessage = validateChatMessage(message);
-      if (!validatedMessage) {
-        console.warn(`${this.logPrefix} Invalid message received from ${platform.name}, skipping`);
-        return;
-      }
+      // const validatedMessage = validateChatMessage(message);
+      // if (!validatedMessage) {
+      //   console.warn(`${this.logPrefix} Invalid message received from ${platform.name}, skipping`);
+      //   return;
+      // }
 
-      let processedMessage = this.processMessage(validatedMessage);
+      let processedMessage = this.processMessage(message);
 
       processedMessage = this.enrichWithBetterTTV(processedMessage);
 
@@ -332,148 +301,105 @@ class ChatServer {
    * Initialize sources from configuration (called on startup)
    */
   private initializePlatforms(platforms: PlatformWithConfig[]): void {
-    platforms.forEach(platform => {
-      let service: PlatformService;
-
-      const platformOnly: Platform = {
-        id: platform.id,
-        name: platform.name,
-        color: platform.color,
-        abbr: platform.abbr
-      }
-
-      switch (platform.id) {
-        case 'twitch':
-          service = new TwitchService(platform as PlatformWithConfig<TwitchServiceConfig>);
-          break;
-        case 'youtube':
-          service = new YouTubeService(platform as PlatformWithConfig<YouTubeServiceConfig>);
-          break;
-        case 'telegram':
-          // Construct webhook URL from server config (API host + webhook path)
-          const webhookUrl = `https://${this.config.sharedConfig.apiHost}${this.config.sharedConfig.basePath}${this.config.webhookPath}`;
-
-          service = new TelegramService(
-            platform as PlatformWithConfig<TelegramServiceConfig>,
-            {
-              webhookUrl,
-              registerHandler: (path, handler) => this.registerWebhookHandler(path, handler),
-              unregisterHandler: (path) => this.unregisterWebhookHandler(path)
-            }
-          );
-          break;
-        case 'vkvideo':
-          service = new VKVideoService(platform as PlatformWithConfig<VKVideoServiceConfig>);
-          break;
-        case 'kick':
-          service = new KickService(platform as PlatformWithConfig<KickServiceConfig>);
-          break;
-        default:
-          throw new Error(`Unsupported platform: ${platform.id}`);
-      }
-
-      // Listen for message events from the service
-      service.on('messageUpdated', (message: ChatMessage) => {
-        this.handleIncomingMessage(platform, message);
-      });
-
-      // Message deleted by user in chat
-      service.on('messageDeleted', (deleteEvent: ChatMessageDelete) => {
-        this.outputToConsoleDelete(deleteEvent.id, platform);
-        this.broadcastChatMessageDeletion();
-      });
-
-      service.on('status', (active: boolean) => {
-        // Broadcast platform status change to admin clients
-        this.broadcastPlatformStatusUpdate(platformOnly, active);
-      });
-
-      this.platforms.set(platform.name, { ...platform, service });
-    });
+    platforms.forEach(platform => this.initializePlatform(platform));
   }
 
-  /**
-   * Set up WebSocket connection handlers
-   */
-  private setupWsConnectionHandlers(): void {
-    if (!this.wss) {
-      return;
+  private initializePlatform(platform: PlatformWithConfig<PlatformConfig>): void {
+    let service: PlatformService;
+
+    const platformOnly: Platform = {
+      id: platform.id,
+      name: platform.name,
+      color: platform.color,
+      abbr: platform.abbr
     }
 
-    this.wss.on('connection', (ws: WebSocket) => {
-      this.handleWSConnection(ws);
+    switch (platform.id) {
+      case 'twitch':
+        service = new TwitchService(platform as PlatformWithConfig<TwitchServiceConfig>);
+        break;
+      case 'youtube':
+        service = new YouTubeService(platform as PlatformWithConfig<YouTubeServiceConfig>);
+        break;
+      case 'telegram':
+        const telegramConfig = platform.config as TelegramServiceConfig;
+        const telegramMode = telegramConfig.mode;
+
+        // Only provide webhook options if mode is 'webhook' or undefined (auto-detect)
+        const telegramOptions: {
+          webhookUrl?: string;
+          registerHandler?: (path: string, handler: WebhookHandler) => void;
+          unregisterHandler?: (path: string) => void;
+        } = {};
+
+        if (telegramMode !== 'polling') {
+          // Construct webhook URL from server config (API host + webhook path)
+          telegramOptions.webhookUrl = `https://${this.config.sharedConfig.apiHost}${this.config.sharedConfig.basePath}${this.config.webhookPath}`;
+          telegramOptions.registerHandler = (path, handler) => this.registerWebhookHandler(path, handler);
+          telegramOptions.unregisterHandler = (path) => this.unregisterWebhookHandler(path);
+        }
+
+        service = new TelegramService(
+          platform as PlatformWithConfig<TelegramServiceConfig>,
+          telegramOptions
+        );
+        break;
+      case 'vkvideo':
+        service = new VKVideoService(platform as PlatformWithConfig<VKVideoServiceConfig>);
+        break;
+      case 'kick':
+        service = new KickService(platform as PlatformWithConfig<KickServiceConfig>);
+        break;
+      default:
+        throw new Error(`Unsupported platform: ${platform.id}`);
+    }
+
+    // Listen for message events from the service
+    service.on('messageUpdated', (message: ChatMessage) => {
+      this.handleIncomingMessage(platform, message);
     });
+
+    // Message deleted by user in chat
+    service.on('messageDeleted', (deleteEvent: ChatMessageDelete) => {
+      this.outputToConsoleDelete(deleteEvent.id, platform);
+      this.broadcastChatMessageDeletion();
+    });
+
+    service.on('status', (active: boolean) => {
+      // Broadcast platform status change to admin clients
+      this.broadcastPlatformStatusUpdate(platformOnly, active);
+    });
+
+    this.platforms.set(platform.name, { ...platform, service });
   }
 
   /**
    * Handle a new WebSocket connection
    */
-  private handleWSConnection(ws: WebSocket): void {
-    console.log(`${this.logPrefix} WS Client connected`);
-
-    ws.on('close', () => {
-      console.log(`${this.logPrefix} WS Client disconnected`);
-    });
-
-    ws.on('error', error => {
-      console.error(`${this.logPrefix} WebSocket error:`, error);
-    });
-
-    ws.on('message', async (data: Buffer) => {
-      try {
-        // decodeWSMessage now includes validation - returns null if invalid
-        const message = decodeWSMessage(data.toString());
-
-        if (!message) {
-          this.sendServerMessage(ws, 'Invalid message format or structure');
-          return;
-        }
-
-        // Optional: Additional deep validation with Zod for extra security
-        // This is redundant but provides defense in depth
-        const validatedMessage = validateWSMessage(message);
-
-        if (!validatedMessage) {
-          console.warn(`${this.logPrefix} Message passed basic validation but failed deep validation`);
-          this.sendServerMessage(ws, 'Invalid message structure');
-          return;
-        }
-
-        await this.handleWSAdminCommand(ws, validatedMessage);
-      } catch (error) {
-        console.error(`${this.logPrefix} Error handling WebSocket message:`, error);
-        this.sendServerMessage(ws, 'Error processing message');
-      }
-    });
-
+  private handleWSConnection(clientId: string): void {
     // Send welcome message and initial data
-    const connectionResponse = encodeWSMessage({
-      type: kWSMessageType.serverStatus,
-      data: {
-        connected: true,
-        message: 'Hello from server!'
-      }
+    this.websocketService.send(clientId, kWSMessageType.serverStatus, {
+      connected: true,
+      message: 'Hello from server!'
     });
-
-    ws.send(connectionResponse);
 
     // Send initial data to admin clients
-    this.sendPlatformsStatus(ws);
-    this.sendChatSettings(ws);
-    this.sendDeletedMessageIds(ws);
+    this.sendPlatformsStatus(clientId);
+    this.sendChatSettings(clientId);
+    this.sendDeletedMessageIds(clientId);
   }
 
   /**
-   * Handle admin commands from WebSocket clients
+   * Handle incoming WebSocket messages (already decoded and validated)
    */
-  private async handleWSAdminCommand(ws: WebSocket, message: WSMessage): Promise<void> {
+  private async handleWSMessage(clientId: string, message: WSMessage): Promise<void> {
     switch (message.type) {
       case kWSMessageType.adminDeleteMessage:
-        await this.handleAdminDeleteMessage(ws, message);
+        await this.handleAdminDeleteMessage(clientId, message);
         break;
 
       case kWSMessageType.adminUpdateSettings:
-        await this.handleAdminUpdateSettings(ws, message);
+        await this.handleAdminUpdateSettings(clientId, message);
         break;
 
       case kWSMessageType.adminClearAllMessages:
@@ -482,23 +408,78 @@ class ChatServer {
         break;
 
       case kWSMessageType.adminRefreshBetterTTV:
-        this.updateBetterTTVEmotes(ws);
+        this.updateBetterTTVEmotes(clientId);
         break;
     }
   }
 
   /**
+   * Handle WebSocket errors
+   */
+  private handleWSError(clientId: string, error: string): void {
+    this.sendServerMessage(clientId, error);
+  }
+
+  /**
+   * Send server status message to a specific client
+   */
+  private sendServerMessage(clientId: string, message: string): void {
+    this.websocketService.send(clientId, kWSMessageType.serverStatus, {
+      connected: true,
+      message
+    });
+  }
+
+  /**
+   * Send platform status to a client
+   */
+  private sendPlatformsStatus(clientId: string): void {
+    const platformsStatus: PlatformWithStatus[] = Array.from(this.platforms.values())
+      .map(platform => ({
+        id: platform.id,
+        name: platform.name,
+        color: platform.color,
+        abbr: platform.abbr,
+        active: platform.service?.isActive() ?? false
+      }));
+
+    this.websocketService.send(clientId, kWSMessageType.adminPlatformsStatus, {
+      platforms: platformsStatus
+    });
+  }
+
+  /**
+   * Send current chat settings to a client (includes bad words)
+   */
+  private sendChatSettings(clientId: string): void {
+    const settings = this.settings.getChatSettings();
+
+    this.websocketService.send(clientId, kWSMessageType.chatSettings, settings);
+  }
+
+  /**
+   * Send deleted message IDs to a client
+   */
+  private sendDeletedMessageIds(clientId: string): void {
+    const deletedIds = this.deletedMessages.getAll();
+
+    this.websocketService.send(clientId, kWSMessageType.messageUpdateDeletedIds, {
+      ids: deletedIds
+    });
+  }
+
+  /**
    * Handle admin delete message command
    */
-  private async handleAdminDeleteMessage(ws: WebSocket, message: WSAdminDeleteMessage): Promise<void> {
+  private async handleAdminDeleteMessage(clientId: string, message: WSAdminDeleteMessage): Promise<void> {
     if (message.type !== kWSMessageType.adminDeleteMessage) {
       return;
     }
 
-    const data = message.data;
+    const { data } = message;
 
-    if (!data || !data.ids || !Array.isArray(data.ids) || data.ids.length === 0) {
-      this.sendServerMessage(ws, 'Invalid message: missing message IDs');
+    if (data.ids.length === 0) {
+      this.sendServerMessage(clientId, 'Invalid message: missing message IDs');
       return;
     }
 
@@ -511,7 +492,7 @@ class ChatServer {
 
       console.log(`${this.logPrefix} Admin deleted messages: ${data.ids.join(', ')}`);
     } catch (error) {
-      this.sendServerMessage(ws, 'Invalid message IDs format');
+      this.sendServerMessage(clientId, 'Invalid message IDs format');
       console.error(`${this.logPrefix} Failed to delete messages:`, error);
     }
   }
@@ -519,23 +500,18 @@ class ChatServer {
   /**
    * Handle admin update settings command
    */
-  private async handleAdminUpdateSettings(ws: WebSocket, message: WSMessage): Promise<void> {
+  private async handleAdminUpdateSettings(clientId: string, message: WSMessage): Promise<void> {
     if (message.type !== kWSMessageType.adminUpdateSettings) {
       return;
     }
 
-    const data = message.data as Partial<ChatSettings>;
-
-    if (!data) {
-      this.sendServerMessage(ws, 'Invalid chat settings: missing data');
-      return;
-    }
+    const data = message.data;
 
     // Validate and sanitize chat settings
     const validatedSettings = validatePartialChatSettings(data);
 
     if (!validatedSettings) {
-      this.sendServerMessage(ws, 'Invalid chat settings: validation failed');
+      this.sendServerMessage(clientId, 'Invalid chat settings: validation failed');
       return;
     }
 
@@ -545,117 +521,39 @@ class ChatServer {
 
       console.log(`${this.logPrefix} Admin updated chat settings`);
     } catch (error) {
-      this.sendServerMessage(ws, 'Failed to update chat settings');
+      this.sendServerMessage(clientId, 'Failed to update chat settings');
       console.error(`${this.logPrefix} Failed to update chat settings:`, error);
     }
   }
 
-  private async updateBetterTTVEmotes(ws: WebSocket): Promise<void> {
+  private async updateBetterTTVEmotes(clientId: string): Promise<void> {
     if (!this.betterttvService) {
-      this.sendServerMessage(ws, 'BetterTTV service not initialized');
+      this.sendServerMessage(clientId, 'BetterTTV service not initialized');
       return;
     }
+
     try {
       await this.betterttvService.update();
-      this.sendServerMessage(ws, 'BetterTTV emotes refreshed');
+      this.sendServerMessage(clientId, 'BetterTTV emotes refreshed');
     } catch (error) {
       console.error(`${this.logPrefix} Failed to refresh BetterTTV emotes:`, error);
-      this.sendServerMessage(ws, 'Failed to refresh BetterTTV emotes');
+      this.sendServerMessage(clientId, 'Failed to refresh BetterTTV emotes');
     }
   }
 
-  private sendServerMessage(ws: WebSocket, message: string): void {
-    const response = encodeWSMessage({
-      type: kWSMessageType.serverStatus,
-      data: {
-        connected: true,
-        message
-      }
-    });
-
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(response);
-    }
-  }
-
-  /**
-   * Send platform status to a client
-   */
-  private sendPlatformsStatus(ws: WebSocket): void {
-    const platformsStatus: PlatformWithStatus[] = Array.from(this.platforms.values())
-      .map(platform => ({
-        id: platform.id,
-        name: platform.name,
-        color: platform.color,
-        abbr: platform.abbr,
-        active: platform.service?.isActive() ?? false
-      }));
-
-    const response = encodeWSMessage({
-      type: kWSMessageType.adminPlatformsStatus,
-      data: { platforms: platformsStatus }
-    });
-
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(response);
-    }
-  }
-
-  /**
-   * Send current chat settings to a client (includes bad words)
-   */
-  private sendChatSettings(ws: WebSocket): void {
-    const settings = this.settings.getChatSettings();
-
-    const response = encodeWSMessage({
-      type: kWSMessageType.chatSettings,
-      data: settings
-    });
-
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(response);
-    }
-  }
-
-  /**
-   * Send deleted message IDs to a client
-   */
-  private sendDeletedMessageIds(ws: WebSocket): void {
-    const deletedIds = this.deletedMessages.getAll();
-
-    const response = encodeWSMessage({
-      type: kWSMessageType.messageUpdateDeletedIds,
-      data: {
-        ids: deletedIds
-      }
-    });
-
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(response);
-    }
-  }
 
   /**
    * Broadcast platform status update to all admin clients
    */
   private broadcastPlatformStatusUpdate(platform: Platform, active: boolean): void {
-    if (this.config.consoleMode || !this.wss) {
+    if (this.config.consoleMode || !this.websocketService) {
       return;
     }
 
-    const response = encodeWSMessage({
-      type: kWSMessageType.adminPlatformStatusUpdate,
-      data: {
-        platform: {
-          ...platform,
-          active
-        }
-      }
-    });
-
-    this.wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(response);
+    this.websocketService.broadcast(kWSMessageType.adminPlatformStatusUpdate, {
+      platform: {
+        ...platform,
+        active
       }
     });
   }
@@ -717,28 +615,16 @@ class ChatServer {
   public async shutdown(): Promise<void> {
     console.log(`${this.logPrefix} Shutting down...`);
 
-    const response = encodeWSMessage({
-      type: kWSMessageType.serverStatus,
-      data: { connected: true, message: 'Server is shutting down...' }
-    });
+    this.websocketService.off('connection', this._handleWSConnection);
+    this.websocketService.off('message', this._handleWSMessage);
+    this.websocketService.off('error', this._handleWSError);
 
-    if (this.wss && this.wss.clients.size > 0) {
-      this.wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(response);
-        }
-      });
-    }
-
+    await this.websocketService.stop();
     await this.stopAll();
 
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     await this.webhookService.stop();
-
-    if (this.wss) {
-      this.wss.close();
-    }
 
     process.exit(0);
   }

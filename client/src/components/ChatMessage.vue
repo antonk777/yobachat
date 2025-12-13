@@ -193,8 +193,6 @@ const platformIconUrl = computed(() => {
 }
 
 .username {
-  font-family: var(--font-family-condensed);
-  font-weight: 600;
   color: var(--user-color, var(--text-muted));
   letter-spacing: -0.03em;
 

@@ -5,7 +5,6 @@
   "description": "OBS chat widget for Twitch, YouTube, and Telegram",
   "scripts": {
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "postinstall": "tsx scripts/setup-shared-symlinks.ts",
 
 
     "build:all:prod": "npm run build:server:prod && npm run build:client:prod",

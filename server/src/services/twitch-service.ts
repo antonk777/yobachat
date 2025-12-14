@@ -114,11 +114,8 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     this.client.on('message', (
       channel: string,
       tags: tmi.ChatUserstate,
-      message: string,
-      self: boolean
+      message: string
     ) => {
-      if (self) return;
-
       const emotesMap = this.parseEmotes(tags.emotes, message);
 
       const badgeImages = this.parseBadgeImages(tags.badges);

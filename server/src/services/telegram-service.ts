@@ -245,10 +245,6 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
 
     const messageText = caption || msg.text || '';
 
-    // console.log(`${this.logPrefix} Message`, msg);
-
-    // const emotesMap = this.parseEmotes(msg);
-
     const messageId = `telegram-${msg.message_id}`;
 
     const chatMessage: ChatMessage = {
@@ -262,7 +258,6 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       isEdited: isEdit,
       editDate: msg.edit_date ? msg.edit_date * 1000 : undefined,
       metadata: {
-        messageId: msg.message_id,
         userId: msg.from?.id,
         chatId: msg.chat.id,
         chatType: msg.chat.type,

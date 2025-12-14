@@ -358,7 +358,8 @@ export class KickService extends EventEmitter<PlatformServiceEvents> implements 
     // Pattern: [emote:ID:name]
     // Map to: https://files.kick.com/emotes/ID/fullsize
     const emoteRegex = /\[emote:(\d+):[^\]]+\]/g;
-    let match;
+
+    let match: RegExpExecArray | null = null;
 
     while ((match = emoteRegex.exec(content)) !== null) {
       const fullEmote = match[0]; // The full [emote:ID:name] string
@@ -381,7 +382,7 @@ export class KickService extends EventEmitter<PlatformServiceEvents> implements 
     const messageId = `kick-${data.id}`;
 
     const chatMessage: ChatMessage = {
-      id: data.id,
+      id: messageId,
       platform: this.platform,
       channel: this.config.channel,
       username: data.sender.username,

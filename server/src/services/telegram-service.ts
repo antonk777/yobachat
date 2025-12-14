@@ -249,8 +249,10 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
 
     // const emotesMap = this.parseEmotes(msg);
 
+    const messageId = `telegram-${msg.message_id}`;
+
     const chatMessage: ChatMessage = {
-      id: `telegram-${msg.message_id}`,
+      id: messageId,
       platform: this.platform,
       channel: String(this.config.chatId),
       username: msg.from?.username ?? msg.from?.first_name ?? '',

@@ -10,6 +10,7 @@ import {
   kSubGifterBadgeMapping,
   kBitsBadgeMapping
 } from '@/constants/twitch.js';
+import { randomUUID } from 'node:crypto';
 
 
 // Twitch emote types
@@ -122,11 +123,13 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
 
       const badgeImages = this.parseBadgeImages(tags.badges);
 
+      const messageId = `twitch-${tags.id ?? randomUUID()}`;
+
       const chatMessage: ChatMessage = {
-        id: tags.id || `${Date.now()}-${Math.random()}`,
+        id: messageId,
         platform: this.platform,
         channel: channel.replace('#', ''),
-        username: tags['display-name'] || tags.username || 'Unknown',
+        username: tags['display-name'] || tags.username || '',
         message: message,
         timestamp: tags['tmi-sent-ts'] ? parseInt(tags['tmi-sent-ts']) : Date.now(),
         avatar: tags['user-profile-image-url'],

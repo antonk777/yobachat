@@ -378,6 +378,8 @@ export class KickService extends EventEmitter<PlatformServiceEvents> implements 
   private processChatMessage(data: KickChatMessageEvent): void {
     const emotesMap = this.parseEmotes(data.content);
 
+    const messageId = `kick-${data.id}`;
+
     const chatMessage: ChatMessage = {
       id: data.id,
       platform: this.platform,

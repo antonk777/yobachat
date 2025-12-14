@@ -76,8 +76,7 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
     const customEmoteMatches = messageText.matchAll(customEmoteRegex);
 
     for (const match of customEmoteMatches) {
-      const emoteName = match[1]; // The emote name without colons
-      const fullEmote = match[0]; // The full :emotename: string
+      const [fullEmote, emoteName] = match;
 
       if (emoteName && !emotesMap[fullEmote]) {
         // Look up emote URL from mapping (mapping now contains full URLs)
@@ -254,10 +253,12 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
             continue;
           }
 
+          const messageId = `youtube-${item.id}`;
+
           const emotesMap = this.parseEmotes(message.displayMessage);
 
           const chatMessage: ChatMessage = {
-            id: item.id,
+            id: messageId,
             platform: this.platform,
             channel: this.config.channelId,
             username: author.displayName || author.channelId || 'Unknown',

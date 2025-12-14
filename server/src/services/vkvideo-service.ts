@@ -367,6 +367,8 @@ export class VKVideoService extends EventEmitter<PlatformServiceEvents> implemen
       return;
     }
 
+    const messageId = `vkvideo-${msg.id}`;
+
     // Extract badges
     const badges = msg.author.badges
       .map(badge => badge.achievement_name || badge.name)
@@ -377,7 +379,7 @@ export class VKVideoService extends EventEmitter<PlatformServiceEvents> implemen
     const color = kVKVideoColors[msg.author.nick_color] ?? undefined;
 
     const chatMessage: ChatMessage = {
-      id: msg.id.toString(),
+      id: messageId,
       platform: this.platform,
       channel: this.config.channelId,
       username,

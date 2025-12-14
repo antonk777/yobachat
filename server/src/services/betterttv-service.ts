@@ -69,6 +69,8 @@ export class BetterTTVService {
     if (config.includeGlobal !== false) {
       try {
         this.globalEmotes = await this.fetchGlobalEmotes();
+
+        console.log(`${this.logPrefix} Loaded ${this.globalEmotes.size} global emotes`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.warn(`${this.logPrefix} Failed to load global emotes: ${errorMessage}`);
@@ -81,6 +83,8 @@ export class BetterTTVService {
     if (config.includeChannel !== false) {
       try {
         this.channelEmotes = await this.fetchChannelEmotes(config.channelId);
+
+        console.log(`${this.logPrefix} Loaded ${this.channelEmotes.size} channel emotes`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.warn(`${this.logPrefix} Failed to load channel emotes: ${errorMessage}`);

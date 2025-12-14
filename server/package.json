@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build:prod": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api",
-    "build:dev": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api",
+    "prod:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express",
+    "dev:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express",
+    "dev:start": "SERVER_CONFIG_PATH=./server-config.dev.json SHARED_CONFIG_PATH=./shared/shared-config.dev.json node dist/index.js",
     "clean": "rimraf dist"
   },
   "dependencies": {

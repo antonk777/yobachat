@@ -2,22 +2,16 @@
 import { onClickOutside } from '@vueuse/core';
 import { ref, computed, watch } from 'vue';
 
+import type { FontFamily } from '@shared/shared-types';
 
-export interface FontOption {
-  value: string;
-  label: string;
-  style?: Record<string, string>;
-}
 
 interface Props {
   modelValue?: string;
-  options: FontOption[];
-  placeholder?: string;
+  options: FontFamily[];
   disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: 'Select...',
   disabled: false
 });
 
@@ -40,23 +34,32 @@ const filteredOptions = computed(() => {
   const query = search.value.toLowerCase().trim();
 
   return props.options.filter(option =>
-    option.label.toLowerCase().includes(query)
+    option.family.toLowerCase().includes(query)
   );
 });
 
 // Get display value for selected option
 const displayValue = computed(() => {
   if (!props.modelValue) {
-    return props.placeholder;
+    return 'Default (sans-serif)';
   }
 
-  const selected = props.options.find(opt => opt.value === props.modelValue);
+  const selected = props.options.find(opt => opt.family === props.modelValue);
 
-  return selected?.label || props.placeholder;
+  if (!selected) {
+    return 'Unknown font';
+  }
+
+  return selected.family;
 });
 
-function selectOption(option: FontOption) {
-  emit('update:modelValue', option.value);
+function selectOption(option: FontFamily | null) {
+  if (option === null) {
+    emit('update:modelValue', undefined);
+  } else {
+    emit('update:modelValue', option.family);
+  }
+
   isOpen.value = false;
   search.value = '';
 }
@@ -79,32 +82,6 @@ function toggleDropdown() {
 function closeDropdown() {
   isOpen.value = false;
   search.value = '';
-}
-
-// Handle keyboard navigation
-function handleKeydown(event: KeyboardEvent) {
-  if (!isOpen.value) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      toggleDropdown();
-    }
-    return;
-  }
-
-  switch (event.key) {
-    case 'Escape':
-      event.preventDefault();
-      closeDropdown();
-      break;
-    case 'Enter':
-      event.preventDefault();
-
-      if (filteredOptions.value.length > 0) {
-        selectOption(filteredOptions.value[0]);
-      }
-
-      break;
-  }
 }
 
 onClickOutside(dropdownRef, () => {
@@ -130,16 +107,21 @@ watch(() => props.disabled, (disabled) => {
       class="dropdown-trigger"
       :disabled="disabled"
       @click="toggleDropdown"
-      @keydown="handleKeydown"
+      @keydown.enter="toggleDropdown"
+      @keydown.space="toggleDropdown"
+      @keydown.esc="closeDropdown"
     >
-      <span class="dropdown-value" :style="options.find(opt => opt.value === modelValue)?.style">
+      <span
+        class="dropdown-value"
+        :style="{ '--selected-font-family': displayValue ?? '' }"
+      >
         {{ displayValue }}
       </span>
       <span class="dropdown-arrow">▼</span>
     </button>
 
     <Transition name="dropdown">
-      <div v-if="isOpen" class="dropdown-menu">
+      <div v-if="isOpen && !disabled" class="dropdown-menu">
         <div class="dropdown-search">
           <input
             ref="searchInputRef"
@@ -153,24 +135,15 @@ watch(() => props.disabled, (disabled) => {
 
         <div class="dropdown-options">
           <button
-            v-if="!modelValue"
-            type="button"
-            class="dropdown-option selected"
-            @click="selectOption({ value: '', label: placeholder })"
-          >
-            {{ placeholder }}
-          </button>
-
-          <button
             v-for="option in filteredOptions"
-            :key="option.value"
+            :key="option.family"
             type="button"
             class="dropdown-option"
-            :class="{ selected: option.value === modelValue }"
-            :style="option.style"
+            :class="{ selected: option.family === modelValue }"
+            :style="{ fontFamily: option.family }"
             @click="selectOption(option)"
           >
-            {{ option.label }}
+            {{ option.family }}
           </button>
 
           <div v-if="filteredOptions.length === 0" class="dropdown-empty">
@@ -223,6 +196,7 @@ watch(() => props.disabled, (disabled) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: var(--selected-font-family, inherit);
 }
 
 .dropdown-arrow {
@@ -243,7 +217,7 @@ watch(() => props.disabled, (disabled) => {
   background-color: var(--bg-color);
   border: 1px solid var(--border-color);
   border-radius: 0.25rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px hsla(0 0% 0% / .3);
   z-index: 1000;
   max-height: 300px;
   display: flex;

@@ -5,14 +5,13 @@ import type { ChatSettings } from '@shared/shared-types';
 
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
-import { useGoogleFonts, generateGoogleFontsCssUrl } from '@/composables/useGoogleFonts';
 
-import FontFamilyDropdown from '@/components/FontFamilyDropdown.vue';
+import FontSettings from '@/components/FontSettings.vue';
+
 
 const
   settingsStore = useSettingsStore(),
-  globalStore = useUIStore(),
-  { fonts: allFonts, isLoading: fontsLoading } = useGoogleFonts();
+  globalStore = useUIStore();
 
 const
   localSettings = ref<ChatSettings | null>(null),
@@ -21,93 +20,6 @@ const
 const
   isOpen = computed(() => globalStore.isSettingsOpen),
   badWords = computed(() => settingsStore.badWords);
-
-// Font weight options
-const fontWeights = [
-  { label: 'Thin (100)', value: 100 },
-  { label: 'Extra Light (200)', value: 200 },
-  { label: 'Light (300)', value: 300 },
-  { label: 'Regular (400)', value: 400 },
-  { label: 'Medium (500)', value: 500 },
-  { label: 'Semi Bold (600)', value: 600 },
-  { label: 'Bold (700)', value: 700 },
-  { label: 'Extra Bold (800)', value: 800 },
-  { label: 'Black (900)', value: 900 },
-];
-
-// Get available font weights for the selected user font
-const availableUserFontWeights = computed(() => {
-  if (!localSettings.value?.userFontFamily) {
-    return fontWeights; // Show all if no font selected
-  }
-
-  const selectedFont = allFonts.value.find(f => f.family === localSettings.value!.userFontFamily);
-
-  if (!selectedFont || selectedFont.variants.length === 0) {
-    return fontWeights; // Show all if font not found or has no variants
-  }
-
-  // Filter to only show weights that are available for this font
-  return fontWeights.filter(weight => selectedFont.variants.includes(weight.value));
-});
-
-// Get available font weights for the selected admin font
-const availableAdminFontWeights = computed(() => {
-  if (!localSettings.value?.adminFontFamily) {
-    return fontWeights; // Show all if no font selected
-  }
-
-  const selectedFont = allFonts.value.find(f => f.family === localSettings.value!.adminFontFamily);
-
-  if (!selectedFont || selectedFont.variants.length === 0) {
-    return fontWeights; // Show all if font not found or has no variants
-  }
-
-  // Filter to only show weights that are available for this font
-  return fontWeights.filter(weight => selectedFont.variants.includes(weight.value));
-});
-
-// Prepare font options for dropdowns
-const fontOptions = computed(() => {
-  const defaultOption = { value: '', label: 'Default (sans-serif)', style: {} };
-
-  const fontOpts = allFonts.value.map(font => ({
-    value: font.family,
-    label: font.family,
-    style: { fontFamily: font.family }
-  }));
-
-  return [defaultOption, ...fontOpts];
-});
-
-// Helper function to update Google Fonts CSS URL
-function updateGoogleFontsUrl(
-  family: string | undefined,
-  weight: number | undefined,
-  targetField: 'userGoogleFontsCssUrl' | 'adminGoogleFontsCssUrl'
-) {
-  if (!localSettings.value) {
-    return;
-  }
-
-  if (!family) {
-    localSettings.value[targetField] = undefined;
-    return;
-  }
-
-  // Use provided weight or default to 400
-  const weightNum: number = weight ?? 400;
-
-  // Only generate URL for Google Fonts (fonts that are in the list)
-  const isGoogleFont = allFonts.value.some(f => f.family === family);
-
-  if (isGoogleFont) {
-    localSettings.value[targetField] = generateGoogleFontsCssUrl(family, weightNum);
-  } else {
-    // For non-Google fonts, clear the URL
-    localSettings.value[targetField] = undefined;
-  }
-}
 
 const handleClose = () => {
   globalStore.isSettingsOpen = false;
@@ -144,26 +56,6 @@ const addBadWord = () => {
 
 watch(() => settingsStore.settings, value => {
   localSettings.value = value ? { ...value } : null;
-}, { immediate: true });
-
-// Update Google Fonts CSS URL for user widget
-watch([() => localSettings.value?.userFontFamily, () => localSettings.value?.userFontWeight], ([family, weight]) => {
-  if (!localSettings.value) {
-    return;
-  }
-
-  // Font weight is already a number from validation, just use it
-  updateGoogleFontsUrl(family, weight, 'userGoogleFontsCssUrl');
-}, { immediate: true });
-
-// Update Google Fonts CSS URL for admin panel
-watch([() => localSettings.value?.adminFontFamily, () => localSettings.value?.adminFontWeight], ([family, weight]) => {
-  if (!localSettings.value) {
-    return;
-  }
-
-  // Font weight is already a number from validation, just use it
-  updateGoogleFontsUrl(family, weight, 'adminGoogleFontsCssUrl');
 }, { immediate: true });
 </script>
 
@@ -226,71 +118,10 @@ watch([() => localSettings.value?.adminFontFamily, () => localSettings.value?.ad
         </label>
       </div>
 
-      <div class="font-section">
-        <h3>Font Settings</h3>
-
-        <div class="font-widget-section">
-          <h4>User Widget</h4>
-
-          <label class="font-control">
-            <span class="font-control-label">Font Family</span>
-            <FontFamilyDropdown
-              v-model="localSettings.userFontFamily"
-              :options="fontOptions"
-              placeholder="Default (sans-serif)"
-              :disabled="fontsLoading"
-            />
-          </label>
-
-          <label class="font-control">
-            <span class="font-control-label">Font Weight</span>
-            <select
-              v-model="localSettings.userFontWeight"
-              class="input select"
-            >
-              <option
-                v-for="weight in availableUserFontWeights"
-                :key="weight.value"
-                :value="weight.value"
-              >
-                {{ weight.label }}
-              </option>
-            </select>
-          </label>
-        </div>
-
-        <div class="font-widget-section">
-          <h4>Admin Panel</h4>
-
-          <label class="font-control">
-            <span class="font-control-label">Font Family</span>
-            <FontFamilyDropdown
-              v-model="localSettings.adminFontFamily"
-              :options="fontOptions"
-              placeholder="Default (sans-serif)"
-              :disabled="fontsLoading"
-            />
-          </label>
-
-          <label class="font-control">
-            <span class="font-control-label">Font Weight</span>
-            <select
-              v-model="localSettings.adminFontWeight"
-              class="input select"
-            >
-              <option
-                v-for="weight in availableAdminFontWeights"
-                :key="weight.value"
-                :value="weight.value"
-              >
-                {{ weight.label }}
-              </option>
-            </select>
-          </label>
-        </div>
-
-        <span v-if="fontsLoading" class="font-loading">Loading fonts...</span>
-      </div>
+      <FontSettings
+        v-if="localSettings"
+        v-model="localSettings"
+      />
 
       <div class="bad-words-section">
         <h3>Bad Words Filter</h3>
@@ -386,62 +217,16 @@ watch([() => localSettings.value?.adminFontFamily, () => localSettings.value?.ad
   gap: .5rem;
 }
 
-.bad-words-section,
-.font-section {
+.bad-words-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
 }
 
-.bad-words-section h3,
-.font-section h3 {
+.bad-words-section h3 {
   margin: 0 0 1rem 0;
   font-size: 1rem;
   font-weight: 600;
-}
-
-.font-widget-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-
-  h4 {
-    margin: 0 0 .75rem 0;
-    font-size: .9rem;
-    font-weight: 600;
-    color: var(--text-muted);
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.font-control {
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-}
-
-.font-control-label {
-  font-size: .9rem;
-  color: var(--text-muted);
-}
-
-.select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right .5rem center;
-  padding-right: 2rem;
-  cursor: pointer;
-}
-
-.font-loading {
-  font-size: .85rem;
-  color: var(--text-muted);
-  font-style: italic;
 }
 
 .bad-words-input {

@@ -44,6 +44,7 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
 
     this.config = platformConfig.config as TelegramServiceConfig;
     this.webhookUrl = options.webhookUrl;
+    // webhookPath includes /webhook/ prefix to match what nginx forwards
     this.webhookPath = `/webhook/telegram/${randomUUID()}`;
     this.registerHandler = options.registerHandler;
     this.unregisterHandler = options.unregisterHandler;
@@ -130,7 +131,11 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
     this.registerWebhookHandler();
 
     // Set webhook with certificate path (for Telegram to verify SSL)
-    const fullWebhookUrl = `${this.webhookUrl}${this.webhookPath}`;
+    // webhookUrl already includes /webhook/, and webhookPath also starts with /webhook/
+    // So we need to remove /webhook/ from webhookUrl to avoid duplication
+    const baseUrl = this.webhookUrl?.replace(/\/webhook\/?$/, '') || '';
+    const fullWebhookUrl = `${baseUrl}${this.webhookPath}`;
+
     await this.bot.setWebHook(fullWebhookUrl, {
       certificate: this.config.certificatePath
     });
@@ -234,9 +239,9 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       return null;
     }
 
-    const isCaption = !msg.text && !!msg.caption;
+    const isCaptionOnly = !msg.text && !!msg.caption;
 
-    const caption = isCaption ? `🖼️  ${msg.caption}` : undefined;
+    const caption = isCaptionOnly ? `🖼️  ${msg.caption}` : undefined;
 
     const messageText = caption || msg.text || '';
 
@@ -248,7 +253,7 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       id: `telegram-${msg.message_id}`,
       platform: this.platform,
       channel: String(this.config.chatId),
-      username: msg.from?.username || msg.from?.first_name || 'Unknown',
+      username: msg.from?.username ?? msg.from?.first_name ?? '',
       message: messageText,
       timestamp: msg.date * 1000,
       isModerator: false, // Telegram doesn't have a simple moderator flag

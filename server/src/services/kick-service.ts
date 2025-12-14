@@ -173,6 +173,7 @@ export class KickService extends EventEmitter<PlatformServiceEvents> implements 
   private async resolveChatroomId(): Promise<void> {
     // If channel is already a number, use it as chatroom ID
     const parsedId = parseInt(this.config.channel);
+
     if (!isNaN(parsedId) && parsedId > 0) {
       this.chatroomId = parsedId;
       return;
@@ -180,7 +181,15 @@ export class KickService extends EventEmitter<PlatformServiceEvents> implements 
 
     // Otherwise, fetch chatroom info from API
     try {
-      const response = await fetch(`https://kick.com/api/v2/channels/${this.config.channel}/chatroom`);
+      const response = await fetch(`https://kick.com/api/v2/channels/${this.config.channel}/chatroom`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'application/json',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Referer': 'https://kick.com/',
+          'Origin': 'https://kick.com'
+        }
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -340,15 +349,42 @@ export class KickService extends EventEmitter<PlatformServiceEvents> implements 
   }
 
   /**
+   * Parse emote patterns in message content
+   * Returns a map of emote patterns to their image URLs
+   */
+  private parseEmotes(content: string): Record<string, string> {
+    const emotesMap: Record<string, string> = {};
+
+    // Pattern: [emote:ID:name]
+    // Map to: https://files.kick.com/emotes/ID/fullsize
+    const emoteRegex = /\[emote:(\d+):[^\]]+\]/g;
+    let match;
+
+    while ((match = emoteRegex.exec(content)) !== null) {
+      const fullEmote = match[0]; // The full [emote:ID:name] string
+      const emoteId = match[1]; // The emote ID
+
+      if (!emotesMap[fullEmote]) {
+        emotesMap[fullEmote] = `https://files.kick.com/emotes/${emoteId}/fullsize`;
+      }
+    }
+
+    return emotesMap;
+  }
+
+  /**
    * Process chat message from Pusher event
    */
   private processChatMessage(data: KickChatMessageEvent): void {
+    const emotesMap = this.parseEmotes(data.content);
+
     const chatMessage: ChatMessage = {
       id: data.id,
       platform: this.platform,
       channel: this.config.channel,
       username: data.sender.username,
       message: data.content,
+      emotesMap: Object.keys(emotesMap).length > 0 ? emotesMap : undefined,
       timestamp: new Date(data.created_at).getTime(),
       color: data.sender.identity?.color || undefined,
       badges: data.sender.identity?.badges?.map(badge => badge.type) || [],

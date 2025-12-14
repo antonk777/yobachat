@@ -1,30 +1,29 @@
 import { ref, onMounted } from 'vue';
 
-export interface GoogleFont {
-  family: string;
-  variants: number[];
-  subsets: string[];
-  category: string;
-}
-
-export interface GoogleFontsResponse {
-  items: GoogleFont[];
-}
+import type { FontFamily, FontOption, FontStyle, FontWeight } from '@shared/shared-types';
 
 const
-  fonts = ref<GoogleFont[]>([]),
+  fonts = ref<FontFamily[]>([]),
   isLoading = ref(false),
   error = ref<string | null>(null);
+
+/**
+ * Convert font style names to FontStyle
+ */
+function styleNameToFontStyle(style: string): FontStyle {
+  const normalized = style.toLowerCase();
+
+  return {
+    weight: parseInt(normalized) as FontWeight,
+    style: normalized.includes('i') ? 'italic' : 'normal'
+  };
+}
 
 /**
  * Fetch Google Fonts list from the public API
  * Uses the Google Fonts metadata endpoint which doesn't require an API key
  */
 async function fetchGoogleFonts(): Promise<void> {
-  if (fonts.value.length > 0) {
-    return; // Already loaded
-  }
-
   isLoading.value = true;
   error.value = null;
 
@@ -41,20 +40,17 @@ async function fetchGoogleFonts(): Promise<void> {
 
     // The metadata endpoint returns fonts in a different format
     // It's an object with a "familyMetadataList" array
-    if (data.familyMetadataList && Array.isArray(data.familyMetadataList)) {
-      fonts.value = data.familyMetadataList.map((font: any) => ({
-        family: font.family,
-        variants: font.fonts
-          ? Object.keys(font.fonts)
-              .filter((variant: string) => /^\d+$/.test(variant))
-              .map((variant: string) => parseInt(variant, 10))
-          : [],
-        subsets: font.subsets || [],
-        category: font.category || 'sans-serif'
-      }));
-    } else {
+    if (!data.familyMetadataList || !Array.isArray(data.familyMetadataList)) {
       throw new Error('Google Fonts metadata endpoint failed');
     }
+
+    fonts.value = data.familyMetadataList.map((font: any): FontFamily => ({
+      type: 'google',
+      family: font.family,
+      styles: Object.keys(font.fonts).map(variant => styleNameToFontStyle(variant)),
+      subsets: font.subsets || [],
+      googlePopularity: font.popularity
+    }));
   } catch (err) {
     console.error('Failed to fetch Google Fonts:', err);
     error.value = err instanceof Error ? err.message : 'Unknown error';
@@ -67,14 +63,20 @@ async function fetchGoogleFonts(): Promise<void> {
 }
 
 /**
- * Generate Google Fonts CSS URL for a font family and weight
+ * Generate Google Fonts CSS URL for a selected style of a font that looks like this:
+ * https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap
  */
-export function generateGoogleFontsCssUrl(fontFamily: string, fontWeight: number = 400): string {
+export function generateGoogleFontsCssUrl(font: FontOption): string {
   // Replace spaces with + for URL encoding
-  const familyParam = fontFamily.replace(/\s+/g, '+');
-  const weightParam = fontWeight.toString();
+  const familyNameUrl = font.family.replace(/\s+/g, '+');
 
-  return `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weightParam}&display=swap`;
+  const { weight, style } = font.selectedStyle;
+
+  const isItalic = style === 'italic';
+
+  const familyArg = `${familyNameUrl}:${isItalic ? 'ital,' : ''}wght@${isItalic ? '1,' : ''}${weight}`
+
+  return `https://fonts.googleapis.com/css2?family=${familyArg}&display=swap`;
 }
 
 /**
@@ -82,7 +84,9 @@ export function generateGoogleFontsCssUrl(fontFamily: string, fontWeight: number
  */
 export function useGoogleFonts() {
   onMounted(() => {
-    fetchGoogleFonts();
+    if (fonts.value.length === 0) {
+      fetchGoogleFonts();
+    }
   });
 
   return {

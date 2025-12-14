@@ -45,10 +45,11 @@ function parseArgs(): ConfigArgs {
  * Load shared configuration from JSON file
  */
 function loadSharedConfig(configPath?: string): SharedConfig {
-  const path = configPath || join(process.cwd(), 'shared', 'shared-config.json');
+  const envPath = process.env.SHARED_CONFIG_PATH;
+  const configFilePath = configPath || (envPath ? resolve(envPath) : undefined) || join(process.cwd(), 'shared', 'shared-config.json');
 
   try {
-    const fileContent = readFileSync(path, 'utf-8');
+    const fileContent = readFileSync(configFilePath, 'utf-8');
     const rawConfig = JSON.parse(fileContent);
 
     // Validate required fields
@@ -70,9 +71,9 @@ function loadSharedConfig(configPath?: string): SharedConfig {
     };
   } catch (error) {
     if (error instanceof Error) {
-      console.error(`[SharedConfig] Failed to load config from ${path}: ${error.message}`);
+      console.error(`[SharedConfig] Failed to load config from ${configFilePath}: ${error.message}`);
       if (error instanceof SyntaxError) {
-        console.error(`[SharedConfig] Invalid JSON format in ${path}`);
+        console.error(`[SharedConfig] Invalid JSON format in ${configFilePath}`);
       }
     }
     throw error;
@@ -83,9 +84,10 @@ function loadSharedConfig(configPath?: string): SharedConfig {
  * Load and validate server configuration from JSON file
  */
 function loadServerConfig(serverConfigPath?: string, sharedConfigPath?: string): ServerConfig {
+  const envServerPath = process.env.SERVER_CONFIG_PATH;
   const
     sharedConfig = loadSharedConfig(sharedConfigPath),
-    configPath = serverConfigPath || join(process.cwd(), 'server-config.json');
+    configPath = serverConfigPath || (envServerPath ? resolve(envServerPath) : undefined) || join(process.cwd(), 'server-config.json');
 
   try {
     const fileContent = readFileSync(configPath, 'utf-8');

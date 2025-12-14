@@ -428,13 +428,13 @@ export class VKVideoService extends EventEmitter<PlatformServiceEvents> implemen
       return;
     }
 
-    // Calculate delay with exponential backoff
+    // Increment retry count first, then calculate delay with exponential backoff
+    this.retryCount++;
     const delay = Math.min(
-      kRetryConfig.initialDelay * Math.pow(kRetryConfig.backoffMultiplier, this.retryCount),
+      kRetryConfig.initialDelay * Math.pow(kRetryConfig.backoffMultiplier, this.retryCount - 1),
       kRetryConfig.maxDelay
     );
 
-    this.retryCount++;
     console.log(`${this.logPrefix} Retrying connection in ${delay}ms (attempt ${this.retryCount})...`);
 
     this.retryTimeout = setTimeout(() => {

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import checker from 'vite-plugin-checker';
 import path, { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
@@ -58,13 +59,49 @@ const sharedConfig = loadSharedConfig();
 
 export default defineConfig({
   base: sharedConfig.basePath,
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    checker({
+      vueTsc: true,
+      enableBuild: true,
+    }),
+  ],
   mode: kIsDevelopment ? 'development' : 'production',
   build: {
     sourcemap: kIsDevelopment ? 'inline' : false,
     minify: kIsDevelopment ? false : 'esbuild',
     cssCodeSplit: kIsDevelopment ? true : false,
-    cssMinify: kIsDevelopment ? false : 'esbuild'
+    cssMinify: kIsDevelopment ? false : 'esbuild',
+    rollupOptions: {
+      input: {
+        widget: resolve(__dirname, 'widget.html'),
+        admin: resolve(__dirname, 'admin.html'),
+      },
+      output: {
+        entryFileNames: (chunkInfo) => {
+          return chunkInfo.name === 'admin' ? 'admin/[name].js' : 'widget/[name].js';
+        },
+        chunkFileNames: (chunkInfo) => {
+          // Determine which app the chunk belongs to based on its modules
+          const isAdminChunk = chunkInfo.moduleIds.some(id =>
+            id.includes('admin-main') ||
+            id.includes('AdminPanel') ||
+            id.includes('admin.html')
+          );
+          return isAdminChunk ? 'admin/[name]-[hash].js' : 'widget/[name]-[hash].js';
+        },
+        assetFileNames: (assetInfo) => {
+          // For CSS files, try to determine which app they belong to based on name
+          if (assetInfo.name?.endsWith('.css')) {
+            const isAdminCss = assetInfo.name.includes('admin') ||
+                              (assetInfo.names && assetInfo.names.some(name => name.includes('admin')));
+            return isAdminCss ? 'admin/[name]-[hash][extname]' : 'widget/[name]-[hash][extname]';
+          }
+          // For other assets (images, etc.), put in shared assets folder
+          return 'assets/[name]-[hash][extname]';
+        },
+      },
+    },
   },
   resolve: {
     alias: {

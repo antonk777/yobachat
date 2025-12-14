@@ -1,11 +1,3 @@
-<template>
-  <router-view />
-</template>
-
-<script setup lang="ts">
-</script>
-
-<style>
 @import '@/styles/normalize.css';
 
 :root {
@@ -44,4 +36,3 @@ body {
   width: 100%;
   height: 100dvh;
 }
-</style>

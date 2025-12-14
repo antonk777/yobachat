@@ -146,7 +146,7 @@ class ChatServer {
 
     const editedIndicator = message.isEdited ? chalk.gray(' ✏️') : '';
 
-    console.log(`${timestamp} ${platformBadge} ${username}${badges}${editedIndicator}: ${message.message}`);
+    console.log(`${platformBadge} ${timestamp} ${username}${badges}${editedIndicator}: ${message.message}`);
 
     if (message.emotesMap && Object.keys(message.emotesMap).length > 0) {
       console.log(`  Emotes: ${JSON.stringify(message.emotesMap)}`);
@@ -626,6 +626,8 @@ class ChatServer {
 
     await this.webhookService.stop();
 
+    console.log(`${this.logPrefix} shutdown finished`);
+
     process.exit(0);
   }
 }
@@ -633,7 +635,10 @@ class ChatServer {
 // Initialize and start the server
 const chatServer = new ChatServer(kServerConfig);
 
-await chatServer.start().catch(error => {
+chatServer.start().catch(error => {
   console.error(`${chatServer.logPrefix} Error starting server:`, error);
   process.exit(1);
 });
+
+// Send ready event to PM2
+// process.send?.('ready');

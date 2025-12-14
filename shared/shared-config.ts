@@ -10,12 +10,6 @@ export const kDefaultChatSettings: ChatSettings = Object.freeze({
   showEmotes: true,
   filterBadWords: false,
   badWords: [],
-  // User widget font settings
-  userFontFamily: undefined,
-  userFontWeight: 500,
-  userGoogleFontsCssUrl: undefined,
-  // Admin panel font settings
-  adminFontFamily: undefined,
-  adminFontWeight: 500,
-  adminGoogleFontsCssUrl: undefined,
+  userFont: null,
+  adminFont: null,
 });

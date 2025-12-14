@@ -1,5 +1,8 @@
 import { watch, onMounted, onUnmounted } from 'vue';
+
 import type { ChatSettings, WidgetType } from '@shared/shared-types';
+
+import { generateGoogleFontsCssUrl } from '@/composables/useGoogleFonts';
 
 let loadedFontLinkId: string | null = null;
 
@@ -55,33 +58,28 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
   }
 
   // Determine which font settings to use
-  const fontFamily = widgetType === 'user' ? settings.userFontFamily : settings.adminFontFamily;
-
-  const fontWeight = widgetType === 'user' ? settings.userFontWeight : settings.adminFontWeight;
-
-  const googleFontsCssUrl = widgetType === 'user'
-    ? settings.userGoogleFontsCssUrl
-    : settings.adminGoogleFontsCssUrl;
+  const fontOption = widgetType === 'user' ? settings.userFont : settings.adminFont;
 
   // Apply font family
-  if (fontFamily) {
-    root.style.setProperty('--font-family', `'${fontFamily}', sans-serif`);
+  if (fontOption?.family) {
+    root.style.setProperty('--font-family', `'${fontOption.family}', sans-serif`);
   } else {
     root.style.removeProperty('--font-family');
   }
 
-  // Apply font weight (already validated as number)
-  if (fontWeight !== undefined) {
-    root.style.setProperty('--font-weight', String(fontWeight));
+  // Apply font weight
+  if (fontOption?.selectedStyle?.weight !== undefined) {
+    root.style.setProperty('--font-weight', String(fontOption.selectedStyle.weight));
   } else {
     root.style.removeProperty('--font-weight');
   }
 
-  // Load Google Fonts CSS if URL is provided
-  if (googleFontsCssUrl) {
+  // Load Google Fonts CSS if it's a Google font
+  if (fontOption?.type === 'google') {
+    const googleFontsCssUrl = generateGoogleFontsCssUrl(fontOption);
     loadGoogleFontsCss(googleFontsCssUrl);
   } else if (loadedFontLinkId) {
-    // Remove font link if no URL is provided
+    // Remove font link if no Google font is selected
     const existingLink = document.getElementById(loadedFontLinkId);
 
     if (existingLink) {

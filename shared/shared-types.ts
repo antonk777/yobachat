@@ -39,7 +39,6 @@ export interface VKVideoServiceConfig {
 
 export interface KickServiceConfig {
   channel: string; // Channel name or chat ID
-  pollInterval?: number; // Deprecated: no longer used (WebSocket-based)
 }
 
 export interface SharedConfig {
@@ -125,14 +124,8 @@ export interface ChatSettings {
   showEmotes: boolean;
   filterBadWords: boolean;
   badWords: string[];
-  // User widget font settings
-  userFontFamily?: string;
-  userFontWeight?: number;
-  userGoogleFontsCssUrl?: string;
-  // Admin panel font settings
-  adminFontFamily?: string;
-  adminFontWeight?: number;
-  adminGoogleFontsCssUrl?: string;
+  userFont: FontOption | null;
+  adminFont: FontOption | null;
 }
 
 export enum kWSMessageType {
@@ -241,3 +234,24 @@ export type WSMessage =
   | WSAdminRefreshBetterTTV
   | WSAdminPlatformsStatus
   | WSAdminPlatformStatusUpdate;
+
+export interface FontFamily {
+  type: 'google' | 'local';
+  family: string;
+  styles: FontStyle[]
+  subsets?: string[] // Use for scripts like latin, cyrillic, etc.
+  googlePopularity?: number // Use for sorting Google Fonts list
+}
+
+export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+
+export type FontStyleName = 'normal' | 'italic';
+
+export interface FontStyle {
+  weight: FontWeight;
+  style: FontStyleName;
+}
+
+export interface FontOption extends FontFamily {
+  selectedStyle: FontStyle;
+}

@@ -6,25 +6,29 @@
   "scripts": {
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
 
+    "--- Production ---": "",
+    "prod:build:all": "npm run prod:build:server && npm run prod:build:client",
+    "prod:build:server": "cd server && npm run prod:build",
+    "prod:build:client": "cd client && npm run prod:build",
 
-    "build:all:prod": "npm run build:server:prod && npm run build:client:prod",
+    "prod:pm2:start": "pm2 start ecosystem.config.cjs --only yobachat-prod",
+    "prod:pm2:stop": "pm2 stop yobachat-prod",
+    "prod:pm2:restart": "pm2 restart yobachat-prod --update-env",
+    "prod:pm2:delete": "pm2 delete yobachat-prod",
+    "prod:pm2:logs": "pm2 logs yobachat-prod --lines 100",
 
-    "build:server:prod": "cd server && npm run build:prod",
-    "build:client:prod": "cd client && npm run build:prod",
+    "--- Development ---": "",
+    "dev:build:all": "npm run dev:build:server && npm run dev:build:client",
+    "dev:build:server": "cd server && npm run dev:build",
+    "dev:build:client": "cd client && npm run dev:build",
+    "dev:start:server": "cd server && npm run dev:start",
 
-    "pm2:start:prod": "pm2 start ecosystem.config.cjs --only yobachat-server-prod",
-    "pm2:stop:prod": "pm2 stop ecosystem.config.cjs --only yobachat-server-prod",
-    "pm2:restart:prod": "pm2 restart ecosystem.config.cjs --only yobachat-server-prod",
-
-
-    "build:all:dev": "npm run build:server:dev && npm run build:client:dev",
-
-    "build:server:dev": "cd server && npm run build:dev",
-    "build:client:dev": "cd client && npm run build:dev",
-
-    "pm2:start:dev": "pm2 start ecosystem.config.cjs --only yobachat-server-dev",
-    "pm2:stop:dev": "pm2 stop ecosystem.config.cjs --only yobachat-server-dev",
-    "pm2:restart:dev": "pm2 restart ecosystem.config.cjs --only yobachat-server-dev"
+    "dev:start": "npm run dev:build:all && npm run dev:start:server",
+    "dev:pm2:start": "pm2 start ecosystem.config.cjs --only yobachat-dev",
+    "dev:pm2:stop": "pm2 stop yobachat-dev",
+    "dev:pm2:restart": "pm2 restart yobachat-dev --update-env",
+    "dev:pm2:delete": "pm2 delete yobachat-dev",
+    "dev:pm2:logs": "pm2 logs yobachat-dev --lines 100"
   },
   "keywords": [
     "obs",

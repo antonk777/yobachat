@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build:prod": "vue-tsc && vite build",
-    "build:dev": "cross-env-shell SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development \"vue-tsc && vite build\""
+    "prod:build": "vite build",
+    "dev:build": "SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build"
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",
@@ -21,6 +21,7 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vite": "^6.0.0",
+    "vite-plugin-checker": "^0.12.0",
     "vue-tsc": "^3.1.5"
   }
 }

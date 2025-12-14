@@ -26,8 +26,7 @@
     "clientSecret": "YOUR_VKVIDEO_CLIENT_SECRET"
   },
   "kick": {
-    "channel": "YOUR_KICK_CHANNEL_ID",
-    "pollInterval": 5000
+    "channel": "YOUR_KICK_CHANNEL_ID"
   },
   "betterttv": {
     "channelId": "YOUR_CHANNEL_ID",

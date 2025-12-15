@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { Request, Response } from 'express';
 
-import type { BetterTTVConfig, ChatMessage, ChatMessageDelete, Platform, PlatformType, TelegramServiceConfig, TwitchServiceConfig, VKVideoServiceConfig, YouTubeServiceConfig, KickServiceConfig, SharedConfig } from '@shared/shared-types.js';
+import type { BetterTTVConfig, ChatMessage, ChatMessageDelete, Platform, PlatformType, TelegramServiceConfig, TwitchServiceConfig, VKVideoServiceConfig, YouTubeServiceConfig, KickServiceConfig, GoodgameServiceConfig, SharedConfig } from '@shared/shared-types.js';
 
 // Base interface for all service events
 export interface PlatformServiceEvents {
@@ -28,6 +28,7 @@ export type ServerConfigFile = {
   twitch: TwitchServiceConfig;
   vkvideo: VKVideoServiceConfig;
   kick: KickServiceConfig;
+  goodgame: GoodgameServiceConfig;
   betterttv: BetterTTVConfig;
   platforms: Platform[];
 };
@@ -64,7 +65,8 @@ export type PlatformConfig =
   | YouTubeServiceConfig
   | TelegramServiceConfig
   | VKVideoServiceConfig
-  | KickServiceConfig;
+  | KickServiceConfig
+  | GoodgameServiceConfig;
 
 export interface PlatformWithConfig<T extends PlatformConfig = PlatformConfig> extends Platform {
   config: T;
@@ -132,6 +134,7 @@ export const isValidPlatform = (platform: string): platform is PlatformType => {
     case 'telegram':
     case 'vkvideo':
     case 'kick':
+    case 'goodgame':
       return true;
     default:
       return false;

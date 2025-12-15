@@ -28,6 +28,9 @@
   "kick": {
     "channel": "YOUR_KICK_CHANNEL_ID"
   },
+  "goodgame": {
+    "channelId": "YOUR_GOODGAME_CHANNEL_ID"
+  },
   "betterttv": {
     "channelId": "YOUR_CHANNEL_ID",
     "includeGlobal": true,
@@ -58,6 +61,18 @@
       "name": "VK Video",
       "abbr": "VK",
       "color": "#0077FF"
+    },
+    {
+      "id": "kick",
+      "name": "Kick",
+      "abbr": "KI",
+      "color": "#53FC18"
+    },
+    {
+      "id": "goodgame",
+      "name": "Goodgame",
+      "abbr": "GG",
+      "color": "#75ADFC"
     }
   ]
 }

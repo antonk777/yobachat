@@ -1,6 +1,6 @@
 // Types
 
-export type PlatformType = 'twitch' | 'youtube' | 'telegram' | 'vkvideo' | 'kick';
+export type PlatformType = 'twitch' | 'youtube' | 'telegram' | 'vkvideo' | 'kick' | 'goodgame';
 
 export type WidgetType = 'user' | 'admin';
 
@@ -39,6 +39,10 @@ export interface VKVideoServiceConfig {
 
 export interface KickServiceConfig {
   channel: string; // Channel name or chat ID
+}
+
+export interface GoodgameServiceConfig {
+  channelId: string; // Channel ID (e.g., "5")
 }
 
 export interface SharedConfig {

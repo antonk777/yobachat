@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import chalk from 'chalk';
 
-import type { ChatMessage, ChatSettings, Platform, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, BetterTTVConfig, SharedConfig } from '@shared/shared-types.js';
+import type { ChatMessage, ChatSettings, Platform, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, GoodgameServiceConfig, BetterTTVConfig, SharedConfig } from '@shared/shared-types.js';
 import { kWSMessageType } from '@shared/shared-types.js';
 import type { ServerConfigFile } from '@/types';
 
@@ -111,7 +111,7 @@ function sanitizeColor(input: unknown): string | undefined {
  */
 
 // Platform type validation
-const PlatformTypeSchema = z.enum(['twitch', 'youtube', 'telegram', 'vkvideo', 'kick']);
+const PlatformTypeSchema = z.enum(['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame']);
 
 // Platform schema
 const PlatformSchema = z.object({
@@ -147,7 +147,17 @@ export const ChatMessageSchema = z.object({
 
 // FontStyle schema
 const FontStyleSchema = z.object({
-  weight: z.number().int().min(100).max(900),
+  weight: z.union([
+    z.literal(100),
+    z.literal(200),
+    z.literal(300),
+    z.literal(400),
+    z.literal(500),
+    z.literal(600),
+    z.literal(700),
+    z.literal(800),
+    z.literal(900)
+  ]),
   style: z.enum(['normal', 'italic'])
 });
 
@@ -177,7 +187,7 @@ export const ChatSettingsSchema = z.object({
   badWords: z.array(z.string().min(1).max(100)),
   userFont: FontOptionSchema.nullable(),
   adminFont: FontOptionSchema.nullable(),
-}) satisfies z.ZodType<ChatSettings>;
+});
 
 // Partial ChatSettings schema for updates
 export const PartialChatSettingsSchema = ChatSettingsSchema.partial();
@@ -327,10 +337,10 @@ export function validateChatSettings(input: unknown): ChatSettings | null {
         sanitized.badWords = sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100);
       }
 
-      return ChatSettingsSchema.parse(sanitized);
+      return ChatSettingsSchema.parse(sanitized) as ChatSettings;
     }
 
-    return ChatSettingsSchema.parse(input);
+    return ChatSettingsSchema.parse(input) as ChatSettings;
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error(`${kLogPrefix} ChatSettings validation failed:`, error.issues);
@@ -353,10 +363,10 @@ export function validatePartialChatSettings(input: unknown): Partial<ChatSetting
         sanitized.badWords = sanitizeStringArray((input as any).badWords, Number.MAX_SAFE_INTEGER, 100);
       }
 
-      return PartialChatSettingsSchema.parse(sanitized);
+      return PartialChatSettingsSchema.parse(sanitized) as Partial<ChatSettings>;
     }
 
-    return PartialChatSettingsSchema.parse(input);
+    return PartialChatSettingsSchema.parse(input) as Partial<ChatSettings>;
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error(`${kLogPrefix} Partial ChatSettings validation failed:`, error.issues);
@@ -398,6 +408,10 @@ const KickServiceConfigSchema = z.object({
   channel: z.string().min(1).max(100)
 }) satisfies z.ZodType<KickServiceConfig>;
 
+const GoodgameServiceConfigSchema = z.object({
+  channelId: z.string().min(1).max(100)
+}) satisfies z.ZodType<GoodgameServiceConfig>;
+
 const BetterTTVConfigSchema = z.object({
   includeGlobal: z.boolean().optional(),
   includeChannel: z.boolean().optional(),
@@ -425,6 +439,7 @@ export const ServerConfigSchema = z.object({
   twitch: TwitchServiceConfigSchema,
   vkvideo: VKVideoServiceConfigSchema,
   kick: KickServiceConfigSchema,
+  goodgame: GoodgameServiceConfigSchema,
   betterttv: BetterTTVConfigSchema,
   platforms: z.array(
       z.object({

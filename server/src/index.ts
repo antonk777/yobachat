@@ -6,6 +6,7 @@ import type {
   ChatMessageUpdate,
   ChatSettings,
   KickServiceConfig,
+  GoodgameServiceConfig,
   Platform,
   PlatformWithStatus,
   TelegramServiceConfig,
@@ -29,6 +30,7 @@ import { YouTubeService } from '@/services/youtube-service.js';
 import { TelegramService } from '@/services/telegram-service.js';
 import { VKVideoService } from '@/services/vkvideo-service.js';
 import { KickService } from '@/services/kick-service.js';
+import { GoodgameService } from '@/services/goodgame-service.js';
 import { SettingsService } from '@/services/settings-service.js';
 import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
 import { BetterTTVService } from '@/services/betterttv-service.js';
@@ -124,7 +126,7 @@ class ChatServer {
    * Output chat message to console
    */
   private outputToConsole(message: ChatMessage, platform: Platform): void {
-    const timestamp = chalk.gray(new Date(message.timestamp).toLocaleTimeString());
+    const timestamp = chalk.gray(new Date(message.timestamp).toLocaleTimeString('ru-RU'));
 
     const platformColor = chalk.hex(platform.color);
 
@@ -144,9 +146,11 @@ class ChatServer {
       ? chalk.hex(message.color)(message.username)
       : chalk.white(message.username);
 
-    const editedIndicator = message.isEdited ? chalk.gray(' ✏️') : '';
+    const editedIndicator = message.isEdited ? ' ✏️': '';
 
-    console.log(`${platformBadge} ${timestamp} ${username}${badges}${editedIndicator}: ${message.message}`);
+    const modIndicator = message.isModerator ? ' ⚔️' : '';
+
+    console.log(`${platformBadge} ${timestamp} ${username}${modIndicator}:${editedIndicator} ${message.message}`);
 
     if (message.emotesMap && Object.keys(message.emotesMap).length > 0) {
       console.log(`  Emotes: ${JSON.stringify(message.emotesMap)}`);
@@ -349,6 +353,9 @@ class ChatServer {
         break;
       case 'kick':
         service = new KickService(platform as PlatformWithConfig<KickServiceConfig>);
+        break;
+      case 'goodgame':
+        service = new GoodgameService(platform as PlatformWithConfig<GoodgameServiceConfig>);
         break;
       default:
         throw new Error(`Unsupported platform: ${platform.id}`);

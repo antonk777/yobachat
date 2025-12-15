@@ -9,6 +9,7 @@ import type {
   TwitchServiceConfig,
   VKVideoServiceConfig,
   KickServiceConfig,
+  GoodgameServiceConfig,
   BetterTTVConfig,
   SharedConfig
 } from "@shared/shared-types.js"
@@ -107,7 +108,8 @@ function loadServerConfig(serverConfigPath?: string, sharedConfigPath?: string):
         YouTubeServiceConfig |
         TwitchServiceConfig |
         VKVideoServiceConfig |
-        KickServiceConfig;
+        KickServiceConfig |
+        GoodgameServiceConfig;
 
       switch (platform.id) {
         case 'telegram':
@@ -124,6 +126,9 @@ function loadServerConfig(serverConfigPath?: string, sharedConfigPath?: string):
           break;
         case 'kick':
           config = validatedConfig.kick;
+          break;
+        case 'goodgame':
+          config = validatedConfig.goodgame;
           break;
         default:
           throw new Error(`Unknown platform ID: ${platform.id}`);
@@ -149,6 +154,7 @@ function loadServerConfig(serverConfigPath?: string, sharedConfigPath?: string):
       twitch: validatedConfig.twitch,
       vkvideo: validatedConfig.vkvideo,
       kick: validatedConfig.kick,
+      goodgame: validatedConfig.goodgame,
       betterttv: validatedConfig.betterttv,
       platforms
     };
@@ -185,5 +191,6 @@ export const kYouTubeConfig: YouTubeServiceConfig = kServerConfig.youtube;
 export const kTwitchConfig: TwitchServiceConfig = kServerConfig.twitch;
 export const kVKVideoConfig: VKVideoServiceConfig = kServerConfig.vkvideo;
 export const kKickConfig: KickServiceConfig = kServerConfig.kick;
+export const kGoodgameConfig: GoodgameServiceConfig = kServerConfig.goodgame;
 export const kBetterTTVConfig: BetterTTVConfig = kServerConfig.betterttv;
 export const kPlatformsConfig: PlatformWithConfig[] = kServerConfig.platforms;

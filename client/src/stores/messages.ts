@@ -163,7 +163,11 @@ export const useMessagesStore = defineStore('messages', () => {
   }
 
   // Update messages when bad words or filter bad words setting change
-  watch([settingsStore.badWords, settingsStore.filterBadWords], () => {
+  watch(() => settingsStore.badWords, () => {
+    updateMessages();
+  });
+
+  watch(() => settingsStore.filterBadWords, () => {
     updateMessages();
   });
 
@@ -183,5 +187,10 @@ export const useMessagesStore = defineStore('messages', () => {
     resetSelection,
     toggleMessageSelection
   };
+},
+{
+  persist: {
+    pick: ['messages', 'deletedMessageIds']
+  }
 });
 

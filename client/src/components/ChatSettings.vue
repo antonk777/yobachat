@@ -63,12 +63,12 @@ watch(() => settingsStore.settings, value => {
   <div
     v-if="isOpen && localSettings"
     class="settings-modal-backdrop"
-    @click.self="handleClose"
+    @mousedown.self="handleClose"
   >
     <div class="settings-modal">
-      <h2>Chat Settings</h2>
+      <h2 class="settings-modal-title">Chat Settings</h2>
 
-      <div class="settings-grid">
+      <div class="settings-section settings-grid">
         <label class="settings-item">
           <input
             v-model="localSettings.showAvatars"
@@ -121,17 +121,26 @@ watch(() => settingsStore.settings, value => {
       <FontSettings
         v-if="localSettings"
         v-model="localSettings"
+        class="settings-section font-settings"
       />
 
-      <div class="bad-words-section">
+      <div class="settings-section bad-words-section">
         <h3>Bad Words Filter</h3>
+
+        <label class="settings-item">
+          <input
+            v-model="localSettings.filterBadWords"
+            type="checkbox"
+          />
+          Filter bad words
+        </label>
 
         <div class="bad-words-input">
           <textarea
             v-model="newBadWord"
             @keydown.ctrl.enter="addBadWord"
             placeholder="Add bad words (comma-separated)..."
-            class="input textarea"
+            class="input textarea bad-words-input-textarea"
             minlength="3"
             rows="3"
           ></textarea>
@@ -144,18 +153,22 @@ watch(() => settingsStore.settings, value => {
             :key="word"
             class="bad-word-item"
           >
-            <span>{{ word }}</span>
-            <button @click="() => settingsStore.removeBadWord(word)" class="btn-icon">
+            {{ word }}
+            <button
+              @click="() => settingsStore.removeBadWord(word)"
+              class="btn-remove"
+              title="Remove bad word"
+            >
               ❌
             </button>
           </div>
-          <div v-if="badWords.length === 0" class="empty-state">
+          <div v-if="badWords.length === 0" class="no-bad-words">
             No bad words configured
           </div>
         </div>
       </div>
 
-      <div class="settings-actions">
+      <div class="settings-section settings-actions">
         <button class="btn btn-primary" @click="handleSave">
           Save
         </button>
@@ -182,62 +195,75 @@ watch(() => settingsStore.settings, value => {
 }
 
 .settings-modal {
-  background: var(--bg-color);
-  border-radius: .5rem;
-  padding: 1.5rem;
-  max-width: 480px;
-  max-height: 90vh;
-  width: 100%;
-  border: 1px solid var(--border-color);
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  width: min(480px, calc(100vw - 4rem));
+  max-height: calc(100dvh - 4rem);
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-color);
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  border-radius: .5rem;
 }
 
-.settings-modal h2 {
-  margin: 0 0 1rem 0;
+.settings-modal-title {
+  padding: var(--spacing);
 }
 
 .settings-grid {
   display: grid;
-  gap: .5rem;
-  margin-bottom: 1rem;
+  gap: var(--spacing);
 }
 
 .settings-item {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: calc(var(--spacing) * .5);
   font-size: .95rem;
 }
 
+.settings-section {
+  border-top: 1px solid var(--border-color);
+  padding: var(--spacing);
+}
+
 .settings-actions {
+  position: sticky;
+  bottom: 0;
   display: flex;
   justify-content: flex-end;
   gap: .5rem;
+  background: var(--bg-color-bright);
 }
 
 .bad-words-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  display: grid;
+  gap: var(--spacing);
 }
 
 .bad-words-section h3 {
-  margin: 0 0 1rem 0;
   font-size: 1rem;
   font-weight: 600;
 }
 
 .bad-words-input {
-  display: flex;
-  gap: .5rem;
-  margin-bottom: 1rem;
+  display: grid;
+  gap: var(--spacing);
+
+  .btn {
+    width: fit-content;
+    align-self: end;
+  }
+}
+
+.bad-words-input-textarea {
+  field-sizing: content;
 }
 
 .input {
   flex: 1;
-  padding: .5rem;
+  padding: var(--spacing);
   background-color: var(--bg-color-dark);
   border: 1px solid var(--border-color);
   border-radius: .25rem;
@@ -253,7 +279,6 @@ watch(() => settingsStore.settings, value => {
 .textarea {
   resize: vertical;
   font-family: inherit;
-  min-height: 3.75rem;
 }
 
 .btn {
@@ -278,7 +303,7 @@ watch(() => settingsStore.settings, value => {
 .bad-words-list {
   display: flex;
   flex-wrap: wrap;
-  gap: .5rem;
+  gap: calc(var(--spacing) * .5);
   max-height: 200px;
   overflow-y: auto;
 }
@@ -286,14 +311,14 @@ watch(() => settingsStore.settings, value => {
 .bad-word-item {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  padding: .5rem .75rem;
+  gap: calc(var(--spacing) * .5);
+  padding: calc(var(--spacing) * .5);
   background-color: var(--bg-color-dark);
   border-radius: .25rem;
   border: 1px solid var(--border-color);
 }
 
-.btn-icon {
+.btn-remove {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -301,10 +326,10 @@ watch(() => settingsStore.settings, value => {
   border: none;
   color: var(--error-color);
   padding: 0;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1rem;
+  height: 1rem;
   line-height: 1;
-  font-size: 1.25rem;
+  font-size: .65rem;
   cursor: pointer;
 
   &:hover {
@@ -312,11 +337,11 @@ watch(() => settingsStore.settings, value => {
   }
 }
 
-.empty-state {
-  text-align: center;
+.no-bad-words {
+  width: 100%;
   color: var(--text-muted);
-  padding: 1rem;
   font-size: .9rem;
+  text-align: center;
 }
 </style>
 

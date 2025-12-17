@@ -1,5 +1,5 @@
 import { computed, watch } from 'vue';
-import { useWebSocket } from '@vueuse/core';
+import { useWebSocket, createGlobalState } from '@vueuse/core';
 
 import { ChatSettings, kWSMessageType, WSMessage } from '@shared/shared-types';
 
@@ -11,7 +11,7 @@ import { useUIStore } from '@/stores/ui';
 import { kSharedConfig } from '@/config';
 
 
-export function useWSConnection() {
+export const useWSConnection = createGlobalState(() => {
   const url = `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`;
 
   const
@@ -23,10 +23,10 @@ export function useWSConnection() {
     immediate: true,
     autoReconnect: {
       retries: Infinity,
-      // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s
-      delay: (retries: number) => Math.min(1000 * 2 ** (retries - 1), 30000),
+      // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 20s
+      delay: (retries: number) => Math.min(1000 * 2 ** (retries - 1), 20000),
       onFailed: () => console.error('WebSocket reconnection failed')
-    },
+    }
   });
 
   const connected = computed(() => status.value === 'OPEN');
@@ -128,6 +128,7 @@ export function useWSConnection() {
   }
 
   return {
+    status,
     connected,
     send,
     deleteMessage,
@@ -136,5 +137,5 @@ export function useWSConnection() {
     refreshBetterTTV,
     updateChatSettings,
   };
-}
+});
 

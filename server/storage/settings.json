@@ -1,0 +1,51 @@
+{
+  "showAvatars": false,
+  "showBadges": false,
+  "showModeratorBadges": true,
+  "showEditedBadges": true,
+  "showSubscriberBadges": true,
+  "showVipBadges": true,
+  "showEmotes": true,
+  "filterBadWords": true,
+  "badWords": [
+    "негр",
+    "пидор"
+  ],
+  "userFont": {
+    "type": "local",
+    "family": "Futura PT",
+    "styles": [
+      {
+        "weight": 300,
+        "style": "normal"
+      },
+      {
+        "weight": 400,
+        "style": "normal"
+      },
+      {
+        "weight": 500,
+        "style": "normal"
+      },
+      {
+        "weight": 500,
+        "style": "italic"
+      },
+      {
+        "weight": 700,
+        "style": "normal"
+      },
+      {
+        "weight": 900,
+        "style": "normal"
+      }
+    ],
+    "selectedStyle": {
+      "weight": 500,
+      "style": "normal"
+    }
+  },
+  "adminFont": null,
+  "adminLineHeight": 1.35,
+  "userLineHeight": 1.2
+}

@@ -175,6 +175,8 @@ const FontOptionSchema = FontFamilySchema.extend({
   selectedStyle: FontStyleSchema
 });
 
+const LineHeightSchema = z.number().min(0.8).max(3);
+
 export const ChatSettingsSchema = z.object({
   showAvatars: z.boolean(),
   showBadges: z.boolean(),
@@ -187,6 +189,8 @@ export const ChatSettingsSchema = z.object({
   badWords: z.array(z.string().min(1).max(100)),
   userFont: FontOptionSchema.nullable(),
   adminFont: FontOptionSchema.nullable(),
+  adminLineHeight: LineHeightSchema,
+  userLineHeight: LineHeightSchema,
 });
 
 // Partial ChatSettings schema for updates

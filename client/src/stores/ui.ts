@@ -15,7 +15,7 @@ export const useUIStore = defineStore('ui', () => {
 
   const lastStatusMessage = computed(() => serverStatus.value?.message);
 
-  const isReady = computed(() => settingsStore.settings);
+  const isReady = computed(() => Boolean(settingsStore.settings));
 
   function updatePlatformStatus(platform: PlatformWithStatus) {
     const index = platforms.value.findIndex(p => p.id === platform.id);

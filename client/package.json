@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "prod:build": "vite build",
-    "dev:build": "SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build"
+    "dev:build": "SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build",
+    "dev:build:watch": "SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build --watch"
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",
     "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.4.0",
     "vue-router": "^4.6.3"
   },

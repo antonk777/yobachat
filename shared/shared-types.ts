@@ -130,6 +130,8 @@ export interface ChatSettings {
   badWords: string[];
   userFont: FontOption | null;
   adminFont: FontOption | null;
+  adminLineHeight: number;
+  userLineHeight: number;
 }
 
 export enum kWSMessageType {

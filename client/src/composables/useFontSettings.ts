@@ -54,6 +54,7 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     // Reset to defaults
     root.style.removeProperty('--font-family');
     root.style.removeProperty('--font-weight');
+    root.style.removeProperty('--chat-line-height');
     return;
   }
 
@@ -72,6 +73,21 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     root.style.setProperty('--font-weight', String(fontOption.selectedStyle.weight));
   } else {
     root.style.removeProperty('--font-weight');
+  }
+
+  // Apply font style
+  if (fontOption?.selectedStyle?.style !== undefined) {
+    root.style.setProperty('--font-style', String(fontOption.selectedStyle.style));
+  } else {
+    root.style.removeProperty('--font-style');
+  }
+
+  // Apply line height
+  if (settings.userLineHeight !== undefined) {
+    const lineHeight = widgetType === 'user' ? settings.userLineHeight : settings.adminLineHeight;
+    root.style.setProperty('--chat-line-height', `${lineHeight}rem`);
+  } else {
+    root.style.removeProperty('--chat-line-height');
   }
 
   // Load Google Fonts CSS if it's a Google font

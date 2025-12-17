@@ -21,6 +21,7 @@
     "dev:build:all": "npm run dev:build:server && npm run dev:build:client",
     "dev:build:server": "cd server && npm run dev:build",
     "dev:build:client": "cd client && npm run dev:build",
+    "dev:build:client:watch": "cd client && npm run dev:build:watch",
     "dev:start:server": "cd server && npm run dev:start",
 
     "dev:start": "npm run dev:build:all && npm run dev:start:server",

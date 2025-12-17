@@ -47,6 +47,7 @@ function loadSharedConfig(): SharedConfig {
   } catch (error) {
     if (error instanceof Error) {
       console.error(`[ViteConfig] Failed to load shared config from ${configPath}: ${error.message}`);
+
       if ('code' in error && error.code === 'ENOENT') {
         console.error(`[ViteConfig] File not found: ${resolve(configPath)}`);
       }
@@ -74,30 +75,85 @@ export default defineConfig({
     cssMinify: kIsDevelopment ? false : 'esbuild',
     rollupOptions: {
       input: {
+        index: resolve(__dirname, 'index.html'),
         widget: resolve(__dirname, 'widget.html'),
         admin: resolve(__dirname, 'admin.html'),
       },
       output: {
+        // Top-level entries: send each app's entry to its own folder, everything
+        // else (like the shared index) stays under the generic assets folder.
         entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === 'admin' ? 'admin/[name].js' : 'widget/[name].js';
+          const name = chunkInfo.name;
+
+          if (name === 'admin') {
+            return 'admin/[name].js';
+          }
+
+          if (name === 'widget') {
+            return 'widget/[name].js';
+          }
+
+          return 'assets/[name].js';
         },
+
+        // Chunks: infer whether they belong to the admin app, the widget app,
+        // or are shared, based on the modules they contain.
         chunkFileNames: (chunkInfo) => {
-          // Determine which app the chunk belongs to based on its modules
-          const isAdminChunk = chunkInfo.moduleIds.some(id =>
+          const moduleIds = chunkInfo.moduleIds ?? [];
+
+          const belongsToAdmin = moduleIds.some(id =>
             id.includes('admin-main') ||
             id.includes('AdminPanel') ||
             id.includes('admin.html')
           );
-          return isAdminChunk ? 'admin/[name]-[hash].js' : 'widget/[name]-[hash].js';
-        },
-        assetFileNames: (assetInfo) => {
-          // For CSS files, try to determine which app they belong to based on name
-          if (assetInfo.name?.endsWith('.css')) {
-            const isAdminCss = assetInfo.name.includes('admin') ||
-                              (assetInfo.names && assetInfo.names.some(name => name.includes('admin')));
-            return isAdminCss ? 'admin/[name]-[hash][extname]' : 'widget/[name]-[hash][extname]';
+
+          const belongsToWidget = moduleIds.some(id =>
+            id.includes('widget-main') ||
+            id.includes('widget.html')
+          );
+
+          if (belongsToAdmin) {
+            return 'admin/[name]-[hash].js';
           }
-          // For other assets (images, etc.), put in shared assets folder
+
+          if (belongsToWidget) {
+            return 'widget/[name]-[hash].js';
+          }
+
+          return 'assets/[name]-[hash].js';
+        },
+
+        // Assets: keep CSS next to its app when we can infer it, otherwise
+        // fall back to shared assets. Non‑CSS assets are always shared.
+        assetFileNames: (assetInfo) => {
+          const
+            names = assetInfo.names ?? [],
+            primaryName = names[0] ?? assetInfo.name,
+            isCss = primaryName?.endsWith('.css');
+
+          if (isCss) {
+            const identifiers = names.filter(Boolean);
+
+            const belongsToAdminCss = identifiers.some(name =>
+              name.includes('admin')
+            );
+
+            const belongsToWidgetCss = identifiers.some(name =>
+              name.includes('widget')
+            );
+
+            if (belongsToAdminCss) {
+              return 'admin/[name]-[hash][extname]';
+            }
+
+            if (belongsToWidgetCss) {
+              return 'widget/[name]-[hash][extname]';
+            }
+
+            return 'assets/[name]-[hash][extname]'; // e.g., index or shared
+          }
+
+          // For other assets (images, etc.), put in shared assets folder.
           return 'assets/[name]-[hash][extname]';
         },
       },

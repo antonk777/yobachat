@@ -1,6 +1,6 @@
-import { readFile, writeFile, access } from 'fs/promises';
+import { readFile, writeFile, access, mkdir } from 'fs/promises';
 import { constants } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import chalk from 'chalk';
 
 import type { ChatSettings } from '@shared/shared-types.js';
@@ -63,6 +63,10 @@ export class SettingsService {
 
   private async save(): Promise<void> {
     try {
+      // Ensure the storage directory exists
+      const storageDir = dirname(this.filePath);
+      await mkdir(storageDir, { recursive: true });
+
       await writeFile(this.filePath, JSON.stringify(this.settings, null, 2), 'utf-8');
     } catch (error) {
       console.error(`${this.logPrefix} Failed to save settings: ${error}`);

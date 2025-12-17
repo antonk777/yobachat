@@ -1,199 +1,106 @@
-# OBS Chat Widget
+# Yobachat
 
-A chat widget for OBS that aggregates messages from Twitch, YouTube, and Telegram into a single unified interface.
+Multi-platform chat overlay for OBS with a web admin panel. The server aggregates chat from multiple platforms, pushes it over WebSocket, and the Vue client renders both the public widget and an admin console.
 
 ## Features
 
-- **Multi-platform support**: Twitch, YouTube, and Telegram
-- **Extensible architecture**: Easy to add new platforms
-- **Real-time updates**: WebSocket-based communication
-- **Type-safe**: Full TypeScript support
-- **Modern UI**: Minimal styling with CSS variables and nesting
+- Platforms: Twitch, YouTube Live, Telegram (webhook or polling), VK Video, Kick, GoodGame
+- BetterTTV: loads global and channel emotes (optional)
+- WebSocket overlay: lightweight uWebSockets server with typed messages
+- Admin console: delete/clear messages, toggle settings, refresh BetterTTV emotes
+- Console output modes: fully headless console mode or mirrored console logging while WebSocket stays on
 
 ## Project Structure
 
 ```
 .
-├── server/           # Node.js + TypeScript server
-│   ├── src/
-│   │   ├── services/ # Platform-specific services
-│   │   └── index.ts  # WebSocket server
-│   └── package.json
-├── client/           # Vue.js + TypeScript client
-│   ├── src/
-│   │   ├── components/
-│   │   └── composables/
-│   └── package.json
-├── shared/           # Shared code between client and server
-│   └── types/        # Shared type definitions
-└── package.json
+├── server/           # Node.js + TypeScript ingestion + WebSocket + webhooks
+├── client/           # Vue 3 + Vite widget (widget.html) and admin (admin.html)
+├── shared/           # Shared types/config used by server and client
+├── scripts/          # Utilities (symlink setup)
+└── ecosystem.config.cjs # PM2 definitions
 ```
 
-## Installation
+## Prerequisites
 
-1. Install all dependencies:
+- Node.js 20+ and npm
+- pm2 (optional, for prod: `npm install -g pm2`)
+
+## Install
+
 ```bash
 npm run install:all
-```
-
-2. Or install separately:
-```bash
-# Server
-cd server
-npm install
-
-# Client
-cd ../client
-npm install
+node scripts/setup-shared-symlinks.ts   # creates client/shared and server/shared symlinks
 ```
 
 ## Configuration
 
-### Server
-
-Edit `server/src/index.ts` to add your chat sources:
-
-```typescript
-// Twitch
-coordinator.addSource('twitch-1', 'twitch', {
-  channel: 'your_channel',
-  username: 'your_bot_username', // Optional
-  token: 'oauth:your_token',      // Optional
-});
-
-// YouTube
-coordinator.addSource('youtube-1', 'youtube', {
-  channelId: 'your_channel_id',
-  apiKey: 'your_api_key',
-});
-
-// Telegram
-coordinator.addSource('telegram-1', 'telegram', {
-  chatId: 'your_chat_id',
-  botToken: 'your_bot_token',
-});
-```
-
-### Client
-
-Set the WebSocket URL in `client/src/App.vue` or via environment variable:
+Configuration is JSON-driven. Copy the examples and fill in your values (never commit secrets):
 
 ```bash
-VITE_WS_URL=ws://localhost:8080 npm run dev
+cp server/server-config.example.json server/server-config.json
+cp shared/shared-config.example.json shared/shared-config.json
 ```
 
-## Running
+- `shared/shared-config*.json`
+  - `host`: public host serving the widget/admin static files
+  - `apiHost`: public host (or host:port) that terminates TLS and proxies WebSocket traffic to the server
+  - `basePath`: sub-path where the widget/admin are hosted (e.g. "/" or "/chat/")
+  - `wsPath`: WebSocket path (e.g. "/ws/"); must match your reverse-proxy route to the server `wsPort`
+
+- `server/server-config*.json`
+  - `consoleMode`: true disables WebSocket and only prints chat to stdout
+  - `enableConsoleOutput`: mirror messages to stdout while WebSocket stays enabled
+  - `apiPort`, `wsPort`, `webhookPort`, `webhookPath`: internal listener ports/paths (proxy externally as needed)
+  - Platform configs: credentials and channel IDs for twitch, youtube (API key + `pollInterval` ms), telegram (`botToken`, `chatId`, mode `webhook|polling`, `certificatePath` for webhook, `pollInterval`), vkvideo, kick, goodgame
+  - `betterttv`: `channelId`, `includeGlobal`, `includeChannel`, `color`
+  - `platforms`: the list that drives badges/colors in the widget; ids must match the platform keys above
+
+Development scripts already point at `server/server-config.dev.json` and `shared/shared-config.dev.json`. Set `SERVER_CONFIG_PATH` and `SHARED_CONFIG_PATH` to override paths for any command.
+
+## Building & Running
 
 ### Development
 
 ```bash
-# Terminal 1: Server
-npm run dev:server
-
-# Terminal 2: Client
-npm run dev:client
+npm run dev:build:all    # esbuild server + Vite build with dev shared config
+npm run dev:start        # starts server with dev configs (SERVER_CONFIG_PATH/SHARED_CONFIG_PATH can override)
 ```
 
-### Console-Only Mode
-
-You can run the server in console-only mode to output chat messages directly to the terminal instead of using WebSocket:
+The client build lands in `client/dist`. Serve it with any static server so OBS can reach it, e.g.:
 
 ```bash
-# Set environment variable
-CONSOLE_ONLY=true npm run dev:server
-
-# Or modify shared/config.ts
-consoleOnly: true
+cd client
+npx serve dist -l 3000
 ```
 
-In console-only mode:
-- No WebSocket server is started
-- All chat messages are printed to the console with colored formatting
-- Platform badges are color-coded (Twitch: magenta, YouTube: red, Telegram: cyan)
-- User colors from Twitch are preserved
-- Badges and timestamps are displayed
+Then point OBS Browser Source to `http(s)://<host>/<basePath>widget.html`. The admin console is at `admin.html`.
 
 ### Production
 
 ```bash
-# Build both
-npm run build:server
-npm run build:client
+SHARED_CONFIG_PATH=./shared/shared-config.json \
+SERVER_CONFIG_PATH=./server/server-config.json \
+npm run prod:build:all
 
-# Run server
-cd server
-npm start
+npm run prod:pm2:start   # start via PM2 (uses ecosystem.config.cjs)
+# pm2 helpers: prod:pm2:restart, prod:pm2:logs, prod:pm2:stop, prod:pm2:delete
 ```
 
-## Usage in OBS
+- Reverse proxy `https://<apiHost><basePath><wsPath>` to `ws://localhost:<wsPort><wsPath>`.
+- Serve `client/dist` at `https://<host>/<basePath>`. `widget.html` is the OBS overlay; `admin.html` is the control panel.
+- Telegram webhook target: `https://<apiHost>/<webhookPath>` (proxy to `webhookPort`).
 
-1. Start both server and client
-2. In OBS, add a Browser Source
-3. Set the URL to `http://localhost:3000` (or your client URL)
-4. Set width and height as needed
-5. The chat widget will display messages from all configured sources
+## OBS Quickstart
 
-## WebSocket API
+- Build client and start server (dev or prod as above).
+- In OBS, add a Browser Source pointing at `https://<host>/<basePath>widget.html`.
+- Size and style via your scene; chat badges/colors come from `platforms` in the server config.
 
-The server WebSocket server accepts the following message types:
+## Console Modes
 
-- `add_source`: Add a new chat source
-- `remove_source`: Remove a chat source
-- `start_source`: Start watching a source
-- `stop_source`: Stop watching a source
-- `start_all`: Start all sources
-- `stop_all`: Stop all sources
-- `get_sources`: Get list of all sources
-
-Example:
-```json
-{
-  "type": "add_source",
-  "data": {
-    "id": "twitch-1",
-    "platform": "twitch",
-    "config": {
-      "channel": "channel_name"
-    }
-  }
-}
-```
-
-## Platform Requirements
-
-### Twitch
-- Channel name (required)
-- OAuth token (optional, for authenticated access)
-
-### YouTube
-- Channel ID (required)
-- API Key (required, get from [Google Cloud Console](https://console.cloud.google.com/))
-
-### Telegram
-- Chat ID (required)
-- Bot Token (required, create a bot via [@BotFather](https://t.me/botfather))
-
-## Notes
-
-### Deprecation Warnings
-
-During installation, you may see deprecation warnings for `har-validator`, `uuid`, and `request`. These are transitive dependencies from `node-telegram-bot-api` and are harmless. The package maintainers are aware of these and they don't affect functionality.
-
-### Security Vulnerabilities
-
-`npm audit` may report vulnerabilities from `node-telegram-bot-api`'s transitive dependencies. Critical vulnerabilities in `form-data` and `tough-cookie` are addressed via npm overrides in `package.json` to force secure versions.
-
-Remaining moderate vulnerabilities are in the deprecated `request` package, which `node-telegram-bot-api` depends on internally. These cannot be fixed at this time because:
-- The `request` package is deprecated and has no secure version available
-- All versions of `node-telegram-bot-api` (including 0.63.0 and 0.66.0) depend on vulnerable versions of `request`
-- There is no workaround without the package maintainers updating `node-telegram-bot-api` to use a different HTTP client
-
-The risk is limited as:
-- The vulnerabilities are moderate severity (not critical)
-- The `request` package is only used internally by the Telegram bot library for API calls
-- We're using the latest version of `node-telegram-bot-api` (0.66.0)
-
-The package maintainers are aware of these issues and will address them in future updates by migrating away from the deprecated `request` package.
+- `consoleMode: true`: WebSocket disabled; all messages printed with colored badges.
+- `enableConsoleOutput: true`: keep WebSocket running but also mirror messages to stdout.
 
 ## License
 

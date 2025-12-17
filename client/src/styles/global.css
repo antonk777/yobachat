@@ -1,13 +1,16 @@
 @import '@/styles/normalize.css';
 
 :root {
-  font-size: 4.75vw;
+  font-size: 4.75vmin;
 
-  --bg-color: #2a2a2a;
-  --bg-color-dark: #1a1a1a;
+  --bg-color: #1a1a1a;
+  --bg-color-dark: #141414;
+  --bg-color-bright: #2a2a2a;
+  --border-color: #3a3a3a;
+
   --text-color: #ffffff;
   --text-muted: #aaaaaa;
-  --border-color: #3a3a3a;
+
   --primary-color: #4a9eff;
   --success-color: #2a5a2a;
   --error-color: #ff5555;
@@ -17,22 +20,100 @@
   --line-height: 1.2rem;
   --spacing: .84rem;
   --whitespace: .45ch;
+  --platform-icon-size: 1rem;
   --badge-size: 1.16rem;
   --emote-size: 1.58rem;
   --avatar-size: 1.58rem;
 
   --font-family: sans-serif;
   --font-size: 1rem;
-  --font-weight: 500;
+  --font-weight: 400;
+  --font-style: normal;
   --font-size-small: .84rem;
 }
 
+:root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-color);
+  scrollbar-gutter: auto;
+  accent-color: var(--primary-color);
+  color-scheme: only dark;
+
+  &.welcome-page {
+    scrollbar-gutter: auto;
+    color-scheme: only dark;
+    font-size: 16px;
+  }
+
+  &.widget-page {
+    scrollbar-width: none;
+  }
+
+  &.admin-page {
+    font-size: min(4.75vmin, 16px);
+  }
+}
+
 body {
-  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-color);
+  color: var(--text-color);
+
+  line-height: var(--line-height);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  font-weight: var(--font-weight);
+  font-style: var(--font-style);
+}
+
+:root.widget-page body {
+  overflow: hidden;
+  background-color: transparent
+}
+
+:root.welcome-page body {
+  align-content: center;
+  padding: 1rem;
+
+  main {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+    margin-inline: auto;
+    background: var(--bg-color-bright);
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+  }
+  h1 {
+    font-size: 1.6rem;
+  }
+  p {
+    color: #9ca3af;
+    line-height: 1.5;
+  }
+  a.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.3rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    color: white;
+    background: #7c3aed;
+  }
 }
 
 #app {
   width: 100%;
+  min-height: 100vh;
   height: 100dvh;
 }

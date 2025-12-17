@@ -121,7 +121,9 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
 
     try {
       const message = { type, data } as WSMessageTypeMap[T];
+
       const encoded = encodeWSMessage(message);
+
       this.clients.forEach((ws, clientId) => {
         try {
           ws.send(encoded, false);
@@ -141,6 +143,7 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
   private handleIncomingMessage(ws: uWS.WebSocket<any>, message: ArrayBuffer): void {
     // Find client ID by WebSocket instance
     let clientId: string | undefined;
+
     for (const [id, clientWs] of this.clients.entries()) {
       if (clientWs === ws) {
         clientId = id;
@@ -190,7 +193,12 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
       return;
     }
 
-    this.app.ws(this.config.sharedConfig.wsPath, {
+    // Normalize wsPath to always start with /
+    const wsPath = this.config.sharedConfig.wsPath.startsWith('/')
+      ? this.config.sharedConfig.wsPath
+      : `/${this.config.sharedConfig.wsPath}`;
+
+    this.app.ws(wsPath, {
       compression: uWS.DISABLED,
       maxPayloadLength: 4 * 1024 * 1024,
       idleTimeout: 32,

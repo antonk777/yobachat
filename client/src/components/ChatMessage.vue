@@ -3,39 +3,14 @@ import { computed } from 'vue';
 
 import type { ChatMessageWithSegments, ChatSettings } from '@shared/shared-types.js';
 
-import TwitchIcon from '@/assets/twitch.svg';
-import YouTubeIcon from '@/assets/youtube.svg';
-import TelegramIcon from '@/assets/telegram.svg';
-import VKVideoIcon from '@/assets/vkvideo.svg';
-import KickIcon from '@/assets/kick.svg';
-
 const props = defineProps<{
   message: ChatMessageWithSegments;
   settings: ChatSettings;
 }>();
 
-const platformIconUrl = computed(() => {
-  let output = '';
-
-  switch (props.message.platform.id) {
-    case 'twitch':
-      output = `url(${TwitchIcon})`;
-      break;
-    case 'youtube':
-      output = `url(${YouTubeIcon})`;
-      break;
-    case 'telegram':
-      output = `url(${TelegramIcon})`;
-      break;
-    case 'vkvideo':
-      output = `url(${VKVideoIcon})`;
-      break;
-    case 'kick':
-      output = `url(${KickIcon})`;
-      break;
-  }
-
-  return output;
+const hasPlatformIcon = computed(() => {
+  const platformId = props.message.platform.id;
+  return ['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame'].includes(platformId);
 });
 </script>
 
@@ -45,14 +20,14 @@ const platformIconUrl = computed(() => {
     :class="`platform-${message.platform.id}`"
     :style="{
       '--user-color': message.color ?? null,
-      '--platform-color': message.platform.color ?? null
+      '--platform-color': message.platform.color ?? null,
     }"
   >
     <div class="message-header">
       <div
-        v-if="platformIconUrl"
+        v-if="hasPlatformIcon"
         class="platform-icon"
-        :style="{ '--icon': platformIconUrl }"
+        :class="`icon-${message.platform.id}`"
         :aria-label="message.platform.abbr"
       />
 
@@ -90,7 +65,7 @@ const platformIconUrl = computed(() => {
       />
 
       <div class="username">
-        {{ message.usernameFiltered }}
+        {{ message.usernameFiltered }}:
       </div>
 
       <div
@@ -114,20 +89,11 @@ const platformIconUrl = computed(() => {
 </template>
 
 <style scoped>
-@keyframes chatMessageAppear {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .chat-message {
   display: block;
   flex: none;
   hyphens: auto;
-  animation: chatMessageAppear 600ms ease;
+  line-height: var(--chat-line-height, var(--line-height));
 
   &.deleted {
     opacity: .5;
@@ -147,12 +113,37 @@ const platformIconUrl = computed(() => {
   align-self: center;
   flex: none;
 
-  width: var(--badge-size);
-  height: var(--badge-size);
+  width: var(--platform-icon-size);
+  height: var(--platform-icon-size);
 
   background-color: var(--platform-color);
-  mask: var(--icon) center center no-repeat;
+  mask-position: center center;
+  mask-repeat: no-repeat;
   mask-size: contain;
+
+  &.icon-twitch {
+    mask-image: url('@/assets/twitch.svg');
+  }
+
+  &.icon-youtube {
+    mask-image: url('@/assets/youtube.svg');
+  }
+
+  &.icon-telegram {
+    mask-image: url('@/assets/telegram.svg');
+  }
+
+  &.icon-vkvideo {
+    mask-image: url('@/assets/vkvideo.svg');
+  }
+
+  &.icon-kick {
+    mask-image: url('@/assets/kick.svg');
+  }
+
+  &.icon-goodgame {
+    mask-image: url('@/assets/goodgame.png');
+  }
 }
 
 .platform-badge {
@@ -160,11 +151,12 @@ const platformIconUrl = computed(() => {
   align-self: center;
   flex: none;
 
-  min-width: var(--badge-size);
-  height: var(--badge-size);
-  line-height: var(--badge-size);
+  min-width: var(--platform-icon-size);
+  height: var(--platform-icon-size);
+  line-height: var(--platform-icon-size);
 
-  font-size: var(--font-size-small);
+  font-size: .55rem;
+  font-weight: bolder;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: .05em;
@@ -194,7 +186,9 @@ const platformIconUrl = computed(() => {
 
 .username {
   color: var(--user-color, var(--text-muted));
-  letter-spacing: -0.03em;
+  /* font-weight: calc(var(--font-weight) + 200); */
+  /* font-weight: bolder; */
+  /* letter-spacing: -0.03em; */
 
   .chat-message.deleted & {
     text-decoration: line-through;
@@ -233,7 +227,7 @@ const platformIconUrl = computed(() => {
   min-width: var(--emote-size);
   height: var(--emote-size);
   object-fit: contain;
-  vertical-align: -2.25vw;
+  vertical-align: middle;
 }
 </style>
 

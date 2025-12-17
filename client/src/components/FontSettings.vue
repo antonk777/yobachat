@@ -7,7 +7,14 @@ import { useGoogleFonts } from '@/composables/useGoogleFonts';
 import { useLocalFonts } from '@/composables/useLocalFonts';
 
 import FontFamilyDropdown from '@/components/FontFamilyDropdown.vue';
+import { clamp, useDebounceFn } from '@vueuse/core';
 
+
+const
+  kLineHeightFactor = 100,
+  kDefaultLineHeight = 120,
+  kLineHeightMin = 80,
+  kLineHeightMax = 200;
 
 interface Props {
   modelValue: ChatSettings;
@@ -19,20 +26,23 @@ const emit = defineEmits<{
   'update:modelValue': [value: ChatSettings];
 }>();
 
-const
-  { fonts: googleFonts, isLoading: googleFontsLoading, error: googleFontsError } = useGoogleFonts(),
-  { fontOptions: localFonts, isLoading: localFontsLoading, error: localFontsError } = useLocalFonts();
+const {
+  fonts: googleFonts,
+  isLoading: googleFontsLoading,
+  error: googleFontsError
+} = useGoogleFonts()
+
+const {
+  fontOptions: localFonts,
+  isLoading: localFontsLoading,
+  error: localFontsError
+} = useLocalFonts()
 
 // Convert Map to sorted array for dropdown component
 const fontOptionsArray = computed<FontFamily[]>(() => {
-  return [...googleFonts.value, ...localFonts.value]
-    .sort((a, b) => {
-      if (a.type !== b.type) {
-        return a.type === 'google' ? -1 : 1;
-      }
-
-      return a.family.localeCompare(b.family);
-    });
+  return [...googleFonts.value, ...localFonts.value].sort((a, b) => {
+    return a.family.localeCompare(b.family);
+  });
 });
 
 // Create unified font options Map keyed by family name
@@ -55,7 +65,8 @@ const availableUserWeights = computed(() => {
     const selectedFont = fontOptionsMap.value.get(userFont.family);
 
     if (selectedFont) {
-      return selectedFont.styles.map(s => s.weight).sort((a, b) => a - b);
+      return Array.from(new Set(selectedFont.styles.map(s => s.weight)))
+        .sort((a, b) => a - b);
     }
   }
 
@@ -85,7 +96,8 @@ const availableAdminWeights = computed(() => {
     const selectedFont = fontOptionsMap.value.get(adminFont.family);
 
     if (selectedFont) {
-      return selectedFont.styles.map(s => s.weight).sort((a, b) => a - b);
+      return Array.from(new Set(selectedFont.styles.map(s => s.weight)))
+        .sort((a, b) => a - b);
     }
   }
 
@@ -205,6 +217,7 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
 
   // Find matching style with current weight and new style
   const currentWeight = currentFont.selectedStyle.weight;
+
   const matchingStyle = fontFamily.styles.find(s => s.weight === currentWeight && s.style === style);
 
   if (!matchingStyle) {
@@ -219,33 +232,74 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
     }
   });
 }
+
+function clampLineHeight(value: number): number {
+  if (!Number.isFinite(value)) {
+    return kDefaultLineHeight;
+  }
+
+  return clamp(value, kLineHeightMin, kLineHeightMax);
+}
+
+function updateLineHeight(value: number, targetField: 'userLineHeight' | 'adminLineHeight'): void {
+  const normalizedValue = clampLineHeight(value) / kLineHeightFactor;
+
+  if (isNaN(normalizedValue)) {
+    return;
+  }
+
+  emit('update:modelValue', {
+    ...props.modelValue,
+    [targetField]: normalizedValue
+  });
+}
+
+const debouncedUpdateLineHeight = useDebounceFn((
+  value: number,
+  targetField: 'userLineHeight' | 'adminLineHeight'
+): void => {
+  updateLineHeight(value, targetField);
+}, 300);
+
+function handleLineHeightInput(
+  event: Event,
+  targetField: 'userLineHeight' | 'adminLineHeight'
+): void {
+  const input = event.target as HTMLInputElement | null;
+
+  if (!input) {
+    return;
+  }
+
+  const value = parseInt(input.value, 10);
+
+  if (!isNaN(value)) {
+    debouncedUpdateLineHeight(value, targetField);
+  }
+}
 </script>
 
 <template>
   <div class="font-section">
-    <h3>Font Settings</h3>
-
     <div class="font-widget-section">
-      <h4>Chat Widget</h4>
+      <h4>Chat Widget Font</h4>
 
-      <label class="font-control">
-        <span class="font-control-label">Font Family</span>
-        <FontFamilyDropdown
-          :model-value="modelValue.userFont?.family"
-          :options="fontOptionsArray"
-          :disabled="googleFontsLoading || localFontsLoading"
-          @update:model-value="(value: string | undefined) => updateFontFamily(value, 'userFont')"
-        />
-      </label>
+      <FontFamilyDropdown
+        class="font-control-dropdown"
+        :model-value="modelValue.userFont?.family"
+        :options="fontOptionsArray"
+        :disabled="googleFontsLoading && localFontsLoading"
+        @update:model-value="(value: string | undefined) => updateFontFamily(value, 'userFont')"
+      />
 
-      <div v-if="modelValue.userFont" class="font-style-controls">
-        <div class="button-group">
+      <template v-if="modelValue.userFont">
+        <div class="switch-group">
           <button
             v-for="weight in availableUserWeights"
             :key="weight"
             type="button"
-            class="style-button"
-            :class="{ active: modelValue.userFont?.selectedStyle.weight === weight }"
+            class="style-switch"
+            :class="{ active: modelValue.userFont.selectedStyle.weight === weight }"
             :style="{ '--weight': weight }"
             @click="updateFontWeight(weight, 'userFont')"
           >
@@ -253,12 +307,12 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
           </button>
         </div>
 
-        <div class="button-group">
+        <div class="switch-group">
           <button
             v-if="availableUserStyles.includes('normal')"
             type="button"
-            class="style-button"
-            :class="{ active: modelValue.userFont?.selectedStyle.style === 'normal' }"
+            class="style-switch"
+            :class="{ active: modelValue.userFont.selectedStyle.style === 'normal' }"
             :style="{ '--style': 'normal' }"
             @click="updateFontStyle('normal', 'userFont')"
           >
@@ -267,38 +321,51 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
           <button
             v-if="availableUserStyles.includes('italic')"
             type="button"
-            class="style-button"
-            :class="{ active: modelValue.userFont?.selectedStyle.style === 'italic' }"
+            class="style-switch"
+            :class="{ active: modelValue.userFont.selectedStyle.style === 'italic' }"
             :style="{ '--style': 'italic' }"
             @click="updateFontStyle('italic', 'userFont')"
           >
             Italic
           </button>
         </div>
+      </template>
+
+      <div class="line-height-control">
+        <label class="line-height-label" for="user-line-height">Line height</label>
+        <input
+          id="user-line-height"
+          class="line-height-input"
+          type="number"
+          :min="kLineHeightMin"
+          :max="kLineHeightMax"
+          :step="1"
+          :value="(modelValue.userLineHeight ?? kDefaultLineHeight) * kLineHeightFactor"
+          @input="(event: Event) => handleLineHeightInput(event, 'userLineHeight')"
+        />
+        %
       </div>
     </div>
 
     <div class="font-widget-section">
-      <h4>Admin Panel</h4>
+      <h4>Admin Panel Font</h4>
 
-      <label class="font-control">
-        <span class="font-control-label">Font Family</span>
-        <FontFamilyDropdown
-          :model-value="modelValue.adminFont?.family"
-          :options="fontOptionsArray"
-          :disabled="googleFontsLoading || localFontsLoading"
-          @update:model-value="(value: string | undefined) => updateFontFamily(value, 'adminFont')"
-        />
-      </label>
+      <FontFamilyDropdown
+        class="font-control-dropdown"
+        :model-value="modelValue.adminFont?.family"
+        :options="fontOptionsArray"
+        :disabled="googleFontsLoading && localFontsLoading"
+        @update:model-value="(value: string | undefined) => updateFontFamily(value, 'adminFont')"
+      />
 
-      <div v-if="modelValue.adminFont" class="font-style-controls">
-        <div class="button-group">
+      <template v-if="modelValue.adminFont">
+        <div class="switch-group">
           <button
             v-for="weight in availableAdminWeights"
             :key="weight"
             type="button"
-            class="style-button"
-            :class="{ active: modelValue.adminFont?.selectedStyle.weight === weight }"
+            class="style-switch"
+            :class="{ active: modelValue.adminFont.selectedStyle.weight === weight }"
             :style="{ '--weight': weight }"
             @click="updateFontWeight(weight, 'adminFont')"
           >
@@ -306,12 +373,12 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
           </button>
         </div>
 
-        <div class="button-group">
+        <div class="switch-group">
           <button
             v-if="availableAdminStyles.includes('normal')"
             type="button"
-            class="style-button"
-            :class="{ active: modelValue.adminFont?.selectedStyle.style === 'normal' }"
+            class="style-switch"
+            :class="{ active: modelValue.adminFont.selectedStyle.style === 'normal' }"
             :style="{ '--style': 'normal' }"
             @click="updateFontStyle('normal', 'adminFont')"
           >
@@ -320,14 +387,29 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
           <button
             v-if="availableAdminStyles.includes('italic')"
             type="button"
-            class="style-button"
-            :class="{ active: modelValue.adminFont?.selectedStyle.style === 'italic' }"
+            class="style-switch"
+            :class="{ active: modelValue.adminFont.selectedStyle.style === 'italic' }"
             :style="{ '--style': 'italic' }"
             @click="updateFontStyle('italic', 'adminFont')"
           >
             Italic
           </button>
         </div>
+      </template>
+
+      <div class="line-height-control">
+        <label class="line-height-label" for="admin-line-height">Line height</label>
+        <input
+          id="admin-line-height"
+          class="line-height-input"
+          type="number"
+          :min="kLineHeightMin"
+          :max="kLineHeightMax"
+          :step="1"
+          :value="(modelValue.adminLineHeight ?? kDefaultLineHeight) * kLineHeightFactor"
+          @input="(event: Event) => handleLineHeightInput(event, 'adminLineHeight')"
+        />
+        %
       </div>
     </div>
 
@@ -349,28 +431,18 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
 
 <style scoped>
 .font-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.font-section h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1rem;
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
 }
 
 .font-widget-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: calc(var(--spacing) * .75);
 
   h4 {
-    margin: 0 0 .75rem 0;
-    font-size: .9rem;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-weight: 700;
   }
 
   &:last-child {
@@ -378,67 +450,90 @@ function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | '
   }
 }
 
-.font-control {
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-}
-
 .font-control-label {
   font-size: .9rem;
   color: var(--text-muted);
 }
 
-.font-style-controls {
+.switch-group {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.button-group {
-  display: flex;
-  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.style-button {
+.style-switch {
   padding: .375rem .75rem;
+
   background-color: var(--bg-color-dark);
-  border: 1px solid var(--border-color);
-  border-radius: .25rem;
   color: var(--text-color);
+
   font-size: .9rem;
   font-weight: var(--weight, 400);
   font-style: var(--style, normal);
+
   cursor: pointer;
   transition: all .2s;
-
-  &:hover:not(:disabled) {
-    border-color: var(--primary-color);
-    background-color: var(--bg-color);
-  }
 
   &:disabled {
     opacity: .5;
     cursor: not-allowed;
   }
 
+  &:hover:not(:disabled) {
+    background-color: var(--bg-color);
+  }
+
   &.active {
     background-color: var(--primary-color);
-    border-color: var(--primary-color);
     color: var(--text-color);
+  }
+
+  &:first-child {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+  }
+
+  &:last-child {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
   }
 }
 
+.line-height-control {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * .5);
+}
+
+.line-height-label {
+  flex: none;
+  color: var(--text-muted);
+}
+
+.line-height-input {
+  width: auto;
+  field-sizing: content;
+  min-width: 4rem;
+  max-width: 100%;
+  padding: .375rem 0;
+  background-color: var(--bg-color-dark);
+  border: 1px solid var(--border-color);
+  border-radius: .25rem;
+  color: var(--text-color);
+  font-size: 1rem;
+  text-align: center;
+}
+
 .font-loading {
+  margin-top: var(--spacing);
   font-size: .85rem;
   color: var(--text-muted);
   font-style: italic;
+  text-align: center;
 }
 
 .font-error {
   font-size: .85rem;
   color: var(--error-color);
+  text-align: center;
 }
 </style>

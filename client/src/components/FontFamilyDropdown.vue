@@ -140,7 +140,7 @@ watch(() => props.disabled, (disabled) => {
             type="button"
             class="dropdown-option"
             :class="{ selected: option.family === modelValue }"
-            :style="{ fontFamily: option.family }"
+            :style="{ '--font-family': option.family }"
             @click="selectOption(option)"
           >
             {{ option.family }}
@@ -196,7 +196,8 @@ watch(() => props.disabled, (disabled) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--selected-font-family, inherit);
+  font-family: sans-serif;
+  font-family: var(--selected-font-family), sans-serif;
 }
 
 .dropdown-arrow {
@@ -261,7 +262,7 @@ watch(() => props.disabled, (disabled) => {
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 0.95rem;
+  font-family: var(--font-family, sans-serif);
   cursor: pointer;
   border-radius: 0.25rem;
   transition: background-color 0.2s;

@@ -36,6 +36,7 @@ import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
 import { BetterTTVService } from '@/services/betterttv-service.js';
 import { WebhookService } from '@/services/webhook-service.js';
 import { WebSocketService } from '@/services/websocket-service.js';
+import { WebAPIService } from '@/services/webapi-service.js';
 
 import { kWSMessageType } from '@shared/shared-types.js';
 
@@ -60,6 +61,7 @@ class ChatServer {
   private deletedMessages = new DeletedMessagesService();
   private betterttvService: BetterTTVService | null = null;
   private webhookService: WebhookService;
+  private webApiService: WebAPIService;
 
   private _handleWSConnection = this.handleWSConnection.bind(this);
   private _handleWSMessage = this.handleWSMessage.bind(this);
@@ -69,6 +71,7 @@ class ChatServer {
     this.config = config;
     this.webhookService = new WebhookService(config.webhookPort);
     this.websocketService = new WebSocketService(config);
+    this.webApiService = new WebAPIService();
 
     // Set up WebSocket event listeners
     this.websocketService
@@ -91,6 +94,9 @@ class ChatServer {
 
     // Start webhook server (must be before platform initialization)
     await this.webhookService.start();
+
+    // Start web API server
+    await this.webApiService.start();
 
     this.initializePlatforms(this.config.platforms);
     await this.startAll();
@@ -278,7 +284,7 @@ class ChatServer {
         this.outputToConsole(processedMessage, platform);
       }
 
-      if (!this.config.enableConsoleOutput) {
+      if (!this.config.consoleMode) {
         this.broadcastChatMessage(processedMessage, platform);
       }
     } catch (error) {
@@ -632,6 +638,7 @@ class ChatServer {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     await this.webhookService.stop();
+    await this.webApiService.stop();
 
     console.log(`${this.logPrefix} shutdown finished`);
 

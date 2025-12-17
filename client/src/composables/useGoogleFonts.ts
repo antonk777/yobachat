@@ -1,6 +1,8 @@
 import { ref, onMounted } from 'vue';
 
-import type { FontFamily, FontOption, FontStyle, FontWeight } from '@shared/shared-types';
+import type { FontFamily, FontOption } from '@shared/shared-types';
+
+import { kSharedConfig } from '@/config';
 
 const
   fonts = ref<FontFamily[]>([]),
@@ -8,29 +10,17 @@ const
   error = ref<string | null>(null);
 
 /**
- * Convert font style names to FontStyle
- */
-function styleNameToFontStyle(style: string): FontStyle {
-  const normalized = style.toLowerCase();
-
-  return {
-    weight: parseInt(normalized) as FontWeight,
-    style: normalized.includes('i') ? 'italic' : 'normal'
-  };
-}
-
-/**
- * Fetch Google Fonts list from the public API
- * Uses the Google Fonts metadata endpoint which doesn't require an API key
+ * Fetch Google Fonts list from the backend API
+ * The backend fetches from Google Fonts to circumvent CORS restrictions
  */
 async function fetchGoogleFonts(): Promise<void> {
   isLoading.value = true;
   error.value = null;
 
   try {
-    // Using the public Google Fonts metadata endpoint
-    // This endpoint doesn't require an API key and returns all available fonts
-    const response = await fetch('https://fonts.google.com/metadata/fonts');
+    const apiUrl = `https://${kSharedConfig.apiHost}${kSharedConfig.basePath}fonts`;
+
+    const response = await fetch(apiUrl);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch fonts: ${response.statusText}`);
@@ -38,19 +28,11 @@ async function fetchGoogleFonts(): Promise<void> {
 
     const data = await response.json();
 
-    // The metadata endpoint returns fonts in a different format
-    // It's an object with a "familyMetadataList" array
-    if (!data.familyMetadataList || !Array.isArray(data.familyMetadataList)) {
-      throw new Error('Google Fonts metadata endpoint failed');
+    if (!Array.isArray(data)) {
+      throw new Error('Fonts API returned unexpected data');
     }
 
-    fonts.value = data.familyMetadataList.map((font: any): FontFamily => ({
-      type: 'google',
-      family: font.family,
-      styles: Object.keys(font.fonts).map(variant => styleNameToFontStyle(variant)),
-      subsets: font.subsets || [],
-      googlePopularity: font.popularity
-    }));
+    fonts.value = data;
   } catch (err) {
     console.error('Failed to fetch Google Fonts:', err);
     error.value = err instanceof Error ? err.message : 'Unknown error';

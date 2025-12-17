@@ -1,6 +1,6 @@
 import { ChatSettings } from "./shared-types";
 
-export const kDefaultChatSettings: ChatSettings = Object.freeze({
+export const kDefaultChatSettings: ChatSettings = {
   showAvatars: true,
   showBadges: false,
   showModeratorBadges: true,
@@ -8,8 +8,10 @@ export const kDefaultChatSettings: ChatSettings = Object.freeze({
   showSubscriberBadges: true,
   showVipBadges: true,
   showEmotes: true,
-  filterBadWords: false,
+  filterBadWords: true,
   badWords: [],
   userFont: null,
   adminFont: null,
-});
+  adminLineHeight: 1.2,
+  userLineHeight: 1.2,
+};

@@ -47,6 +47,7 @@ import {
 import {
   validatePartialChatSettings
 } from '@/validation.js';
+import { kBatchDelayMS, kMaxMessages } from '@shared/shared-constants';
 
 
 class ChatServer {
@@ -63,6 +64,14 @@ class ChatServer {
   private webhookService: WebhookService;
   private webApiService: WebAPIService;
 
+  // Message batching
+  private messageBatch: ChatMessage[] = [];
+  private batchTimeout: NodeJS.Timeout | null = null;
+
+  // Message history (last kMaxMessages messages)
+  private messageHistory: ChatMessage[] = [];
+
+  // WS event handlers
   private _handleWSConnection = this.handleWSConnection.bind(this);
   private _handleWSMessage = this.handleWSMessage.bind(this);
   private _handleWSError = this.handleWSError.bind(this);
@@ -184,6 +193,7 @@ class ChatServer {
 
   /**
    * Broadcast chat message to all connected WebSocket clients
+   * Messages are batched and sent every kBatchDelayMS
    */
   private broadcastChatMessage(message: ChatMessage, platform: Platform): void {
     if (!this.websocketService) {
@@ -195,11 +205,67 @@ class ChatServer {
       return;
     }
 
+    // Add message to batch
+    this.messageBatch.push(message);
+
+    // Clear existing timeout if any
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout);
+    }
+
+    // Set new timeout to send batch after kBatchDelayMS
+    this.batchTimeout = setTimeout(() => {
+      this.flushMessageBatch();
+    }, kBatchDelayMS);
+  }
+
+  /**
+   * Flush the current message batch and send it to all clients
+   */
+  private flushMessageBatch(): void {
+    if (this.messageBatch.length === 0) {
+      return;
+    }
+
+    // Filter out deleted messages
+    const validMessages = this.messageBatch.filter(
+      msg => !this.deletedMessages.has(msg.id)
+    );
+
+    if (validMessages.length === 0) {
+      this.messageBatch = [];
+      this.batchTimeout = null;
+      return;
+    }
+
+    // Add messages to history
+    this.addToHistory(validMessages);
+
     const messageData: ChatMessageUpdate = {
-      message
+      messages: validMessages
     };
 
     this.websocketService.broadcast(kWSMessageType.messageUpdate, messageData);
+
+    // Clear batch
+    this.messageBatch = [];
+    this.batchTimeout = null;
+  }
+
+  /**
+   * Add messages to history, keeping only the last kMaxMessages messages
+   */
+  private addToHistory(messages: ChatMessage[]): void {
+    // Add new messages to history
+    this.messageHistory.push(...messages);
+
+    // Sort by timestamp
+    this.messageHistory.sort((a, b) => a.timestamp - b.timestamp);
+
+    // Keep only the last kMaxMessages messages
+    if (this.messageHistory.length > kMaxMessages) {
+      this.messageHistory = this.messageHistory.slice(-kMaxMessages);
+    }
   }
 
   /**
@@ -400,6 +466,9 @@ class ChatServer {
     this.sendPlatformsStatus(clientId);
     this.sendChatSettings(clientId);
     this.sendDeletedMessageIds(clientId);
+
+    // Send message history to the new client
+    this.sendMessageHistory(clientId);
   }
 
   /**
@@ -482,6 +551,28 @@ class ChatServer {
   }
 
   /**
+   * Send message history to a client (last 60 messages)
+   */
+  private sendMessageHistory(clientId: string): void {
+    if (this.messageHistory.length === 0) {
+      return;
+    }
+
+    // Filter out deleted messages
+    const validMessages = this.messageHistory.filter(msg => !this.deletedMessages.has(msg.id));
+
+    if (validMessages.length === 0) {
+      return;
+    }
+
+    const messageData: ChatMessageUpdate = {
+      messages: validMessages
+    };
+
+    this.websocketService.send(clientId, kWSMessageType.messageUpdate, messageData);
+  }
+
+  /**
    * Handle admin delete message command
    */
   private async handleAdminDeleteMessage(clientId: string, message: WSAdminDeleteMessage): Promise<void> {
@@ -499,6 +590,9 @@ class ChatServer {
     // Validate and sanitize message IDs
     try {
       await this.deletedMessages.add(data.ids);
+
+      // Remove deleted messages from history
+      this.messageHistory = this.messageHistory.filter(msg => !data.ids.includes(msg.id));
 
       // Broadcast deletion to all clients (including the admin panel that requested it)
       this.broadcastChatMessageDeletion();
@@ -627,6 +721,12 @@ class ChatServer {
    */
   public async shutdown(): Promise<void> {
     console.log(`${this.logPrefix} Shutting down...`);
+
+    // Flush any pending message batches
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout);
+      this.flushMessageBatch();
+    }
 
     this.websocketService.off('connection', this._handleWSConnection);
     this.websocketService.off('message', this._handleWSMessage);

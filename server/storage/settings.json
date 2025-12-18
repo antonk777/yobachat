@@ -45,7 +45,66 @@
       "style": "normal"
     }
   },
-  "adminFont": null,
+  "adminFont": {
+    "type": "google",
+    "family": "PT Sans Caption",
+    "styles": [
+      {
+        "weight": 400,
+        "style": "normal"
+      },
+      {
+        "weight": 700,
+        "style": "normal"
+      }
+    ],
+    "subsets": [
+      "menu",
+      "cyrillic",
+      "cyrillic-ext",
+      "latin",
+      "latin-ext"
+    ],
+    "googlePopularity": 287,
+    "selectedStyle": {
+      "weight": 400,
+      "style": "normal"
+    }
+  },
+  "usernameFont": {
+    "type": "local",
+    "family": "Futura PT",
+    "styles": [
+      {
+        "weight": 300,
+        "style": "normal"
+      },
+      {
+        "weight": 400,
+        "style": "normal"
+      },
+      {
+        "weight": 500,
+        "style": "normal"
+      },
+      {
+        "weight": 500,
+        "style": "italic"
+      },
+      {
+        "weight": 700,
+        "style": "normal"
+      },
+      {
+        "weight": 900,
+        "style": "normal"
+      }
+    ],
+    "selectedStyle": {
+      "weight": 700,
+      "style": "normal"
+    }
+  },
   "adminLineHeight": 1.35,
   "userLineHeight": 1.2
 }

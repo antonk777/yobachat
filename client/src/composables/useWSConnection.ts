@@ -49,9 +49,14 @@ export const useWSConnection = createGlobalState(() => {
         uiStore.serverStatus = parsed.data;
       }
 
-      // Handle chat messages
+      // Handle chat messages (batched)
       if (parsed.type === kWSMessageType.messageUpdate) {
-        messagesStore.addMessage(parsed.data.message);
+        const messages = parsed.data.messages;
+        if (Array.isArray(messages)) {
+          messages.forEach(message => {
+            messagesStore.addMessage(message);
+          });
+        }
       }
 
       if (parsed.type === kWSMessageType.messageUpdateDeletedIds) {

@@ -114,12 +114,12 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
     // Try immediately first
     this.tryInitializeLiveChat();
 
-    // Then retry every 30 seconds until a stream is found
+    // Then retry every 15 seconds until a stream is found
     this.retryInterval = setInterval(() => {
       if (!this.isInitialized) {
         this.tryInitializeLiveChat();
       }
-    }, 15000); // Check every 15 seconds
+    }, 15000);
   }
 
   /**

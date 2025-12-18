@@ -102,7 +102,7 @@ export interface ChatMessageWithSegments extends ChatMessage {
 }
 
 export interface ChatMessageUpdate {
-  message: ChatMessage;
+  messages: ChatMessage[];
 }
 
 export interface ChatMessageDelete {
@@ -130,6 +130,7 @@ export interface ChatSettings {
   badWords: string[];
   userFont: FontOption | null;
   adminFont: FontOption | null;
+  usernameFont: FontOption | null;
   adminLineHeight: number;
   userLineHeight: number;
 }

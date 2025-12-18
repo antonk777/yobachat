@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import type { ChatSettings, FontFamily, FontStyle, FontOption } from '@shared/shared-types';
+import type { ChatSettings, FontFamily, FontStyle, FontOption, FontStyleName } from '@shared/shared-types';
 
 import { useGoogleFonts } from '@/composables/useGoogleFonts';
 import { useLocalFonts } from '@/composables/useLocalFonts';
@@ -9,6 +9,7 @@ import { useLocalFonts } from '@/composables/useLocalFonts';
 import FontFamilyDropdown from '@/components/FontFamilyDropdown.vue';
 import { clamp, useDebounceFn } from '@vueuse/core';
 
+type FontField = 'userFont' | 'adminFont' | 'usernameFont';
 
 const
   kLineHeightFactor = 100,
@@ -40,7 +41,7 @@ const {
 
 // Convert Map to sorted array for dropdown component
 const fontOptionsArray = computed<FontFamily[]>(() => {
-  return [...googleFonts.value, ...localFonts.value].sort((a, b) => {
+  return Array.from(fontOptionsMap.value.values()).sort((a, b) => {
     return a.family.localeCompare(b.family);
   });
 });
@@ -50,7 +51,7 @@ const fontOptionsMap = computed<Map<string, FontFamily>>(() => {
   const fontMap = new Map<string, FontFamily>();
 
   // Add all fonts to the map (later fonts with same name will overwrite earlier ones)
-  for (const font of fontOptionsArray.value) {
+  for (const font of [...googleFonts.value, ...localFonts.value]) {
     fontMap.set(font.family, font);
   }
 
@@ -119,12 +120,43 @@ const availableAdminStyles = computed(() => {
   return [];
 });
 
+// Get available weights for username font
+const availableUsernameWeights = computed(() => {
+  const { usernameFont } = props.modelValue;
+
+  if (usernameFont) {
+    const selectedFont = fontOptionsMap.value.get(usernameFont.family);
+
+    if (selectedFont) {
+      return Array.from(new Set(selectedFont.styles.map(s => s.weight)))
+        .sort((a, b) => a - b);
+    }
+  }
+
+  return [];
+});
+
+// Get available styles for username font at current weight
+const availableUsernameStyles = computed(() => {
+  const { usernameFont } = props.modelValue;
+
+  if (usernameFont) {
+    const selectedFont = fontOptionsMap.value.get(usernameFont.family);
+
+    if (selectedFont) {
+      return selectedFont.styles.map(s => s.style);
+    }
+  }
+
+  return [];
+});
+
 
 // Helper function to create or update FontOption
 function setFontWithStyle(
   family: string,
   selectedStyle: FontStyle | null,
-  targetField: 'userFont' | 'adminFont'
+  targetField: FontField
 ): void {
 
   const fontFamily = fontOptionsMap.value.get(family);
@@ -162,7 +194,7 @@ function setFontWithStyle(
 }
 
 // Handler methods for form inputs
-function updateFontFamily(value: string | undefined, targetField: 'userFont' | 'adminFont'): void {
+function updateFontFamily(value: string | undefined, targetField: FontField): void {
   if (!value) {
     emit('update:modelValue', { ...props.modelValue, [targetField]: null });
     return;
@@ -174,7 +206,7 @@ function updateFontFamily(value: string | undefined, targetField: 'userFont' | '
   setFontWithStyle(value, currentStyle, targetField);
 }
 
-function updateFontWeight(weight: number, targetField: 'userFont' | 'adminFont'): void {
+function updateFontWeight(weight: number, targetField: FontField): void {
   const currentFont = props.modelValue[targetField];
   if (!currentFont) {
     return;
@@ -204,7 +236,7 @@ function updateFontWeight(weight: number, targetField: 'userFont' | 'adminFont')
   });
 }
 
-function updateFontStyle(style: 'normal' | 'italic', targetField: 'userFont' | 'adminFont'): void {
+function updateFontStyle(style: FontStyleName, targetField: FontField): void {
   const currentFont = props.modelValue[targetField];
   if (!currentFont) {
     return;
@@ -348,6 +380,57 @@ function handleLineHeightInput(
     </div>
 
     <div class="font-widget-section">
+      <h4>Chat Widget Username Font</h4>
+
+      <FontFamilyDropdown
+        class="font-control-dropdown"
+        :model-value="modelValue.usernameFont?.family"
+        :options="fontOptionsArray"
+        :disabled="googleFontsLoading && localFontsLoading"
+        @update:model-value="(value: string | undefined) => updateFontFamily(value, 'usernameFont')"
+      />
+
+      <template v-if="modelValue.usernameFont">
+        <div class="switch-group">
+          <button
+            v-for="weight in availableUsernameWeights"
+            :key="weight"
+            type="button"
+            class="style-switch"
+            :class="{ active: modelValue.usernameFont.selectedStyle.weight === weight }"
+            :style="{ '--weight': weight }"
+            @click="updateFontWeight(weight, 'usernameFont')"
+          >
+            {{ weight }}
+          </button>
+        </div>
+
+        <div class="switch-group">
+          <button
+            v-if="availableUsernameStyles.includes('normal')"
+            type="button"
+            class="style-switch"
+            :class="{ active: modelValue.usernameFont.selectedStyle.style === 'normal' }"
+            :style="{ '--style': 'normal' }"
+            @click="updateFontStyle('normal', 'usernameFont')"
+          >
+            Normal
+          </button>
+          <button
+            v-if="availableUsernameStyles.includes('italic')"
+            type="button"
+            class="style-switch"
+            :class="{ active: modelValue.usernameFont.selectedStyle.style === 'italic' }"
+            :style="{ '--style': 'italic' }"
+            @click="updateFontStyle('italic', 'usernameFont')"
+          >
+            Italic
+          </button>
+        </div>
+      </template>
+    </div>
+
+    <div class="font-widget-section">
       <h4>Admin Panel Font</h4>
 
       <FontFamilyDropdown
@@ -433,7 +516,7 @@ function handleLineHeightInput(
 .font-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing);
+  gap: calc(var(--spacing) * 1.5);
 }
 
 .font-widget-section {
@@ -479,7 +562,7 @@ function handleLineHeightInput(
   }
 
   &:hover:not(:disabled) {
-    background-color: var(--bg-color);
+    background-color: var(--primary-color);
   }
 
   &.active {

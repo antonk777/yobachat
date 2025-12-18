@@ -5,43 +5,68 @@ import type { ChatSettings, WidgetType } from '@shared/shared-types';
 import { generateGoogleFontsCssUrl } from '@/composables/useGoogleFonts';
 
 let loadedFontLinkId: string | null = null;
+let loadedUsernameFontLinkId: string | null = null;
 
 /**
  * Load Google Fonts CSS dynamically
  */
-function loadGoogleFontsCss(url: string): void {
+function loadGoogleFontsCss(url: string, targetLinkId: 'main' | 'username'): string | null {
+  const linkIdVar = targetLinkId === 'main' ? loadedFontLinkId : loadedUsernameFontLinkId;
+
   // Remove previously loaded font link if exists
-  if (loadedFontLinkId) {
-    const existingLink = document.getElementById(loadedFontLinkId);
+  if (linkIdVar) {
+    const existingLink = document.getElementById(linkIdVar);
 
     if (existingLink) {
       existingLink.remove();
     }
 
-    loadedFontLinkId = null;
+    if (targetLinkId === 'main') {
+      loadedFontLinkId = null;
+    } else {
+      loadedUsernameFontLinkId = null;
+    }
   }
 
   if (!url) {
-    return;
+    return null;
   }
 
   // Check if link already exists
-  const existingLink = document.querySelector(`link[href="${url}"]`);
+  const existingLink = document.querySelector(`link[href="${url}"]`) as HTMLLinkElement | null;
 
   if (existingLink) {
-    loadedFontLinkId = existingLink.id || `google-font-${Date.now()}`;
-    return;
+    const linkId = existingLink.id || `google-font-${Date.now()}`;
+    if (!existingLink.id) {
+      existingLink.id = linkId;
+    }
+
+    if (targetLinkId === 'main') {
+      loadedFontLinkId = linkId;
+    } else {
+      loadedUsernameFontLinkId = linkId;
+    }
+
+    return linkId;
   }
 
   // Create and append link element
   const link = document.createElement('link');
-  link.id = `google-font-${Date.now()}`;
+  const linkId = `google-font-${Date.now()}`;
+  link.id = linkId;
   link.rel = 'stylesheet';
   link.href = url;
   link.crossOrigin = 'anonymous';
 
   document.head.appendChild(link);
-  loadedFontLinkId = link.id;
+
+  if (targetLinkId === 'main') {
+    loadedFontLinkId = linkId;
+  } else {
+    loadedUsernameFontLinkId = linkId;
+  }
+
+  return linkId;
 }
 
 /**
@@ -55,6 +80,9 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     root.style.removeProperty('--font-family');
     root.style.removeProperty('--font-weight');
     root.style.removeProperty('--chat-line-height');
+    root.style.removeProperty('--username-font-family');
+    root.style.removeProperty('--username-font-weight');
+    root.style.removeProperty('--username-font-style');
     return;
   }
 
@@ -90,10 +118,47 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     root.style.removeProperty('--chat-line-height');
   }
 
+  // Apply username font settings (only for user widget)
+  if (widgetType === 'user' && settings.usernameFont) {
+    root.style.setProperty('--username-font-family', `'${settings.usernameFont.family}', sans-serif`);
+
+    if (settings.usernameFont.selectedStyle?.weight !== undefined) {
+      root.style.setProperty('--username-font-weight', String(settings.usernameFont.selectedStyle.weight));
+    } else {
+      root.style.removeProperty('--username-font-weight');
+    }
+
+    if (settings.usernameFont.selectedStyle?.style !== undefined) {
+      root.style.setProperty('--username-font-style', String(settings.usernameFont.selectedStyle.style));
+    } else {
+      root.style.removeProperty('--username-font-style');
+    }
+
+    // Load Google Fonts CSS if it's a Google font
+    if (settings.usernameFont.type === 'google') {
+      const googleFontsCssUrl = generateGoogleFontsCssUrl(settings.usernameFont);
+      loadGoogleFontsCss(googleFontsCssUrl, 'username');
+    } else if (loadedUsernameFontLinkId) {
+      // Remove font link if no Google font is selected
+      const existingLink = document.getElementById(loadedUsernameFontLinkId);
+
+      if (existingLink) {
+        existingLink.remove();
+      }
+
+      loadedUsernameFontLinkId = null;
+    }
+  } else {
+    // Reset username font properties
+    root.style.removeProperty('--username-font-family');
+    root.style.removeProperty('--username-font-weight');
+    root.style.removeProperty('--username-font-style');
+  }
+
   // Load Google Fonts CSS if it's a Google font
   if (fontOption?.type === 'google') {
     const googleFontsCssUrl = generateGoogleFontsCssUrl(fontOption);
-    loadGoogleFontsCss(googleFontsCssUrl);
+    loadGoogleFontsCss(googleFontsCssUrl, 'main');
   } else if (loadedFontLinkId) {
     // Remove font link if no Google font is selected
     const existingLink = document.getElementById(loadedFontLinkId);
@@ -130,6 +195,16 @@ export function useFontSettings(settings: () => ChatSettings | null, widgetType:
       }
 
       loadedFontLinkId = null;
+    }
+
+    if (loadedUsernameFontLinkId) {
+      const existingLink = document.getElementById(loadedUsernameFontLinkId);
+
+      if (existingLink) {
+        existingLink.remove();
+      }
+
+      loadedUsernameFontLinkId = null;
     }
   });
 }

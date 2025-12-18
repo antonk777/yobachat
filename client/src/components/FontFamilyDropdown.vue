@@ -38,19 +38,21 @@ const filteredOptions = computed(() => {
   );
 });
 
+const selected = computed(() => {
+  if (!props.modelValue) {
+    return null;
+  }
+
+  return props.options.find(opt => opt.family === props.modelValue);
+});
+
 // Get display value for selected option
 const displayValue = computed(() => {
-  if (!props.modelValue) {
-    return 'Default (sans-serif)';
-  }
-
-  const selected = props.options.find(opt => opt.family === props.modelValue);
-
   if (!selected) {
-    return 'Unknown font';
+    return 'Default font';
   }
 
-  return selected.family;
+  return selected.value?.family ?? 'Unknown font';
 });
 
 function selectOption(option: FontFamily | null) {
@@ -116,6 +118,10 @@ watch(() => props.disabled, (disabled) => {
         :style="{ '--selected-font-family': displayValue ?? '' }"
       >
         {{ displayValue }}
+
+        <span v-if="selected" class="dropdown-option-type">
+          {{ selected.type === 'google' ? 'Google' : 'Local' }}
+        </span>
       </span>
       <span class="dropdown-arrow">▼</span>
     </button>
@@ -144,6 +150,10 @@ watch(() => props.disabled, (disabled) => {
             @click="selectOption(option)"
           >
             {{ option.family }}
+
+            <span class="dropdown-option-type">
+              {{ option.type === 'google' ? 'Google' : 'Local' }}
+            </span>
           </button>
 
           <div v-if="filteredOptions.length === 0" class="dropdown-empty">
@@ -192,12 +202,26 @@ watch(() => props.disabled, (disabled) => {
 
 .dropdown-value {
   flex: 1;
-  text-align: left;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   overflow: hidden;
+  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: sans-serif;
   font-family: var(--selected-font-family), sans-serif;
+}
+
+.dropdown-option-type {
+  flex: none;
+  font-size: .7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-family: var(--font-family), sans-serif;
 }
 
 .dropdown-arrow {
@@ -256,6 +280,9 @@ watch(() => props.disabled, (disabled) => {
 }
 
 .dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   padding: 0.5rem;
   text-align: left;

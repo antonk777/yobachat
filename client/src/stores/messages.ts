@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 
 import type { ChatMessage, ChatMessageSegment, ChatMessageWithSegments } from '@shared/shared-types.js';
 
-import { kMaxMessages } from '@/config';
+import { kMaxMessages } from '@shared/shared-constants';
 import { useSettingsStore } from '@/stores/settings';
 
 export const useMessagesStore = defineStore('messages', () => {
@@ -190,7 +190,7 @@ export const useMessagesStore = defineStore('messages', () => {
 },
 {
   persist: {
-    pick: ['messages', 'deletedMessageIds']
+    pick: ['deletedMessageIds']
   }
 });
 

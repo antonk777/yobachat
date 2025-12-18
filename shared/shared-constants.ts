@@ -1,5 +1,9 @@
 import { ChatSettings } from "./shared-types";
 
+export const kMaxMessages = 60;
+
+export const kBatchDelayMS = 200;
+
 export const kDefaultChatSettings: ChatSettings = {
   showAvatars: true,
   showBadges: false,
@@ -12,6 +16,7 @@ export const kDefaultChatSettings: ChatSettings = {
   badWords: [],
   userFont: null,
   adminFont: null,
+  usernameFont: null,
   adminLineHeight: 1.2,
   userLineHeight: 1.2,
 };

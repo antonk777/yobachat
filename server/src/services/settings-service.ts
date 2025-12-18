@@ -5,7 +5,7 @@ import chalk from 'chalk';
 
 import type { ChatSettings } from '@shared/shared-types.js';
 
-import { kDefaultChatSettings } from '@shared/shared-config.js';
+import { kDefaultChatSettings } from '@shared/shared-constants';
 import { validateChatSettings, validatePartialChatSettings } from '@/validation.js';
 
 

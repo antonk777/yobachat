@@ -189,6 +189,7 @@ export const ChatSettingsSchema = z.object({
   badWords: z.array(z.string().min(1).max(100)),
   userFont: FontOptionSchema.nullable(),
   adminFont: FontOptionSchema.nullable(),
+  usernameFont: FontOptionSchema.nullable(),
   adminLineHeight: LineHeightSchema,
   userLineHeight: LineHeightSchema,
 });
@@ -208,7 +209,7 @@ const ServerStatusSchema = z.object({
 const MessageUpdateSchema = z.object({
   type: z.literal(kWSMessageType.messageUpdate),
   data: z.object({
-    message: ChatMessageSchema
+    messages: z.array(ChatMessageSchema).min(1).max(1000)
   })
 });
 

@@ -72,9 +72,10 @@ useFontSettings(() => settingsStore.settings, 'user');
 
   font-size: var(--font-size);
   font-weight: var(--font-weight);
-  filter:
-    drop-shadow(0 0 .1rem #000)
-    drop-shadow(.05rem .15rem .3rem #000);
+
+  filter: drop-shadow(.125rem .125rem .25rem #000);
+  -webkit-text-stroke: .1rem hsl(0 0% 0% / 50%);
+  paint-order: stroke fill;
 }
 
 .chat-messages {
@@ -82,12 +83,12 @@ useFontSettings(() => settingsStore.settings, 'user');
   flex-direction: column;
   justify-content: flex-end;
   flex: 1;
-  padding: var(--spacing);
+  padding: calc(var(--spacing) * .5);
   overflow: hidden;
 }
 
 .chat-message {
-  margin-top: calc(var(--spacing) * .8);
+  margin-top: calc(var(--spacing) * .6);
 
   height: calc-size(max-content, size);
   opacity: 1;
@@ -106,7 +107,7 @@ useFontSettings(() => settingsStore.settings, 'user');
 .connection-status {
   flex: none;
   padding: var(--spacing);
-  color: var(--text-muted);
+  color: var(--error-color);
   font-size: var(--font-size-small);
   text-align: center;
 }

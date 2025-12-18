@@ -65,7 +65,7 @@ const hasPlatformIcon = computed(() => {
       />
 
       <div class="username">
-        {{ message.usernameFiltered }}:
+        {{ message.usernameFiltered }}
       </div>
 
       <div
@@ -186,9 +186,9 @@ const hasPlatformIcon = computed(() => {
 
 .username {
   color: var(--user-color, var(--text-muted));
-  /* font-weight: calc(var(--font-weight) + 200); */
-  /* font-weight: bolder; */
-  /* letter-spacing: -0.03em; */
+  font-family: var(--username-font-family, inherit);
+  font-weight: var(--username-font-weight, bolder);
+  font-style: var(--username-font-style, normal);
 
   .chat-message.deleted & {
     text-decoration: line-through;

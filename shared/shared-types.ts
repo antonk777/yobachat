@@ -133,6 +133,7 @@ export interface ChatSettings {
   usernameFont: FontOption | null;
   adminLineHeight: number;
   userLineHeight: number;
+  chatScale: number;
 }
 
 export enum kWSMessageType {

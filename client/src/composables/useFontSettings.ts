@@ -83,11 +83,19 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     root.style.removeProperty('--username-font-family');
     root.style.removeProperty('--username-font-weight');
     root.style.removeProperty('--username-font-style');
+    root.style.removeProperty('--chat-scale');
     return;
   }
 
   // Determine which font settings to use
   const fontOption = widgetType === 'user' ? settings.userFont : settings.adminFont;
+
+  // Apply chat scale
+  if (settings.chatScale !== undefined) {
+    root.style.setProperty('--chat-scale', String(settings.chatScale));
+  } else {
+    root.style.removeProperty('--chat-scale');
+  }
 
   // Apply font family
   if (fontOption?.family) {

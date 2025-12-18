@@ -5,6 +5,7 @@ import type { ChatSettings } from '@shared/shared-types';
 
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
+import { clamp, useDebounceFn } from '@vueuse/core';
 
 import FontSettings from '@/components/FontSettings.vue';
 
@@ -20,6 +21,12 @@ const
 const
   isOpen = computed(() => globalStore.isSettingsOpen),
   badWords = computed(() => settingsStore.badWords);
+
+const
+  kChatScaleFactor = 100,
+  kDefaultChatScale = 100,
+  kChatScaleMin = 50,
+  kChatScaleMax = 150;
 
 const handleClose = () => {
   globalStore.isSettingsOpen = false;
@@ -57,6 +64,51 @@ const addBadWord = () => {
 watch(() => settingsStore.settings, value => {
   localSettings.value = value ? { ...value } : null;
 }, { immediate: true });
+
+function clampChatScale(value: number): number {
+  if (!Number.isFinite(value)) {
+    return kDefaultChatScale;
+  }
+
+  return clamp(value, kChatScaleMin, kChatScaleMax);
+}
+
+function updateChatScale(value: number): void {
+  if (!localSettings.value) {
+    return;
+  }
+
+  const normalizedValue = clampChatScale(value) / kChatScaleFactor;
+
+  if (isNaN(normalizedValue)) {
+    return;
+  }
+
+  localSettings.value = {
+    ...localSettings.value,
+    chatScale: normalizedValue
+  };
+}
+
+const debouncedUpdateChatScale = useDebounceFn((
+  value: number
+): void => {
+  updateChatScale(value);
+}, 300);
+
+function handleChatScaleInput(event: Event): void {
+  const input = event.target as HTMLInputElement | null;
+
+  if (!input) {
+    return;
+  }
+
+  const value = parseInt(input.value, 10);
+
+  if (!isNaN(value)) {
+    debouncedUpdateChatScale(value);
+  }
+}
 </script>
 
 <template>
@@ -116,6 +168,24 @@ watch(() => settingsStore.settings, value => {
           />
           Show VIP badges
         </label>
+      </div>
+
+      <div class="settings-section">
+        <h4>Chat scale</h4>
+        <div class="line-height-control">
+          <label class="line-height-label" for="chat-scale">Scale</label>
+          <input
+            id="chat-scale"
+            class="line-height-input"
+            type="number"
+            :min="kChatScaleMin"
+            :max="kChatScaleMax"
+            :step="1"
+            :value="(localSettings.chatScale ?? kDefaultChatScale / kChatScaleFactor) * kChatScaleFactor"
+            @input="handleChatScaleInput"
+          />
+          %
+        </div>
       </div>
 
       <FontSettings
@@ -342,6 +412,36 @@ watch(() => settingsStore.settings, value => {
   color: var(--text-muted);
   font-size: .9rem;
   text-align: center;
+}
+
+.line-height-control {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * .5);
+}
+
+.line-height-label {
+  flex: none;
+  color: var(--text-muted);
+}
+
+.line-height-input {
+  width: auto;
+  field-sizing: content;
+  min-width: 4rem;
+  max-width: 100%;
+  padding: .375rem 0;
+  background-color: var(--bg-color-dark);
+  border: 1px solid var(--border-color);
+  border-radius: .25rem;
+  color: var(--text-color);
+  font-size: 1rem;
+  text-align: center;
+}
+
+h4 {
+  font-weight: 700;
+  margin-bottom: calc(var(--spacing) * .75);
 }
 </style>
 

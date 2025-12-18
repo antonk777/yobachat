@@ -309,6 +309,7 @@ function handleLineHeightInput(
     debouncedUpdateLineHeight(value, targetField);
   }
 }
+
 </script>
 
 <template>

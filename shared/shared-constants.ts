@@ -19,4 +19,5 @@ export const kDefaultChatSettings: ChatSettings = {
   usernameFont: null,
   adminLineHeight: 1.2,
   userLineHeight: 1.2,
+  chatScale: 1,
 };

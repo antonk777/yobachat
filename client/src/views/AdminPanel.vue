@@ -469,6 +469,7 @@ watch(() => messagesStore.messages, async () => {
   }
 
   .message-delete {
+    align-self: center;
     display: none;
     font-size: .75rem;
     background: none;

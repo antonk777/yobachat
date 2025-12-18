@@ -12,45 +12,19 @@
     "пидор"
   ],
   "userFont": {
-    "type": "local",
-    "family": "Futura PT",
-    "styles": [
-      {
-        "weight": 300,
-        "style": "normal"
-      },
-      {
-        "weight": 400,
-        "style": "normal"
-      },
-      {
-        "weight": 500,
-        "style": "normal"
-      },
-      {
-        "weight": 500,
-        "style": "italic"
-      },
-      {
-        "weight": 700,
-        "style": "normal"
-      },
-      {
-        "weight": 900,
-        "style": "normal"
-      }
-    ],
-    "selectedStyle": {
-      "weight": 500,
-      "style": "normal"
-    }
-  },
-  "adminFont": {
     "type": "google",
-    "family": "PT Sans Caption",
+    "family": "Google Sans",
     "styles": [
       {
         "weight": 400,
+        "style": "normal"
+      },
+      {
+        "weight": 500,
+        "style": "normal"
+      },
+      {
+        "weight": 600,
         "style": "normal"
       },
       {
@@ -60,25 +34,42 @@
     ],
     "subsets": [
       "menu",
+      "armenian",
+      "bengali",
+      "canadian-aboriginal",
       "cyrillic",
       "cyrillic-ext",
+      "devanagari",
+      "ethiopic",
+      "georgian",
+      "greek",
+      "greek-ext",
+      "gujarati",
+      "gurmukhi",
+      "hebrew",
+      "khmer",
+      "lao",
       "latin",
-      "latin-ext"
+      "latin-ext",
+      "malayalam",
+      "oriya",
+      "sinhala",
+      "symbols",
+      "tamil",
+      "telugu",
+      "thai",
+      "vietnamese"
     ],
-    "googlePopularity": 287,
+    "googlePopularity": 4,
     "selectedStyle": {
       "weight": 400,
       "style": "normal"
     }
   },
-  "usernameFont": {
-    "type": "local",
-    "family": "Futura PT",
+  "adminFont": {
+    "type": "google",
+    "family": "Google Sans",
     "styles": [
-      {
-        "weight": 300,
-        "style": "normal"
-      },
       {
         "weight": 400,
         "style": "normal"
@@ -88,23 +79,104 @@
         "style": "normal"
       },
       {
-        "weight": 500,
-        "style": "italic"
+        "weight": 600,
+        "style": "normal"
       },
       {
         "weight": 700,
         "style": "normal"
+      }
+    ],
+    "subsets": [
+      "menu",
+      "armenian",
+      "bengali",
+      "canadian-aboriginal",
+      "cyrillic",
+      "cyrillic-ext",
+      "devanagari",
+      "ethiopic",
+      "georgian",
+      "greek",
+      "greek-ext",
+      "gujarati",
+      "gurmukhi",
+      "hebrew",
+      "khmer",
+      "lao",
+      "latin",
+      "latin-ext",
+      "malayalam",
+      "oriya",
+      "sinhala",
+      "symbols",
+      "tamil",
+      "telugu",
+      "thai",
+      "vietnamese"
+    ],
+    "googlePopularity": 4,
+    "selectedStyle": {
+      "weight": 400,
+      "style": "normal"
+    }
+  },
+  "usernameFont": {
+    "type": "google",
+    "family": "Google Sans",
+    "styles": [
+      {
+        "weight": 400,
+        "style": "normal"
       },
       {
-        "weight": 900,
+        "weight": 500,
+        "style": "normal"
+      },
+      {
+        "weight": 600,
+        "style": "normal"
+      },
+      {
+        "weight": 700,
         "style": "normal"
       }
     ],
+    "subsets": [
+      "menu",
+      "armenian",
+      "bengali",
+      "canadian-aboriginal",
+      "cyrillic",
+      "cyrillic-ext",
+      "devanagari",
+      "ethiopic",
+      "georgian",
+      "greek",
+      "greek-ext",
+      "gujarati",
+      "gurmukhi",
+      "hebrew",
+      "khmer",
+      "lao",
+      "latin",
+      "latin-ext",
+      "malayalam",
+      "oriya",
+      "sinhala",
+      "symbols",
+      "tamil",
+      "telugu",
+      "thai",
+      "vietnamese"
+    ],
+    "googlePopularity": 4,
     "selectedStyle": {
       "weight": 700,
       "style": "normal"
     }
   },
   "adminLineHeight": 1.35,
-  "userLineHeight": 1.2
+  "userLineHeight": 1.2,
+  "chatScale": 0.9
 }

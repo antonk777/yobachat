@@ -32,7 +32,7 @@ const isMoreMenuOpen = ref(false);
 const platformsExpanded = ref(false);
 
 function hasPlatformIcon(platformId: string): boolean {
-  return ['twitch', 'youtube', 'telegram', 'vkvideo', 'kick'].includes(platformId);
+  return ['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame'].includes(platformId);
 }
 
 function toggleMoreMenu() {
@@ -552,6 +552,10 @@ watch(() => messagesStore.messages, async () => {
 
     &.icon-kick {
       mask-image: url('@/assets/kick.svg');
+    }
+
+    &.icon-goodgame {
+      mask-image: url('@/assets/goodgame.png');
     }
   }
 

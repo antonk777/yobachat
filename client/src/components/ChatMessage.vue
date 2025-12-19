@@ -185,7 +185,7 @@ const hasPlatformIcon = computed(() => {
 }
 
 .username {
-  color: var(--user-color, var(--text-muted));
+  color: var(--user-color, var(--platform-color));
   font-family: var(--username-font-family, inherit);
   font-weight: var(--username-font-weight, bolder);
   font-style: var(--username-font-style, normal);

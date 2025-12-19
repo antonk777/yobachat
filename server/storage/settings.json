@@ -9,12 +9,19 @@
   "filterBadWords": true,
   "badWords": [
     "негр",
-    "пидор"
+    "пидор",
+    "пидар",
+    "педер",
+    "нигг"
   ],
   "userFont": {
-    "type": "google",
-    "family": "Google Sans",
+    "type": "local",
+    "family": "Futura PT",
     "styles": [
+      {
+        "weight": 300,
+        "style": "normal"
+      },
       {
         "weight": 400,
         "style": "normal"
@@ -24,45 +31,20 @@
         "style": "normal"
       },
       {
-        "weight": 600,
-        "style": "normal"
+        "weight": 500,
+        "style": "italic"
       },
       {
         "weight": 700,
         "style": "normal"
+      },
+      {
+        "weight": 900,
+        "style": "normal"
       }
     ],
-    "subsets": [
-      "menu",
-      "armenian",
-      "bengali",
-      "canadian-aboriginal",
-      "cyrillic",
-      "cyrillic-ext",
-      "devanagari",
-      "ethiopic",
-      "georgian",
-      "greek",
-      "greek-ext",
-      "gujarati",
-      "gurmukhi",
-      "hebrew",
-      "khmer",
-      "lao",
-      "latin",
-      "latin-ext",
-      "malayalam",
-      "oriya",
-      "sinhala",
-      "symbols",
-      "tamil",
-      "telugu",
-      "thai",
-      "vietnamese"
-    ],
-    "googlePopularity": 4,
     "selectedStyle": {
-      "weight": 400,
+      "weight": 500,
       "style": "normal"
     }
   },
@@ -123,8 +105,20 @@
   },
   "usernameFont": {
     "type": "google",
-    "family": "Google Sans",
+    "family": "Roboto Condensed",
     "styles": [
+      {
+        "weight": 100,
+        "style": "normal"
+      },
+      {
+        "weight": 200,
+        "style": "normal"
+      },
+      {
+        "weight": 300,
+        "style": "normal"
+      },
       {
         "weight": 400,
         "style": "normal"
@@ -140,43 +134,33 @@
       {
         "weight": 700,
         "style": "normal"
+      },
+      {
+        "weight": 800,
+        "style": "normal"
+      },
+      {
+        "weight": 900,
+        "style": "normal"
       }
     ],
     "subsets": [
       "menu",
-      "armenian",
-      "bengali",
-      "canadian-aboriginal",
       "cyrillic",
       "cyrillic-ext",
-      "devanagari",
-      "ethiopic",
-      "georgian",
       "greek",
       "greek-ext",
-      "gujarati",
-      "gurmukhi",
-      "hebrew",
-      "khmer",
-      "lao",
       "latin",
       "latin-ext",
-      "malayalam",
-      "oriya",
-      "sinhala",
-      "symbols",
-      "tamil",
-      "telugu",
-      "thai",
       "vietnamese"
     ],
-    "googlePopularity": 4,
+    "googlePopularity": 14,
     "selectedStyle": {
-      "weight": 700,
+      "weight": 500,
       "style": "normal"
     }
   },
   "adminLineHeight": 1.35,
   "userLineHeight": 1.2,
-  "chatScale": 0.9
+  "chatScale": 0.97
 }

@@ -60,6 +60,7 @@ const sharedConfig = loadSharedConfig();
 
 export default defineConfig({
   base: sharedConfig.basePath,
+  publicDir: resolve(__dirname, 'public'),
   plugins: [
     vue(),
     checker({

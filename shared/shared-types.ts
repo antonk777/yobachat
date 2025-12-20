@@ -19,8 +19,6 @@ export interface TwitchServiceConfig {
 
 export interface YouTubeServiceConfig {
   channelId: string;
-  apiKey: string;
-  pollInterval: number;
 }
 
 export interface TelegramServiceConfig {

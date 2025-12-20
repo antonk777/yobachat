@@ -23,8 +23,8 @@ export const useWSConnection = createGlobalState(() => {
     immediate: true,
     autoReconnect: {
       retries: Infinity,
-      // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 20s
-      delay: (retries: number) => Math.min(1000 * 2 ** (retries - 1), 20000),
+      // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s
+      delay: (retries: number) => Math.min(1000 * 2 ** (retries - 1), 30000),
       onFailed: () => console.error('WebSocket reconnection failed')
     }
   });
@@ -45,39 +45,44 @@ export const useWSConnection = createGlobalState(() => {
       }
 
       // Handle connection status
-      if (parsed.type === kWSMessageType.serverStatus) {
-        uiStore.serverStatus = parsed.data;
-      }
 
-      // Handle chat messages (batched)
-      if (parsed.type === kWSMessageType.messageUpdate) {
-        const messages = parsed.data.messages;
-        if (Array.isArray(messages)) {
-          messages.forEach(message => {
-            messagesStore.addMessage(message);
-          });
-        }
-      }
+      switch (parsed.type) {
+        case kWSMessageType.serverStatus:
+          uiStore.serverStatus = parsed.data;
+          break;
 
-      if (parsed.type === kWSMessageType.messageUpdateDeletedIds) {
-        messagesStore.setDeletedMessageIds(parsed.data.ids);
-      }
+        case kWSMessageType.messageUpdate:
+          const messages = parsed.data.messages;
 
-      if (parsed.type === kWSMessageType.messageClearAll) {
-        messagesStore.clearAllMessages();
-      }
+          if (Array.isArray(messages)) {
+            messages.forEach(message => messagesStore.addMessage(message));
+          }
 
-      if (parsed.type === kWSMessageType.chatSettings) {
-        settingsStore.settings = parsed.data;
-      }
+          break;
 
-      // Handle admin responses
-      if (parsed.type === kWSMessageType.adminPlatformsStatus) {
-        uiStore.platforms = parsed.data.platforms;
-      }
+        case kWSMessageType.messageUpdateDeletedIds:
+          messagesStore.setDeletedMessageIds(parsed.data.ids);
+          break;
 
-      if (parsed.type === kWSMessageType.adminPlatformStatusUpdate) {
-        uiStore.updatePlatformStatus(parsed.data.platform);
+        case kWSMessageType.messageClearAll:
+          messagesStore.clearAllMessages();
+          break;
+
+        case kWSMessageType.chatSettings:
+          settingsStore.settings = parsed.data;
+          break;
+
+        case kWSMessageType.adminPlatformsStatus:
+          uiStore.platforms = parsed.data.platforms;
+          break;
+
+        case kWSMessageType.adminPlatformStatusUpdate:
+          uiStore.updatePlatformStatus(parsed.data.platform);
+          break;
+
+        default:
+          console.error('Unknown WebSocket message type:', parsed.type);
+          break;
       }
     } catch (err) {
       console.error('Error parsing WebSocket message:', err);

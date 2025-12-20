@@ -392,9 +392,7 @@ const TwitchServiceConfigSchema = z.object({
 }) satisfies z.ZodType<TwitchServiceConfig>;
 
 const YouTubeServiceConfigSchema = z.object({
-  channelId: z.string().min(1).max(100),
-  apiKey: z.string().min(1).max(200),
-  pollInterval: z.number().int().positive().max(3600000) // Max 1 hour
+  channelId: z.string().min(1).max(100)
 }) satisfies z.ZodType<YouTubeServiceConfig>;
 
 const TelegramServiceConfigSchema = z.object({

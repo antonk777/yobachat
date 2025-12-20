@@ -287,6 +287,8 @@ class ChatServer {
    * Broadcast clear all messages to all connected WebSocket clients
    */
   private broadcastClearAllMessages(): void {
+    this.messageHistory = [];
+
     if (this.config.consoleMode || !this.websocketService) {
       return;
     }

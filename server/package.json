@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "prod:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express",
-    "dev:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express",
+    "prod:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js",
+    "dev:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js",
     "dev:start": "SERVER_CONFIG_PATH=./server-config.dev.json SHARED_CONFIG_PATH=./shared/shared-config.dev.json node dist/index.js",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test:youtube-websocket": "tsx test-youtube-websocket.ts"
   },
   "dependencies": {
     "centrifuge": "^5.5.2",
@@ -18,6 +19,7 @@
     "tsyringe": "^4.10.0",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.56.0",
     "ws": "^8.18.3",
+    "youtubei.js": "^16.0.1",
     "zod": "^4.1.13"
   },
   "devDependencies": {

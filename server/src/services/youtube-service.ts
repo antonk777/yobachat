@@ -1,16 +1,20 @@
 import { EventEmitter } from 'node:events';
 import chalk from 'chalk';
+import { Innertube } from 'youtubei.js/web';
+import { YTNodes } from 'youtubei.js/web';
+import type LiveChat from 'youtubei.js/dist/src/parser/youtube/LiveChat.js';
+import type LiveChatTextMessage from 'youtubei.js/dist/src/parser/classes/livechat/items/LiveChatTextMessage.js';
+import type EmojiRun from 'youtubei.js/dist/src/parser/classes/misc/EmojiRun.js';
+import type TextRun from 'youtubei.js/dist/src/parser/classes/misc/TextRun.js';
 
 import type { ChatMessage, Platform, YouTubeServiceConfig } from '@shared/shared-types.js';
 import type {
   PlatformService,
   PlatformWithConfig,
-  YouTubeSearchResponse,
-  YouTubeVideoResponse,
-  YouTubeLiveChatResponse,
   PlatformServiceEvents,
 } from '@/types.js';
 import { kYouTubeEmoteMapping } from '@/constants/youtube.js';
+import { randomUUID } from 'node:crypto';
 
 
 /**
@@ -22,12 +26,11 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
   private readonly config: YouTubeServiceConfig;
   private logPrefix: string;
 
-  private pollInterval: NodeJS.Timeout | null = null;
   private retryInterval: NodeJS.Timeout | null = null;
-  private liveChatId: string | null = null;
-  private nextPageToken: string | null = null;
   private isInitialized: boolean = false;
-  private serviceStartTime: number | null = null;
+  private retryDelay: number = 15000; // Start at 15s, will increase up to 120s
+  private liveChat: LiveChat | null = null; // youtubei.js LiveChat instance
+  private currentVideoId: string | null = null;
 
   constructor(platformConfig: PlatformWithConfig<YouTubeServiceConfig>) {
     super();
@@ -55,41 +58,73 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
     }
   }
 
-  getConsoleBadge() {
-    const platformColor = chalk.hex(this.platform.color);
-
-    return platformColor(`[${this.platform.abbr}]`);
-  }
-
   /**
-   * Parse YouTube emotes/emojis from message text and create a mapping to image URLs
-   * YouTube uses Unicode emojis and custom emotes in :emotename: format
+   * Parse YouTube emotes/emojis from message runs array and create a mapping to image URLs
+   * Processes runs array to extract text and emoji codes, then maps emojis to image URLs
+   * Returns both the joined text string and the emotesMap
    */
-  private parseEmotes(messageText: string): Record<string, string> {
+  private parseEmotes(runs: (EmojiRun | TextRun)[] | undefined, fallbackText?: string): { text: string; emotesMap: Record<string, string> } {
     const emotesMap: Record<string, string> = {};
+    let text = '';
 
-    // Regular expression to match custom YouTube emotes in :emotename: format
-    // Matches : followed by alphanumeric characters, hyphens, underscores, and : again
-    const customEmoteRegex = /:([a-zA-Z0-9_-]+):/g;
+    // Process runs array if available
+    if (runs && Array.isArray(runs)) {
+      text = runs.map((run: EmojiRun | TextRun) => {
+        // Check if it's an EmojiRun (has emoji property)
+        if ('emoji' in run && run.emoji) {
+          // EmojiRun - extract emoji code from shortcuts and map to URL
+          let emojiCode = '';
 
-    // Find all custom emotes in the message
-    const customEmoteMatches = messageText.matchAll(customEmoteRegex);
+          // Get emoji code from shortcuts (e.g., :emoji_name:)
+          if (run.emoji.shortcuts && Array.isArray(run.emoji.shortcuts) && run.emoji.shortcuts.length > 0) {
+            emojiCode = run.emoji.shortcuts[0];
+          } else if (run.text) {
+            // Fallback to text property if shortcuts not available
+            emojiCode = run.text;
+          }
 
-    for (const match of customEmoteMatches) {
-      const [fullEmote, emoteName] = match;
+          // Map emoji to URL if available
+          if (emojiCode) {
+            // Extract emoji name from code (remove : : around it)
+            const emojiName = emojiCode.replace(/^:/, '').replace(/:$/, '');
+            const emoteUrl = kYouTubeEmoteMapping[emojiName.toLowerCase()];
 
-      if (emoteName && !emotesMap[fullEmote]) {
-        // Look up emote URL from mapping (mapping now contains full URLs)
-        const emoteUrl = kYouTubeEmoteMapping[emoteName.toLowerCase()];
+            if (emoteUrl) {
+              emotesMap[emojiCode] = emoteUrl;
+            }
 
-        if (emoteUrl) {
-          // Use the full URL directly from the mapping
-          emotesMap[fullEmote] = emoteUrl;
+            return emojiCode;
+          }
+        }
+
+        // TextRun - use text as-is
+        if (run.text) {
+          return run.text;
+        }
+
+        return '';
+      }).join('');
+    } else if (fallbackText) {
+      // Fallback: parse text string for emotes
+      text = fallbackText;
+
+      // Regular expression to match custom YouTube emotes in :emotename: format
+      const customEmoteRegex = /:([a-zA-Z0-9_-]+):/g;
+      const customEmoteMatches = text.matchAll(customEmoteRegex);
+
+      for (const match of customEmoteMatches) {
+        const [fullEmote, emoteName] = match;
+
+        if (emoteName && !emotesMap[fullEmote]) {
+          const emoteUrl = kYouTubeEmoteMapping[emoteName.toLowerCase()];
+          if (emoteUrl) {
+            emotesMap[fullEmote] = emoteUrl;
+          }
         }
       }
     }
 
-    return emotesMap;
+    return { text, emotesMap };
   }
 
   async start(): Promise<void> {
@@ -97,11 +132,7 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
       return;
     }
 
-    if (!this.config.apiKey) {
-      throw new Error('YouTube API key is required');
-    }
-
-    console.log(`${this.getConsoleBadge()} Started watching ${this.config.channelId} - will retry until a live stream is found`);
+    console.log(`${this.logPrefix} Started watching ${this.config.channelId} - will retry until a live stream is found`);
 
     // Start retrying to find a live stream
     this.startRetryingForLiveStream();
@@ -111,19 +142,70 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
    * Start retrying to find a live stream periodically
    */
   private startRetryingForLiveStream(): void {
+    // Reset retry delay when starting fresh
+    this.retryDelay = 15000; // Start at 15s
+
     // Try immediately first
     this.tryInitializeLiveChat();
 
-    // Then retry every 30 seconds until a stream is found
-    this.retryInterval = setInterval(() => {
+    // Schedule next retry with progressive falloff
+    this.scheduleNextRetry();
+  }
+
+  /**
+   * Schedule the next retry with exponential falloff (up to 120s)
+   */
+  private scheduleNextRetry(): void {
+    if (this.retryInterval) {
+      clearTimeout(this.retryInterval);
+      this.retryInterval = null;
+    }
+
+    // Ensure retryDelay is a valid number with minimum value
+    if (typeof this.retryDelay !== 'number' || !Number.isFinite(this.retryDelay) || this.retryDelay <= 0 || isNaN(this.retryDelay)) {
+      this.retryDelay = 15000; // Reset to default if invalid
+    }
+
+    // Clamp the delay to ensure it's within valid range
+    let delay = Math.max(1000, Math.min(this.retryDelay, 120000));
+
+    // Final safety check - ensure delay is a valid finite number
+    if (typeof delay !== 'number' || !Number.isFinite(delay) || isNaN(delay) || delay <= 0) {
+      delay = 15000; // Fallback to default
+      this.retryDelay = 15000; // Reset retryDelay as well
+    }
+
+    // Explicitly convert to number and ensure it's an integer
+    const timeoutDelay = Number.parseInt(String(delay), 10);
+    if (!Number.isFinite(timeoutDelay) || timeoutDelay <= 0) {
+      console.error(`${this.logPrefix} Invalid timeout delay detected: ${delay}, using default 15000`);
+      this.retryDelay = 15000;
+      this.retryInterval = setTimeout(() => {
+        if (!this.isInitialized) {
+          this.tryInitializeLiveChat();
+          this.retryDelay = 15000;
+          this.scheduleNextRetry();
+        }
+      }, 15000);
+      return;
+    }
+
+    this.retryInterval = setTimeout(() => {
       if (!this.isInitialized) {
         this.tryInitializeLiveChat();
+        // Exponentially increase delay for next retry (capped at 120s)
+        const newDelay = this.retryDelay * 2;
+        this.retryDelay = (typeof newDelay === 'number' && Number.isFinite(newDelay) && newDelay > 0)
+          ? Math.min(newDelay, 120000)
+          : 15000;
+        this.scheduleNextRetry();
       }
-    }, 60000);
+    }, delay);
   }
 
   /**
    * Try to initialize the live chat, but don't throw errors
+   * Based on: https://github.com/ixnoahlive/youtube-websocket/blob/main/src/routes/channel.ts
    */
   private async tryInitializeLiveChat(): Promise<void> {
     if (this.isInitialized) {
@@ -131,188 +213,253 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
     }
 
     try {
-      // First, get the active live broadcast
-      const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${this.config.channelId}&type=video&eventType=live&key=${this.config.apiKey}`;
-      const searchResponse = await fetch(searchUrl);
-      const searchData = (await searchResponse.json()) as YouTubeSearchResponse;
+      // Format channel ID - handle both UC... format and @handle format
+      const niceId = /^UC.{22}$/.test(this.config.channelId)
+        ? this.config.channelId
+        : '@' + this.config.channelId.replace('@', '');
 
-      if (!searchData.items || searchData.items.length === 0) {
+      // Use youtubei.js to resolve the channel's live stream URL
+      const youtube = await Innertube.create();
+      const streamData = await youtube.resolveURL(`https://www.youtube.com/${niceId}/live`).catch(() => {
+        return null;
+      });
+
+      if (!streamData?.payload?.videoId) {
         // No live stream yet, will retry
         return;
       }
 
-      const videoId = searchData.items[0].id?.videoId;
-      if (!videoId) {
-        return;
-      }
-
-      // Get the live chat ID
-      const videoUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${this.config.apiKey}`;
-      const videoResponse = await fetch(videoUrl);
-      const videoData = (await videoResponse.json()) as YouTubeVideoResponse;
-
-      if (!videoData.items || !videoData.items[0].liveStreamingDetails?.activeLiveChatId) {
-        // No live chat yet, will retry
-        return;
-      }
-
-      this.liveChatId = videoData.items[0].liveStreamingDetails.activeLiveChatId;
+      const videoId = streamData.payload.videoId;
+      this.currentVideoId = videoId;
       this.isInitialized = true;
-      this.serviceStartTime = Date.now();
 
-      // Stop retrying and start polling for messages
+      // Stop retrying
       if (this.retryInterval) {
-        clearInterval(this.retryInterval);
+        clearTimeout(this.retryInterval);
         this.retryInterval = null;
       }
+      // Reset retry delay for next time
+      this.retryDelay = 15000;
 
-      // Start polling for messages
-      this.pollInterval = setInterval(() => {
-        this.pollMessages()
-      }, this.config.pollInterval);
-
-      console.log(`${this.getConsoleBadge()} Live stream found! Started watching chat for ${this.config.channelId}`);
+      // Connect with youtubei.js (real-time)
+      this.connectWithYoutubei(videoId).catch((error) => {
+        console.error(`${this.logPrefix} Failed to connect with youtubei.js:`, error);
+        // Reset and retry
+        this.resetAndRetry();
+      });
     } catch (error) {
       this.setActive(false);
       // Silently fail and retry later
-      // Only log if it's not a "no stream" type error
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (!errorMessage.includes('No active live stream') && !errorMessage.includes('No active live chat')) {
-        console.error(`${this.getConsoleBadge()} Error checking for live stream:`, error);
+      if (!errorMessage.includes('Could not find stream') && !errorMessage.includes('no available live chat')) {
+        console.error(`${this.logPrefix} Error checking for live stream:`, error);
       }
     }
   }
+
+  /**
+   * Connect to YouTube live chat using youtubei.js (real-time method)
+   * Based on: https://github.com/ixnoahlive/youtube-websocket/blob/main/src/utils/finaliseStream.ts
+   */
+  private async connectWithYoutubei(streamId: string): Promise<void> {
+    try {
+      const youtube = await Innertube.create();
+      const streamInfo = await youtube.getInfo(streamId);
+      const liveChat = streamInfo.getLiveChat();
+
+      if (!liveChat) {
+        throw new Error('Requested content has no available live chat');
+      }
+
+      this.liveChat = liveChat;
+
+      // Listen for chat updates
+      liveChat.on('chat-update', (action) => {
+        if (!this.isInitialized || !action.is(YTNodes.AddChatItemAction)) {
+          return;
+        }
+
+        const item = action.as(YTNodes.AddChatItemAction).item;
+
+        if (!item) {
+          return;
+        }
+
+        // Handle different message types
+        switch (item.type) {
+          case 'LiveChatTextMessage':
+            this.handleLiveChatTextMessage(item.as(YTNodes.LiveChatTextMessage));
+            break;
+
+          case 'LiveChatPaidMessage':
+            // Handle superchat/membership messages if needed
+            break;
+        }
+      });
+
+      // Handle live chat end
+      liveChat.on('end', () => {
+        console.warn(`${this.logPrefix} Live chat has ended`);
+        if (this.liveChat) {
+          this.liveChat.stop();
+          this.liveChat = null;
+        }
+        this.resetAndRetry();
+      });
+
+      // Start the live chat
+      liveChat.start();
+
+      console.log(`${this.logPrefix} Connected with youtubei.js! Live stream found! Started watching chat for ${this.config.channelId} (real-time)`);
+      this.setActive(true);
+    } catch (error) {
+      if (this.liveChat) {
+        try {
+          this.liveChat.stop();
+        } catch (e) {
+          // Ignore errors when stopping
+        }
+        this.liveChat = null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Handle LiveChatTextMessage from youtubei.js
+   * Based on the structure from youtubei.js LiveChatTextMessage node
+   */
+  private handleLiveChatTextMessage(message: LiveChatTextMessage): void {
+    try {
+      console.log(`${this.logPrefix} Message:`, message.message.runs);
+
+      // Extract message ID
+      const messageId = message.id || `youtube-${randomUUID()}`;
+
+      // Parse emotes from runs array - returns both text and emotesMap
+      const { text, emotesMap } = this.parseEmotes(
+        message.message?.runs,
+        message.message?.text
+      );
+
+      if (!text || !text.trim()) {
+        return; // Skip empty messages
+      }
+
+      // Get author information
+      const author = message.author;
+
+      let
+        authorName = 'Unknown',
+        authorId = '',
+        authorThumbnail: string | undefined,
+        isModerator = false,
+        isVerified = false,
+        isOwner = false;
+
+      if (author) {
+        // Author.name is a string
+        authorName = author.name || 'Unknown';
+        authorId = author.id || '';
+
+        // Get thumbnail from thumbnails array
+        if (author.thumbnails && author.thumbnails.length > 0) {
+          // Use best_thumbnail if available, otherwise first thumbnail
+          const thumbnail = author.best_thumbnail || author.thumbnails[0];
+          authorThumbnail = thumbnail?.url;
+        }
+
+        // Check for moderator/verified status
+        isModerator = author.is_moderator || false;
+        isVerified = author.is_verified || false;
+        isOwner = author.is_verified_artist || false;
+      }
+
+      // Get timestamp - timestamp is in seconds, timestamp_usec is in microseconds
+      let timestamp = Date.now();
+
+      if (message.timestamp_usec) {
+        timestamp = Math.floor(message.timestamp_usec / 1000);
+      } else if (message.timestamp) {
+        timestamp = message.timestamp * 1000;
+      }
+
+      // Build chat message
+      const chatMessage: ChatMessage = {
+        id: `youtube-${messageId}`,
+        platform: this.platform,
+        channel: this.config.channelId,
+        username: authorName,
+        message: text,
+        timestamp: timestamp,
+        avatar: authorThumbnail,
+        badges: [
+          ...(isModerator ? ['moderator'] : []),
+          ...(isVerified ? ['verified'] : []),
+          ...(isOwner ? ['owner'] : [])
+        ],
+        isModerator: isModerator,
+        emotesMap: Object.keys(emotesMap).length > 0 ? emotesMap : undefined,
+        metadata: {
+          channelId: authorId,
+          verified: isVerified
+        }
+      };
+
+      this.emit('messageUpdated', chatMessage);
+    } catch (error) {
+      console.error(`${this.logPrefix} Error handling LiveChatTextMessage:`, error);
+    }
+  }
+
 
   /**
    * Reset the service and start retrying for a new live stream
    */
   private resetAndRetry(): void {
     this.isInitialized = false;
-    this.liveChatId = null;
-    this.nextPageToken = null;
-    this.serviceStartTime = null;
+    this.currentVideoId = null;
 
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-      this.pollInterval = null;
+    if (this.retryInterval) {
+      clearTimeout(this.retryInterval);
+      this.retryInterval = null;
     }
+
+    if (this.liveChat) {
+      try {
+        this.liveChat.stop();
+      } catch (error) {
+        // Ignore errors when stopping
+      }
+      this.liveChat = null;
+    }
+
+    // Reset retryDelay to ensure it's valid
+    this.retryDelay = 15000;
 
     this.startRetryingForLiveStream();
-  }
-
-  /**
-   * Handle errors that occur during message polling
-   */
-  private handlePollingError(error: unknown): void {
-    // If polling fails, the stream might have ended - reset and retry
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    if (errorMessage.includes('liveChatId') || errorMessage.includes('not found')) {
-      console.warn(`${this.getConsoleBadge()} Live stream appears to have ended, will retry to find a new one`);
-      this.resetAndRetry();
-    } else {
-      console.error(`${this.getConsoleBadge()} Error polling messages:`, error);
-    }
-  }
-
-  private async pollMessages(): Promise<void> {
-    if (!this.liveChatId || !this.config.apiKey) {
-      return;
-    }
-
-    try {
-      // Request snippet, authorDetails, and potentially emoji/customEmoji data
-      let url = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${this.liveChatId}&part=snippet,authorDetails&key=${this.config.apiKey}`;
-
-      if (this.nextPageToken) {
-        url += `&pageToken=${this.nextPageToken}`;
-      }
-
-      const response = await fetch(url);
-      const data = (await response.json()) as YouTubeLiveChatResponse;
-
-      if (data.items) {
-        this.setActive(true);
-
-        for (const item of data.items) {
-          const message = item.snippet;
-          const author = item.authorDetails;
-
-          // Skip if message doesn't have required fields
-          if (!item.id || !message || !author) {
-            continue;
-          }
-
-          // Skip if there's no display message (silent messages like TOMBSTONE)
-          if (!message.displayMessage) {
-            continue;
-          }
-
-          // Skip messages that were sent before the service started
-          const messageTimestamp = message.publishedAt ? new Date(message.publishedAt).getTime() : Date.now();
-          if (this.serviceStartTime && messageTimestamp < this.serviceStartTime) {
-            continue;
-          }
-
-          const messageId = `youtube-${item.id}`;
-
-          const emotesMap = this.parseEmotes(message.displayMessage);
-
-          const chatMessage: ChatMessage = {
-            id: messageId,
-            platform: this.platform,
-            channel: this.config.channelId,
-            username: author.displayName || author.channelId || 'Unknown',
-            message: message.displayMessage,
-            timestamp: messageTimestamp,
-            avatar: author.profileImageUrl,
-            badges: author.isChatModerator ? ['moderator'] : [],
-            isModerator: author.isChatModerator === true,
-            isSubscriber: author.isChatSponsor === true,
-            emotesMap: Object.keys(emotesMap).length > 0 ? emotesMap : undefined,
-            metadata: {
-              channelId: author.channelId,
-              channelUrl: author.channelUrl
-            },
-          };
-
-          this.emit('messageUpdated', chatMessage);
-        }
-      }
-
-      if (data.nextPageToken) {
-        this.nextPageToken = data.nextPageToken;
-      }
-    } catch (error) {
-      this.setActive(false);
-      // If polling fails, the stream might have ended - reset and retry
-      const errorMessage = error instanceof Error ? error.message : String(error);
-
-      if (errorMessage.includes('liveChatId') || errorMessage.includes('not found')) {
-        console.warn(`${this.getConsoleBadge()} Live stream appears to have ended, will retry to find a new one`);
-        this.resetAndRetry();
-      } else {
-        console.error(`${this.getConsoleBadge()} Error polling messages:`, error);
-      }
-    }
   }
 
   async stop(): Promise<void> {
     this.setActive(false);
 
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-      this.pollInterval = null;
-    }
-
     if (this.retryInterval) {
-      clearInterval(this.retryInterval);
+      clearTimeout(this.retryInterval);
       this.retryInterval = null;
     }
 
-    this.liveChatId = null;
-    this.nextPageToken = null;
+    if (this.liveChat) {
+      try {
+        this.liveChat.stop();
+      } catch (error) {
+        // Ignore errors when stopping
+      }
+      this.liveChat = null;
+    }
+
     this.isInitialized = false;
-    console.log(`${this.getConsoleBadge()} Stopped watching ${this.config.channelId}`);
+    this.currentVideoId = null;
+    console.log(`${this.logPrefix} Stopped watching ${this.config.channelId}`);
   }
 }
 

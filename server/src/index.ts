@@ -297,6 +297,17 @@ class ChatServer {
   }
 
   /**
+   * Broadcast widget refresh event to all connected WebSocket clients
+   */
+  private broadcastWidgetRefresh(): void {
+    if (this.config.consoleMode || !this.websocketService) {
+      return;
+    }
+
+    this.websocketService.broadcast(kWSMessageType.widgetRefresh, {});
+  }
+
+  /**
    * Broadcast chat settings to all connected WebSocket clients
    */
   private broadcastChatSettings(): void {
@@ -493,6 +504,11 @@ class ChatServer {
 
       case kWSMessageType.adminRefreshBetterTTV:
         this.updateBetterTTVEmotes(clientId);
+        break;
+
+      case kWSMessageType.adminRefreshWidget:
+        this.broadcastWidgetRefresh();
+        console.log(`${this.logPrefix} Admin triggered widget refresh`);
         break;
     }
   }

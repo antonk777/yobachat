@@ -18,10 +18,12 @@ export const decodeWSMessage = (message: string) => {
       case kWSMessageType.messageUpdateDeletedIds:
       case kWSMessageType.messageClearAll:
       case kWSMessageType.chatSettings:
+      case kWSMessageType.widgetRefresh:
       case kWSMessageType.adminDeleteMessage:
       case kWSMessageType.adminUpdateSettings:
       case kWSMessageType.adminClearAllMessages:
       case kWSMessageType.adminRefreshBetterTTV:
+      case kWSMessageType.adminRefreshWidget:
       case kWSMessageType.adminPlatformsStatus:
       case kWSMessageType.adminPlatformStatusUpdate:
         return messageParsed;

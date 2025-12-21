@@ -26,7 +26,11 @@ const
   kChatScaleFactor = 100,
   kDefaultChatScale = 100,
   kChatScaleMin = 50,
-  kChatScaleMax = 150;
+  kChatScaleMax = 150,
+  kAdminScaleFactor = 100,
+  kDefaultAdminScale = 100,
+  kAdminScaleMin = 50,
+  kAdminScaleMax = 150;
 
 const handleClose = () => {
   globalStore.isSettingsOpen = false;
@@ -109,6 +113,51 @@ function handleChatScaleInput(event: Event): void {
     debouncedUpdateChatScale(value);
   }
 }
+
+function clampAdminScale(value: number): number {
+  if (!Number.isFinite(value)) {
+    return kDefaultAdminScale;
+  }
+
+  return clamp(value, kAdminScaleMin, kAdminScaleMax);
+}
+
+function updateAdminScale(value: number): void {
+  if (!localSettings.value) {
+    return;
+  }
+
+  const normalizedValue = clampAdminScale(value) / kAdminScaleFactor;
+
+  if (isNaN(normalizedValue)) {
+    return;
+  }
+
+  localSettings.value = {
+    ...localSettings.value,
+    adminScale: normalizedValue
+  };
+}
+
+const debouncedUpdateAdminScale = useDebounceFn((
+  value: number
+): void => {
+  updateAdminScale(value);
+}, 300);
+
+function handleAdminScaleInput(event: Event): void {
+  const input = event.target as HTMLInputElement | null;
+
+  if (!input) {
+    return;
+  }
+
+  const value = parseInt(input.value, 10);
+
+  if (!isNaN(value)) {
+    debouncedUpdateAdminScale(value);
+  }
+}
 </script>
 
 <template>
@@ -183,6 +232,24 @@ function handleChatScaleInput(event: Event): void {
             :step="1"
             :value="(localSettings.chatScale ?? kDefaultChatScale / kChatScaleFactor) * kChatScaleFactor"
             @input="handleChatScaleInput"
+          />
+          %
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h4>Admin Panel scale</h4>
+        <div class="line-height-control">
+          <label class="line-height-label" for="admin-scale">Scale</label>
+          <input
+            id="admin-scale"
+            class="line-height-input"
+            type="number"
+            :min="kAdminScaleMin"
+            :max="kAdminScaleMax"
+            :step="1"
+            :value="(localSettings.adminScale ?? kDefaultAdminScale / kAdminScaleFactor) * kAdminScaleFactor"
+            @input="handleAdminScaleInput"
           />
           %
         </div>
@@ -267,8 +334,8 @@ function handleChatScaleInput(event: Event): void {
 .settings-modal {
   display: flex;
   flex-direction: column;
-  width: min(480px, calc(100vw - 4rem));
-  max-height: calc(100dvh - 4rem);
+  width: min(480px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
   overflow: hidden auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) var(--bg-color);
@@ -352,13 +419,23 @@ function handleChatScaleInput(event: Event): void {
 }
 
 .btn {
-  padding: .5rem 1rem;
-  border: none;
+  padding: calc(var(--spacing) * .5) calc(var(--spacing) * .75);
   border-radius: .25rem;
-  font-size: 1rem;
+
+  color: var(--text-color);
+
+  font-size: .9rem;
   font-weight: 500;
   transition: background-color .2s;
-  cursor: pointer;
+
+  @media (width > 400px) {
+    padding: calc(var(--spacing) * .5) var(--spacing);
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
 }
 
 .btn-primary {

@@ -79,22 +79,33 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     // Reset to defaults
     root.style.removeProperty('--font-family');
     root.style.removeProperty('--font-weight');
+    root.style.removeProperty('--font-style');
+    root.style.removeProperty('--font-stretch');
     root.style.removeProperty('--chat-line-height');
     root.style.removeProperty('--username-font-family');
     root.style.removeProperty('--username-font-weight');
     root.style.removeProperty('--username-font-style');
+    root.style.removeProperty('--username-font-stretch');
     root.style.removeProperty('--chat-scale');
+    root.style.removeProperty('--admin-scale');
     return;
   }
 
   // Determine which font settings to use
   const fontOption = widgetType === 'user' ? settings.userFont : settings.adminFont;
 
-  // Apply chat scale
-  if (settings.chatScale !== undefined) {
+  // Apply chat scale (for user widget)
+  if (widgetType === 'user' && settings.chatScale !== undefined) {
     root.style.setProperty('--chat-scale', String(settings.chatScale));
   } else {
     root.style.removeProperty('--chat-scale');
+  }
+
+  // Apply admin scale (for admin panel)
+  if (widgetType === 'admin' && settings.adminScale !== undefined) {
+    root.style.setProperty('--admin-scale', String(settings.adminScale));
+  } else {
+    root.style.removeProperty('--admin-scale');
   }
 
   // Apply font family
@@ -116,6 +127,13 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     root.style.setProperty('--font-style', String(fontOption.selectedStyle.style));
   } else {
     root.style.removeProperty('--font-style');
+  }
+
+  // Apply font stretch (width)
+  if (fontOption?.selectedStyle?.width !== undefined) {
+    root.style.setProperty('--font-stretch', String(fontOption.selectedStyle.width));
+  } else {
+    root.style.removeProperty('--font-stretch');
   }
 
   // Apply line height
@@ -142,6 +160,12 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
       root.style.removeProperty('--username-font-style');
     }
 
+    if (settings.usernameFont.selectedStyle?.width !== undefined) {
+      root.style.setProperty('--username-font-stretch', String(settings.usernameFont.selectedStyle.width));
+    } else {
+      root.style.removeProperty('--username-font-stretch');
+    }
+
     // Load Google Fonts CSS if it's a Google font
     if (settings.usernameFont.type === 'google') {
       const googleFontsCssUrl = generateGoogleFontsCssUrl(settings.usernameFont);
@@ -161,6 +185,7 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     root.style.removeProperty('--username-font-family');
     root.style.removeProperty('--username-font-weight');
     root.style.removeProperty('--username-font-style');
+    root.style.removeProperty('--username-font-stretch');
   }
 
   // Load Google Fonts CSS if it's a Google font

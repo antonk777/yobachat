@@ -31,6 +31,32 @@ export const useWSConnection = createGlobalState(() => {
 
   const connected = computed(() => status.value === 'OPEN');
 
+  // Track connection status changes
+  watch(() => status.value, (newStatus, oldStatus) => {
+    // Track initial connection or status changes
+    if (oldStatus === undefined || newStatus !== oldStatus) {
+      const isConnected = newStatus === 'OPEN';
+      let message: string;
+
+      if (isConnected) {
+        message = 'Connected to server';
+      } else {
+        switch (newStatus) {
+          case 'CLOSED':
+            message = 'Connection closed';
+            break;
+          case 'CONNECTING':
+            message = 'Connecting to server...';
+            break;
+          default:
+            message = `Disconnected (${newStatus})`;
+        }
+      }
+
+      uiStore.addConnectionStatusEntry(isConnected, message);
+    }
+  }, { immediate: true });
+
   // Parse incoming messages
   watch(data, newData => {
     if (!newData) {
@@ -48,7 +74,11 @@ export const useWSConnection = createGlobalState(() => {
 
       switch (parsed.type) {
         case kWSMessageType.serverStatus:
-          uiStore.serverStatus = parsed.data;
+          uiStore.serverStatus.push({
+            ...parsed.data,
+            type: 'server',
+            timestamp: Date.now()
+          });
           break;
 
         case kWSMessageType.messageUpdate:
@@ -70,6 +100,11 @@ export const useWSConnection = createGlobalState(() => {
 
         case kWSMessageType.chatSettings:
           settingsStore.settings = parsed.data;
+          break;
+
+        case kWSMessageType.widgetRefresh:
+          // Trigger a custom event that widgets can listen to
+          window.dispatchEvent(new CustomEvent('widgetRefresh'));
           break;
 
         case kWSMessageType.adminPlatformsStatus:
@@ -130,6 +165,13 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
+  function refreshWidget() {
+    send({
+      type: kWSMessageType.adminRefreshWidget,
+      data: {}
+    });
+  }
+
   function updateChatSettings(settings: Partial<ChatSettings>) {
     send({
       type: kWSMessageType.adminUpdateSettings,
@@ -145,6 +187,7 @@ export const useWSConnection = createGlobalState(() => {
     updateBadWords,
     clearAllMessages,
     refreshBetterTTV,
+    refreshWidget,
     updateChatSettings,
   };
 });

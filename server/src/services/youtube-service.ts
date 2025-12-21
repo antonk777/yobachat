@@ -331,8 +331,6 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
    */
   private handleLiveChatTextMessage(message: LiveChatTextMessage): void {
     try {
-      console.log(`${this.logPrefix} Message:`, message.message.runs);
-
       // Extract message ID
       const messageId = message.id || `youtube-${randomUUID()}`;
 

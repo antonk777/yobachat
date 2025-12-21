@@ -114,6 +114,13 @@ export interface ChatMessageUpdateDeletedIds {
 export interface ServerStatus {
   connected: boolean;
   message?: string;
+  timestamp?: number;
+}
+
+export interface ServerStatusConnection extends ServerStatus {
+  type: 'connection' | 'server';
+  message?: string;
+  timestamp: number;
 }
 
 export interface ChatSettings {
@@ -132,6 +139,7 @@ export interface ChatSettings {
   adminLineHeight: number;
   userLineHeight: number;
   chatScale: number;
+  adminScale: number;
 }
 
 export enum kWSMessageType {
@@ -140,12 +148,14 @@ export enum kWSMessageType {
   messageUpdateDeletedIds = 'messageUpdateDeletedIds',
   messageClearAll = 'messageClearAll',
   chatSettings = 'chatSettings',
+  widgetRefresh = 'widgetRefresh',
 
   // Admin commands (client -> server)
   adminDeleteMessage = 'adminDeleteMessage',
   adminUpdateSettings = 'adminUpdateSettings',
   adminClearAllMessages = 'adminClearAllMessages',
   adminRefreshBetterTTV = 'adminRefreshBetterTTV',
+  adminRefreshWidget = 'adminRefreshWidget',
 
   // Admin responses (server -> client)
   adminPlatformsStatus = 'adminPlatformsStatus',
@@ -177,6 +187,11 @@ export interface WSMessageChatSettings {
   data: ChatSettings;
 }
 
+export interface WSWidgetRefresh {
+  type: kWSMessageType.widgetRefresh;
+  data: {};
+}
+
 // Admin command interfaces
 export interface WSAdminDeleteMessage {
   type: kWSMessageType.adminDeleteMessage;
@@ -195,6 +210,11 @@ export interface WSAdminClearAllMessages {
 
 export interface WSAdminRefreshBetterTTV {
   type: kWSMessageType.adminRefreshBetterTTV;
+  data: {};
+}
+
+export interface WSAdminRefreshWidget {
+  type: kWSMessageType.adminRefreshWidget;
   data: {};
 }
 
@@ -218,12 +238,14 @@ export type WSMessageTypeMap = {
   [kWSMessageType.messageUpdateDeletedIds]: WSMessageUpdateDeletedIds;
   [kWSMessageType.messageClearAll]: WSMessageClearAll;
   [kWSMessageType.chatSettings]: WSMessageChatSettings;
+  [kWSMessageType.widgetRefresh]: WSWidgetRefresh;
 
   // Admin commands (client -> server)
   [kWSMessageType.adminDeleteMessage]: WSAdminDeleteMessage;
   [kWSMessageType.adminUpdateSettings]: WSAdminUpdateSettings;
   [kWSMessageType.adminClearAllMessages]: WSAdminClearAllMessages;
   [kWSMessageType.adminRefreshBetterTTV]: WSAdminRefreshBetterTTV;
+  [kWSMessageType.adminRefreshWidget]: WSAdminRefreshWidget;
   [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
   [kWSMessageType.adminPlatformStatusUpdate]: WSAdminPlatformStatusUpdate;
 }
@@ -234,10 +256,12 @@ export type WSMessage =
   | WSMessageUpdateDeletedIds
   | WSMessageClearAll
   | WSMessageChatSettings
+  | WSWidgetRefresh
   | WSAdminDeleteMessage
   | WSAdminUpdateSettings
   | WSAdminClearAllMessages
   | WSAdminRefreshBetterTTV
+  | WSAdminRefreshWidget
   | WSAdminPlatformsStatus
   | WSAdminPlatformStatusUpdate;
 
@@ -256,7 +280,19 @@ export type FontStyleName = 'normal' | 'italic';
 export interface FontStyle {
   weight: FontWeight;
   style: FontStyleName;
+  width?: FontWidth;
 }
+
+export type FontWidth = `${number}%` |
+'normal' |
+'ultra-condensed' |
+'extra-condensed' |
+'condensed' |
+'semi-condensed' |
+'semi-expanded' |
+'expanded' |
+'extra-expanded' |
+'ultra-expanded';
 
 export interface FontOption extends FontFamily {
   selectedStyle: FontStyle;

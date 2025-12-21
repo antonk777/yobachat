@@ -12,12 +12,16 @@ const hasPlatformIcon = computed(() => {
   const platformId = props.message.platform.id;
   return ['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame'].includes(platformId);
 });
+
+const isDeluxe = computed(() => {
+  return props.message.username.toLowerCase().includes('deluxe');
+})
 </script>
 
 <template>
   <div
     class="chat-message"
-    :class="`platform-${message.platform.id}`"
+    :class="[`platform-${message.platform.id}`, { 'is-deluxe': isDeluxe }]"
     :style="{
       '--user-color': message.color ?? null,
       '--platform-color': message.platform.color ?? null,
@@ -184,11 +188,35 @@ const hasPlatformIcon = computed(() => {
   border-radius: 50%;
 }
 
+@keyframes username-gradient-shift {
+  0% {
+    color: #6bf8d5;
+  }
+  33% {
+    color: #b082ff;
+  }
+  66% {
+    color: #ff78bb;
+  }
+  100% {
+    color: #6bf8d5;
+  }
+}
+
 .username {
-  color: var(--user-color, var(--platform-color));
+  --src-color: var(--user-color, var(--platform-color));
+
+  color: var(--src-color);
+  color: lch(from var(--src-color) calc(l + 20) c h);
+
   font-family: var(--username-font-family, inherit);
   font-weight: var(--username-font-weight, bolder);
   font-style: var(--username-font-style, normal);
+  font-stretch: var(--username-font-stretch, normal);
+
+  .chat-message.is-deluxe & {
+    animation: username-gradient-shift 30s ease infinite;
+  }
 
   .chat-message.deleted & {
     text-decoration: line-through;

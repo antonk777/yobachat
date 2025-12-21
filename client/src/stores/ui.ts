@@ -1,19 +1,33 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-import type { ServerStatus, PlatformWithStatus } from '@shared/shared-types.js';
+import type { PlatformWithStatus, ServerStatusConnection } from '@shared/shared-types.js';
 
 import { useSettingsStore } from '@/stores/settings';
+
+export interface ConnectionStatusEntry {
+  connected: boolean;
+  message?: string;
+  timestamp: number;
+}
 
 export const useUIStore = defineStore('ui', () => {
   const settingsStore = useSettingsStore()
 
   const
-    serverStatus = ref<ServerStatus | null>(null),
+    serverStatus = ref<ServerStatusConnection[]>([]),
     platforms = ref<PlatformWithStatus[]>([]),
-    isSettingsOpen = ref(false);
+    isSettingsOpen = ref(false),
+    isStatusHistoryOpen = ref(false),
+    connectionStatusHistory = ref<ConnectionStatusEntry[]>([]);
 
-  const lastStatusMessage = computed(() => serverStatus.value?.message);
+  const lastStatus = computed(() => {
+    if (serverStatus.value.length === 0) {
+      return null;
+    }
+
+    return serverStatus.value[serverStatus.value.length - 1];
+  });
 
   const isReady = computed(() => Boolean(settingsStore.settings));
 
@@ -27,12 +41,23 @@ export const useUIStore = defineStore('ui', () => {
     }
   }
 
+  function addConnectionStatusEntry(connected: boolean, message?: string) {
+    connectionStatusHistory.value.push({
+      connected,
+      message,
+      timestamp: Date.now()
+    });
+  }
+
   return {
     isReady,
     serverStatus,
     platforms,
     isSettingsOpen,
-    lastStatusMessage,
-    updatePlatformStatus
+    isStatusHistoryOpen,
+    connectionStatusHistory,
+    lastStatus,
+    updatePlatformStatus,
+    addConnectionStatusEntry
   };
 });

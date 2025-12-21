@@ -12,7 +12,7 @@
   --text-muted: #aaaaaa;
 
   --primary-color: #4a9eff;
-  --success-color: #2a5a2a;
+  --success-color: #2f852f;
   --error-color: #ff5555;
   --indicator-color: #666;
   --moderator-color: #e2c000;
@@ -29,7 +29,14 @@
   --font-size: 1rem;
   --font-weight: 400;
   --font-style: normal;
+  --font-stretch: normal;
   --font-size-small: .84rem;
+
+  &.admin-page {
+    @media (width <= 400px) {
+      --spacing: .6rem;
+    }
+  }
 }
 
 :root {
@@ -53,7 +60,7 @@
   }
 
   &.admin-page {
-    font-size: min(4.75vmin, 16px);
+    font-size: calc(min(4.75vmin, 16px) * var(--admin-scale, 1));
   }
 }
 
@@ -69,6 +76,7 @@ body {
   font-size: var(--font-size);
   font-weight: var(--font-weight);
   font-style: var(--font-style);
+  font-stretch: var(--font-stretch);
 }
 
 :root.widget-page body {

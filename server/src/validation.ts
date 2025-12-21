@@ -145,6 +145,20 @@ export const ChatMessageSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional()
 }) satisfies z.ZodType<ChatMessage>;
 
+// FontWidth schema (matches FontWidth type)
+const FontWidthSchema = z.union([
+  z.string().regex(/^\d+%$/), // Percentage string like "75%"
+  z.literal('normal'),
+  z.literal('ultra-condensed'),
+  z.literal('extra-condensed'),
+  z.literal('condensed'),
+  z.literal('semi-condensed'),
+  z.literal('semi-expanded'),
+  z.literal('expanded'),
+  z.literal('extra-expanded'),
+  z.literal('ultra-expanded')
+]);
+
 // FontStyle schema
 const FontStyleSchema = z.object({
   weight: z.union([
@@ -158,7 +172,8 @@ const FontStyleSchema = z.object({
     z.literal(800),
     z.literal(900)
   ]),
-  style: z.enum(['normal', 'italic'])
+  style: z.enum(['normal', 'italic']),
+  width: FontWidthSchema.optional()
 });
 
 // FontFamily schema
@@ -194,6 +209,7 @@ export const ChatSettingsSchema = z.object({
   adminLineHeight: LineHeightSchema,
   userLineHeight: LineHeightSchema,
   chatScale: ChatScaleSchema,
+  adminScale: ChatScaleSchema,
 });
 
 // Partial ChatSettings schema for updates
@@ -232,6 +248,11 @@ const ChatSettingsWSSchema = z.object({
   data: ChatSettingsSchema
 });
 
+const WidgetRefreshSchema = z.object({
+  type: z.literal(kWSMessageType.widgetRefresh),
+  data: z.object({})
+});
+
 const AdminDeleteMessageSchema = z.object({
   type: z.literal(kWSMessageType.adminDeleteMessage),
   data: z.object({
@@ -251,6 +272,11 @@ const AdminClearAllMessagesSchema = z.object({
 
 const AdminRefreshBetterTTVSchema = z.object({
   type: z.literal(kWSMessageType.adminRefreshBetterTTV),
+  data: z.object({})
+});
+
+const AdminRefreshWidgetSchema = z.object({
+  type: z.literal(kWSMessageType.adminRefreshWidget),
   data: z.object({})
 });
 
@@ -275,10 +301,12 @@ export const WSMessageSchema = z.discriminatedUnion('type', [
   MessageUpdateDeletedIdsSchema,
   MessageClearAllSchema,
   ChatSettingsWSSchema,
+  WidgetRefreshSchema,
   AdminDeleteMessageSchema,
   AdminUpdateSettingsSchema,
   AdminClearAllMessagesSchema,
   AdminRefreshBetterTTVSchema,
+  AdminRefreshWidgetSchema,
   AdminPlatformsStatusSchema,
   AdminPlatformStatusUpdateSchema
 ]) as z.ZodType<WSMessage>;

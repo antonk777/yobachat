@@ -4,6 +4,7 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 
 import ChatMessageComponent from '@/components/ChatMessage.vue';
 import ChatSettingsModal from '@/components/ChatSettings.vue';
+import StatusHistoryModal from '@/components/StatusHistoryModal.vue';
 
 import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
@@ -56,6 +57,15 @@ function handleRefreshBetterTTV() {
   closeMoreMenu();
 }
 
+function handleRefreshWidget() {
+  if (!ws.connected) {
+    return;
+  }
+
+  ws.refreshWidget();
+  closeMoreMenu();
+}
+
 function handleMessageClick(messageId: string) {
   if (!messagesStore.isSelectionMode) {
     messagesStore.isSelectionMode = true;
@@ -76,6 +86,10 @@ function deleteSelectedMessages() {
   ws.deleteMessage(idsToDelete);
 
   messagesStore.resetSelection();
+}
+
+function openStatusHistory() {
+  uiStore.isStatusHistoryOpen = true;
 }
 
 onClickOutside(moreMenuRef, () => {
@@ -101,16 +115,18 @@ watch(() => messagesStore.messages, async () => {
 <template>
   <div class="admin-panel" v-if="uiStore.isReady">
     <div class="admin-header">
-      <h1>Chat Admin Panel</h1>
+      <h1 class="admin-header-title">yobachat</h1>
 
-      <div class="connection-status" :class="{ connected: ws.connected }">
-        {{ ws.connected ? '🟢 Connected' : '🔴 Disconnected' }}:
-        <template v-if="uiStore.lastStatusMessage">
-          {{ uiStore.lastStatusMessage }}
-        </template>
-      </div>
+      <div class="admin-header-actions">
+        <div
+          class="connection-status"
+          :class="{ connected: ws.connected }"
+          @click="openStatusHistory"
+          title="View status history"
+        >
+          {{ ws.connected ? '🟢' : '🔴 Disconnected' }}
+        </div>
 
-      <div class="header-actions">
         <button
           class="btn btn-secondary"
           @click="uiStore.isSettingsOpen = true"
@@ -135,6 +151,15 @@ watch(() => messagesStore.messages, async () => {
             <button
               type="button"
               class="more-menu-item"
+              @click="handleRefreshWidget"
+              :disabled="!ws.connected"
+              title="Refresh the chat widget"
+            >
+              Refresh Widget
+            </button>
+            <button
+              type="button"
+              class="more-menu-item"
               @click="handleRefreshBetterTTV"
               :disabled="!ws.connected"
               title="Reload BetterTTV emotes on the server"
@@ -146,47 +171,49 @@ watch(() => messagesStore.messages, async () => {
       </div>
     </div>
 
-    <div class="admin-section messages-section">
-      <header class="messages-header">
-        <h2 class="admin-section-title">Chat</h2>
-        <div class="messages-header-actions">
-          <template v-if="messagesStore.isSelectionMode">
-            <span class="selection-count">
-              {{ messagesStore.selectedMessageIds.length }} selected
-            </span>
-
-            <button
-              @click="deleteSelectedMessages"
-              class="btn btn-secondary"
-              :disabled="!ws.connected || !messagesStore.hasSelectedMessages"
-              title="Delete selected messages"
-            >
-              Delete Selected
-            </button>
-
-            <button
-              @click="messagesStore.resetSelection"
-              class="btn btn-secondary"
-              title="Exit selection mode"
-            >
-              Cancel
-            </button>
-          </template>
+    <div
+      class="admin-section messages-section"
+      ref="messagesContainer"
+    >
+      <header
+        class="messages-header"
+        :class="{ 'selection-mode': messagesStore.isSelectionMode }"
+      >
+        <template v-if="messagesStore.isSelectionMode">
+          <span class="selection-count">
+            {{ messagesStore.selectedMessageIds.length }} selected
+          </span>
 
           <button
-            @click="ws.clearAllMessages"
+            @click="deleteSelectedMessages"
             class="btn btn-secondary"
-            :disabled="!ws.connected"
-            title="Delete all messages from the chat"
+            :disabled="!ws.connected || !messagesStore.hasSelectedMessages"
+            title="Delete selected messages"
           >
-            Clear All
+            Delete Selected
           </button>
-        </div>
+
+          <button
+            @click="messagesStore.resetSelection"
+            class="btn btn-secondary"
+            title="Exit selection mode"
+          >
+            Cancel
+          </button>
+        </template>
+
+        <button
+          @click="ws.clearAllMessages"
+          class="btn btn-warn"
+          :disabled="!ws.connected"
+          title="Delete all messages from the chat"
+        >
+          🧹
+        </button>
       </header>
 
       <div
         class="messages-container"
-        ref="messagesContainer"
         :style="{ '--chat-line-height': adminLineHeight }"
       >
         <div
@@ -227,21 +254,19 @@ watch(() => messagesStore.messages, async () => {
       class="admin-section platforms-section"
       :class="{ expanded: platformsExpanded }"
     >
-      <h2
-        class="admin-section-title platforms-section-title"
+      <button
+        class="platforms-section-toggle"
         @click="platformsExpanded = !platformsExpanded"
+        title="Toggle platforms list"
       >
-        Platform status
-        <span class="platforms-section-toggle">{{ platformsExpanded ? '-' : '+' }}</span>
-      </h2>
+        {{ platformsExpanded ? '➖' : '➕' }}
+      </button>
       <div v-if="uiStore.platforms.length > 0" class="platforms-list">
         <div
           v-for="platform in uiStore.platforms"
           :key="platform.id"
           class="platform-item"
-          :style="{
-            '--platform-color': platform.color
-          }"
+          :style="{ '--platform-color': platform.color }"
         >
           <div
             v-if="hasPlatformIcon(platform.id)"
@@ -272,13 +297,13 @@ watch(() => messagesStore.messages, async () => {
   </div>
 
   <ChatSettingsModal />
+  <StatusHistoryModal />
 </template>
 
 <style scoped>
 .admin-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing);
   height: 100dvh;
   background-color: var(--bg-color-dark);
   color: var(--text-color);
@@ -286,27 +311,66 @@ watch(() => messagesStore.messages, async () => {
 
 .admin-header {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   width: 100%;
-  gap: var(--spacing);
-  padding: var(--spacing);
+  gap: calc(var(--spacing) * .75);
+  padding: calc(var(--spacing) * .75);
   background-color: var(--bg-color);
   border-bottom: 1px solid var(--border-color);
+}
 
-  h1 {
-    width: 100%;
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.admin-header-title {
+  align-content: center;
+  height: 100%;
+  font-family: 'Futura PT', var(--font-family);
+  font-size: .5rem;
+  font-weight: 700;
+  text-align: center;
+
+  background: linear-gradient(135deg, #4a9eff 0%, #995eff 50%, #ff74b9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradient-shift 10s ease infinite;
+
+  @media (width > 400px) {
+    font-size: 1rem;
+  }
+
+  @media (width > 450px) {
     font-size: 1.5rem;
-    font-weight: 700;
-    text-align: center;
+  }
+}
+
+.admin-header-actions {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--spacing) * .75);
+  margin-left: auto;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
   }
 }
 
 .connection-status {
-  padding: calc(var(--spacing) * .5) var(--spacing);
+  align-content: center;
+  padding: calc(var(--spacing) * .5);
   border-radius: .25rem;
   background-color: var(--border-color);
+  cursor: pointer;
+  transition: background-color .2s, opacity .2s;
 
   &.connected {
     background-color: var(--success-color);
@@ -314,11 +378,23 @@ watch(() => messagesStore.messages, async () => {
 }
 
 .btn {
-  padding: calc(var(--spacing) * .5) var(--spacing);
-  border: none;
+  padding: calc(var(--spacing) * .5);
   border-radius: .25rem;
+
+  color: var(--text-color);
+
+  font-size: .85rem;
   font-weight: 500;
   transition: background-color .2s;
+
+  @media (width > 400px) {
+    padding: calc(var(--spacing) * .5) calc(var(--spacing) * .75);
+  }
+
+  @media (width > 450px) {
+    padding: calc(var(--spacing) * .5) var(--spacing);
+    font-size: .9rem;
+  }
 
   &:disabled {
     opacity: .5;
@@ -328,7 +404,6 @@ watch(() => messagesStore.messages, async () => {
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: var(--text-color);
 
   &:hover {
     background-color: color-mix(in srgb, var(--primary-color) 80%, white 20%);
@@ -337,17 +412,22 @@ watch(() => messagesStore.messages, async () => {
 
 .btn-secondary {
   background-color: var(--border-color);
-  color: var(--text-color);
 
   &:hover {
     background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
   }
 }
 
-.header-actions {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing);
+.btn-tertiary {
+  &:hover {
+    background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
+  }
+}
+
+.btn-warn {
+  &:hover {
+    background-color: var(--error-color);
+  }
 }
 
 .more-menu {
@@ -355,9 +435,6 @@ watch(() => messagesStore.messages, async () => {
 }
 
 .more-menu-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
   font-size: 1.2rem;
 }
 
@@ -394,51 +471,45 @@ watch(() => messagesStore.messages, async () => {
   }
 }
 
-.admin-section {
-  margin-inline: var(--spacing);
-  overflow: hidden;
-  background-color: var(--bg-color);
-  border-radius: .5rem;
-  padding: 1rem;
-
-  &:last-child {
-    margin-bottom: var(--spacing);
-  }
-}
-
-.admin-section-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
 .messages-section {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding-inline: 0;
-  padding-bottom: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-color);
 }
 
 .messages-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
   flex: none;
+
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-inline: var(--spacing);
-  margin-bottom: 1rem;
+  justify-content: flex-end;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * .5);
+
+  padding: calc(var(--spacing) * .5);
+
+  transition: background-color .2s;
+
+  &.selection-mode {
+    background-color: var(--bg-color);
+  }
 }
 
-.messages-header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing);
+.selection-count {
+  margin-right: auto;
+  align-content: center;
+  font-size: .85rem;
 }
 
 .messages-container {
   flex: 1;
-  overflow: hidden auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) var(--bg-color);
 }
 
 .message-item {
@@ -469,8 +540,13 @@ watch(() => messagesStore.messages, async () => {
   }
 
   .message-delete {
-    align-self: center;
     display: none;
+
+    position: absolute;
+    right: calc(var(--spacing) * .5);
+    top: calc(var(--spacing) * .5);
+
+    line-height: var(--chat-line-height, var(--line-height));
     font-size: .75rem;
     background: none;
     border: none;
@@ -487,32 +563,38 @@ watch(() => messagesStore.messages, async () => {
   }
 }
 
-.platforms-section-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing);
-  margin-bottom: var(--spacing);
-  cursor: pointer;
+.platforms-section {
+  position: relative;
+  border-top: 1px solid var(--border-color);
+  padding: calc(var(--spacing) * .5) var(--spacing);
+  padding-right: calc(var(--spacing) * 2 + 1.5rem);
 }
 
 .platforms-section-toggle {
+  position: absolute;
+  top: calc(var(--spacing) * .75);
+  right: calc(var(--spacing) * .5);
   width: 1.5rem;
   height: 1.5rem;
   line-height: 1.5rem;
   text-align: center;
-  font-size: 1.5rem;
+  border-radius: .25rem;
+  transition: background-color .2s;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
+  }
 }
 
 .platforms-list {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing);
+  gap: calc(var(--spacing) * .5);
   flex: 1;
 
   .platforms-section.expanded & {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
   }
 }
 
@@ -521,14 +603,18 @@ watch(() => messagesStore.messages, async () => {
   align-items: center;
   gap: calc(var(--spacing) * .5);
   padding: calc(var(--spacing) * .5);
-  background-color: var(--bg-color-dark);
-  border-radius: .5rem;
+  overflow: hidden;
+
+  .platforms-section.expanded & {
+    background-color: var(--bg-color-bright);
+    border-radius: .5rem;
+  }
 
   .platform-icon {
     display: block;
     flex: none;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1rem;
+    height: 1rem;
     background-color: var(--platform-color);
     mask-position: center center;
     mask-repeat: no-repeat;
@@ -577,6 +663,7 @@ watch(() => messagesStore.messages, async () => {
   .platform-name {
     flex: 1;
     font-weight: 500;
+    white-space: nowrap;
 
     .platforms-section:not(.expanded) & {
       display: none;
@@ -585,6 +672,10 @@ watch(() => messagesStore.messages, async () => {
 
   .platform-status {
     color: var(--text-muted);
+
+    @media (width <= 400px) {
+      font-size: .85rem;
+    }
   }
 }
 

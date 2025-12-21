@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 
 import ChatMessageComponent from '@/components/ChatMessage.vue';
 
@@ -22,6 +22,20 @@ const { connected: wsConnected, status: wsStatus } = useWSConnection();
 
 // Apply font settings for user widget
 useFontSettings(() => settingsStore.settings, 'user');
+
+// Handle widget refresh event
+function handleWidgetRefresh() {
+  // Reload the page to refresh the widget
+  window.location.reload();
+}
+
+onMounted(() => {
+  window.addEventListener('widgetRefresh', handleWidgetRefresh);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('widgetRefresh', handleWidgetRefresh);
+});
 
 // // Auto-scroll to bottom when new messages arrive
 // watch(() => messagesStore.messages, async () => {
@@ -72,6 +86,7 @@ useFontSettings(() => settingsStore.settings, 'user');
 
   font-size: var(--font-size);
   font-weight: var(--font-weight);
+  font-stretch: var(--font-stretch);
 
   filter: drop-shadow(.125rem .125rem .25rem #000);
   -webkit-text-stroke: .1rem hsl(0 0% 0% / 50%);

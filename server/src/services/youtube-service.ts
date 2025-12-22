@@ -348,7 +348,7 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
       const author = message.author;
 
       let
-        authorName = 'Unknown',
+        authorName = '',
         authorId = '',
         authorThumbnail: string | undefined,
         isModerator = false,
@@ -357,7 +357,7 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
 
       if (author) {
         // Author.name is a string
-        authorName = author.name || 'Unknown';
+        authorName = author.name || '';
         authorId = author.id || '';
 
         // Get thumbnail from thumbnails array

@@ -251,7 +251,7 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       id: messageId,
       platform: this.platform,
       channel: String(this.config.chatId),
-      username: msg.from?.username ?? msg.from?.first_name ?? '',
+      username: msg.from?.first_name ?? msg.from?.username ?? '',
       message: messageText,
       timestamp: msg.date * 1000,
       isModerator: false, // Telegram doesn't have a simple moderator flag

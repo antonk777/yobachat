@@ -36,14 +36,6 @@ const isDeluxe = computed(() => {
       />
 
       <div
-        v-else
-        class="platform-badge"
-        :class="`badge-${message.platform.id}`"
-      >
-        {{ message.platform.abbr }}
-      </div>
-
-      <div
         v-if="settings.showModeratorBadges && message.isModerator"
         class="moderator-badge"
       />
@@ -150,22 +142,6 @@ const isDeluxe = computed(() => {
   }
 }
 
-.platform-badge {
-  display: block;
-  align-self: center;
-  flex: none;
-
-  min-width: var(--platform-icon-size);
-  height: var(--platform-icon-size);
-  line-height: var(--platform-icon-size);
-
-  font-size: .55rem;
-  font-weight: bolder;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-}
-
 .moderator-badge {
   display: block;
   align-self: center;
@@ -193,10 +169,10 @@ const isDeluxe = computed(() => {
     color: #6bf8d5;
   }
   33% {
-    color: #b082ff;
+    color: #ba92ff;
   }
   66% {
-    color: #ff78bb;
+    color: #ff88c4;
   }
   100% {
     color: #6bf8d5;
@@ -215,7 +191,7 @@ const isDeluxe = computed(() => {
   font-stretch: var(--username-font-stretch, normal);
 
   .chat-message.is-deluxe & {
-    animation: username-gradient-shift 30s ease infinite;
+    animation: username-gradient-shift 90s ease infinite;
   }
 
   .chat-message.deleted & {

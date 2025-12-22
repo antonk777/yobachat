@@ -128,7 +128,7 @@ export const MessageIdSchema = z.string().min(1).max(128);
 export const ChatMessageSchema = z.object({
   id: MessageIdSchema,
   channel: z.string().min(1).max(200),
-  username: z.string().min(1).max(100),
+  username: z.string().min(0).max(100),
   message: z.string().min(0).max(5000),
   timestamp: z.number().int().positive(),
   platform: PlatformSchema,
@@ -150,17 +150,7 @@ const FontWidthSchema = z.number().min(50).max(200);
 
 // FontStyle schema
 const FontStyleSchema = z.object({
-  weight: z.union([
-    z.literal(100),
-    z.literal(200),
-    z.literal(300),
-    z.literal(400),
-    z.literal(500),
-    z.literal(600),
-    z.literal(700),
-    z.literal(800),
-    z.literal(900)
-  ]),
+  weight: z.number().int().positive().min(100).max(950),
   style: z.enum(['normal', 'italic']),
   width: FontWidthSchema.optional()
 });

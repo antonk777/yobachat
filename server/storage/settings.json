@@ -1,5 +1,5 @@
 {
-  "showAvatars": true,
+  "showAvatars": false,
   "showBadges": false,
   "showModeratorBadges": true,
   "showEditedBadges": true,
@@ -94,7 +94,7 @@
     ],
     "googlePopularity": 3,
     "selectedStyle": {
-      "weight": 500,
+      "weight": 600,
       "style": "normal"
     }
   },
@@ -128,7 +128,7 @@
       }
     ],
     "selectedStyle": {
-      "weight": 700,
+      "weight": 500,
       "style": "normal",
       "width": 50
     }

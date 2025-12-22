@@ -1,0 +1,72 @@
+[
+  {
+    "id": "twitch-a96b4c63-0029-4b94-b406-206d0fa729be",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "FootGoal",
+    "timestamp": 1766447303098,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "emotesMap": {
+      "FootGoal": "https://static-cdn.jtvnw.net/emoticons/v2/302628617/default/dark/2.0"
+    },
+    "metadata": {
+      "userId": "40134375",
+      "roomId": "16144345",
+      "emotes": {
+        "302628617": [
+          "0-7"
+        ]
+      }
+    }
+  },
+  {
+    "id": "twitch-9ff14577-eadb-442e-85f3-5144e3344d0a",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "MyAvatar",
+    "timestamp": 1766447450765,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "emotesMap": {
+      "MyAvatar": "https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c0c9c932c82244ff920ad2134be90afb/default/dark/2.0"
+    },
+    "metadata": {
+      "userId": "40134375",
+      "roomId": "16144345",
+      "emotes": {
+        "emotesv2_c0c9c932c82244ff920ad2134be90afb": [
+          "0-7"
+        ]
+      }
+    }
+  }
+]

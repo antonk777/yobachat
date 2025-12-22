@@ -92,37 +92,39 @@ watchEffect(() => {
     </div>
 
     <div class="status-history-content">
-      <div v-if="statusHistory.length === 0" class="empty-state">
+      <div
+        v-if="statusHistory.length === 0"
+        class="empty-state"
+        :key="'empty-state'"
+      >
         No status history available
       </div>
 
-      <div v-else class="status-history-list">
-        <div
-          v-for="(entry, index) in statusHistory"
-          :key="`${entry.timestamp}-${index}`"
-          class="status-history-item"
-          :class="{ connected: entry.connected }"
-        >
-          <div class="status-indicator">
-            {{ entry.connected ? '🟢' : '🔴' }}
+      <div
+        v-for="(entry, index) in statusHistory"
+        :key="`${entry.timestamp}-${index}`"
+        class="status-history-item"
+        :class="{ connected: entry.connected }"
+      >
+        <div class="status-indicator">
+          {{ entry.connected ? '🟢' : '🔴' }}
+        </div>
+
+        <div class="status-details">
+          <div class="status-header">
+            <span class="status-type">
+              {{ entry.type === 'connection' ? 'WebSocket' : 'Server' }}
+            </span>
+            <span class="status-state">
+              {{ entry.connected ? 'Connected' : 'Disconnected' }}
+            </span>
           </div>
 
-          <div class="status-details">
-            <div class="status-header">
-              <span class="status-type">
-                {{ entry.type === 'connection' ? 'WebSocket' : 'Server' }}
-              </span>
-              <span class="status-state">
-                {{ entry.connected ? 'Connected' : 'Disconnected' }}
-              </span>
-            </div>
-
-            <div v-if="entry.message" class="status-message">
-              {{ entry.message }}
-            </div>
-
-            <time class="status-time">{{ formatTimestamp(entry.timestamp) }}</time>
+          <div v-if="entry.message" class="status-message">
+            {{ entry.message }}
           </div>
+
+          <time class="status-time">{{ formatTimestamp(entry.timestamp) }}</time>
         </div>
       </div>
     </div>
@@ -185,14 +187,13 @@ watchEffect(() => {
 
 .status-history-content {
   flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) var(--bg-color);
-}
-
-.status-history-list {
-  display: flex;
-  flex-direction: column;
 }
 
 .status-history-item {

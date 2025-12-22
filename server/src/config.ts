@@ -25,6 +25,8 @@ interface ConfigArgs {
   serverConfig?: string;
 }
 
+export const kIsDev: boolean = process.env.NODE_ENV === 'development';
+
 function parseArgs(): ConfigArgs {
   const args: ConfigArgs = {};
   const argv = process.argv.slice(2);

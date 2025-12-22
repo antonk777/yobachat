@@ -33,6 +33,7 @@ import { KickService } from '@/services/kick-service.js';
 import { GoodgameService } from '@/services/goodgame-service.js';
 import { SettingsService } from '@/services/settings-service.js';
 import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
+import { MessageHistoryService } from '@/services/message-history-service.js';
 import { BetterTTVService } from '@/services/betterttv-service.js';
 import { WebhookService } from '@/services/webhook-service.js';
 import { WebSocketService } from '@/services/websocket-service.js';
@@ -47,8 +48,7 @@ import {
 import {
   validatePartialChatSettings
 } from '@/validation.js';
-import { kBatchDelayMS, kMaxMessages } from '@shared/shared-constants';
-
+import { kBatchDelayMS } from '@shared/shared-constants';
 
 class ChatServer {
   public logPrefix = chalk.yellow('[ChatServer]');
@@ -60,6 +60,7 @@ class ChatServer {
 
   private settings = new SettingsService();
   private deletedMessages = new DeletedMessagesService();
+  private messageHistory = new MessageHistoryService();
   private betterttvService: BetterTTVService | null = null;
   private webhookService: WebhookService;
   private webApiService: WebAPIService;
@@ -67,9 +68,6 @@ class ChatServer {
   // Message batching
   private messageBatch: ChatMessage[] = [];
   private batchTimeout: NodeJS.Timeout | null = null;
-
-  // Message history (last kMaxMessages messages)
-  private messageHistory: ChatMessage[] = [];
 
   // WS event handlers
   private _handleWSConnection = this.handleWSConnection.bind(this);
@@ -96,7 +94,8 @@ class ChatServer {
     // Initialize services (load from disk)
     await Promise.all([
       this.settings.init(),
-      this.deletedMessages.init()
+      this.deletedMessages.init(),
+      this.messageHistory.init()
     ]);
 
     await this.betterttvService.update();
@@ -239,7 +238,7 @@ class ChatServer {
     }
 
     // Add messages to history
-    this.addToHistory(validMessages);
+    this.messageHistory.add(validMessages);
 
     const messageData: ChatMessageUpdate = {
       messages: validMessages
@@ -252,21 +251,6 @@ class ChatServer {
     this.batchTimeout = null;
   }
 
-  /**
-   * Add messages to history, keeping only the last kMaxMessages messages
-   */
-  private addToHistory(messages: ChatMessage[]): void {
-    // Add new messages to history
-    this.messageHistory.push(...messages);
-
-    // Sort by timestamp
-    this.messageHistory.sort((a, b) => a.timestamp - b.timestamp);
-
-    // Keep only the last kMaxMessages messages
-    if (this.messageHistory.length > kMaxMessages) {
-      this.messageHistory = this.messageHistory.slice(-kMaxMessages);
-    }
-  }
 
   /**
    * Broadcast chat message delete to all connected WebSocket clients
@@ -287,7 +271,7 @@ class ChatServer {
    * Broadcast clear all messages to all connected WebSocket clients
    */
   private broadcastClearAllMessages(): void {
-    this.messageHistory = [];
+    this.messageHistory.clear();
 
     if (this.config.consoleMode || !this.websocketService) {
       return;
@@ -572,12 +556,9 @@ class ChatServer {
    * Send message history to a client (last 60 messages)
    */
   private sendMessageHistory(clientId: string): void {
-    if (this.messageHistory.length === 0) {
-      return;
-    }
-
     // Filter out deleted messages
-    const validMessages = this.messageHistory.filter(msg => !this.deletedMessages.has(msg.id));
+    const deletedIds = this.deletedMessages.getAll();
+    const validMessages = this.messageHistory.getFiltered(deletedIds);
 
     if (validMessages.length === 0) {
       return;
@@ -610,7 +591,7 @@ class ChatServer {
       await this.deletedMessages.add(data.ids);
 
       // Remove deleted messages from history
-      this.messageHistory = this.messageHistory.filter(msg => !data.ids.includes(msg.id));
+      this.messageHistory.removeByIds(data.ids);
 
       // Broadcast deletion to all clients (including the admin panel that requested it)
       this.broadcastChatMessageDeletion();
@@ -745,6 +726,9 @@ class ChatServer {
       clearTimeout(this.batchTimeout);
       this.flushMessageBatch();
     }
+
+    // Save message history immediately
+    await this.messageHistory.saveImmediate();
 
     this.websocketService.off('connection', this._handleWSConnection);
     this.websocketService.off('message', this._handleWSMessage);

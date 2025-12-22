@@ -103,7 +103,7 @@ watch(() => ws.connected, (connected) => {
 });
 
 // Auto-scroll to bottom when new messages arrive
-watch(() => messagesStore.messages, async () => {
+watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () => {
   await nextTick();
 
   if (messagesContainer.value) {
@@ -286,7 +286,7 @@ watch(() => messagesStore.messages, async () => {
           <span class="platform-name">{{ platform.name }}</span>
 
           <span class="platform-status">
-            {{ platform.active ? '🟢' : '🔴 Inactive' }}
+            {{ platform.active ? '🟢' : '🔴' }}
           </span>
         </div>
       </div>
@@ -550,14 +550,14 @@ watch(() => messagesStore.messages, async () => {
 
   .platforms-section.expanded & {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(8rem, auto));
   }
 }
 
 .platform-item {
   display: flex;
   align-items: center;
-  gap: calc(var(--spacing) * .5);
+  gap: var(--whitespace);
   padding: calc(var(--spacing) * .5);
   overflow: hidden;
 
@@ -628,6 +628,7 @@ watch(() => messagesStore.messages, async () => {
 
   .platform-status {
     color: var(--text-muted);
+    white-space: nowrap;
 
     @media (width <= 400px) {
       font-size: .85rem;

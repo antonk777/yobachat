@@ -1,5 +1,5 @@
 {
-  "showAvatars": false,
+  "showAvatars": true,
   "showBadges": false,
   "showModeratorBadges": true,
   "showEditedBadges": true,
@@ -12,7 +12,8 @@
     "пидор",
     "пидар",
     "педер",
-    "нигг"
+    "нигг",
+    "nigg"
   ],
   "userFont": {
     "type": "local",
@@ -45,7 +46,8 @@
     ],
     "selectedStyle": {
       "weight": 500,
-      "style": "normal"
+      "style": "normal",
+      "width": 100
     }
   },
   "adminFont": {
@@ -93,8 +95,7 @@
     "googlePopularity": 3,
     "selectedStyle": {
       "weight": 500,
-      "style": "normal",
-      "width": "condensed"
+      "style": "normal"
     }
   },
   "usernameFont": {
@@ -127,12 +128,13 @@
       }
     ],
     "selectedStyle": {
-      "weight": 500,
-      "style": "normal"
+      "weight": 700,
+      "style": "normal",
+      "width": 50
     }
   },
-  "adminLineHeight": 1.2,
+  "adminLineHeight": 1.3,
   "userLineHeight": 1.2,
-  "chatScale": 0.99,
+  "chatScale": 1,
   "adminScale": 1.5
 }

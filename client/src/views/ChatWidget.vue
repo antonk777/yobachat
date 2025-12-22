@@ -36,15 +36,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('widgetRefresh', handleWidgetRefresh);
 });
-
-// // Auto-scroll to bottom when new messages arrive
-// watch(() => messagesStore.messages, async () => {
-//   await nextTick();
-
-//   if (container.value) {
-//     container.value.scrollTop = container.value.scrollHeight;
-//   }
-// });
 </script>
 
 <template>

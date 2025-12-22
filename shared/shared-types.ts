@@ -273,26 +273,17 @@ export interface FontFamily {
   googlePopularity?: number // Use for sorting Google Fonts list
 }
 
-export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
 
 export type FontStyleName = 'normal' | 'italic';
 
 export interface FontStyle {
   weight: FontWeight;
   style: FontStyleName;
-  width?: FontWidth;
+  width?: number;
 }
 
-export type FontWidth = `${number}%` |
-'normal' |
-'ultra-condensed' |
-'extra-condensed' |
-'condensed' |
-'semi-condensed' |
-'semi-expanded' |
-'expanded' |
-'extra-expanded' |
-'ultra-expanded';
+export type FontWidth = number;
 
 export interface FontOption extends FontFamily {
   selectedStyle: FontStyle;

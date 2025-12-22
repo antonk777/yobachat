@@ -13,7 +13,7 @@ import { useWSConnection } from '@/composables/useWSConnection';
 import { useFontSettings } from '@/composables/useFontSettings';
 
 
-const DEFAULT_LINE_HEIGHT = 1.2;
+const kDefaultLineHeight = 1.2;
 
 const
   ws = useWSConnection(),
@@ -27,7 +27,7 @@ const moreMenuRef = ref<HTMLElement | null>(null);
 // Apply font settings for admin panel
 useFontSettings(() => settingsStore.settings, 'admin');
 
-const adminLineHeight = computed(() => (settingsStore.settings?.adminLineHeight ?? DEFAULT_LINE_HEIGHT).toString());
+const adminLineHeight = computed(() => (settingsStore.settings?.adminLineHeight ?? kDefaultLineHeight).toString());
 
 const isMoreMenuOpen = ref(false);
 const platformsExpanded = ref(false);
@@ -332,9 +332,10 @@ watch(() => messagesStore.messages, async () => {
   align-content: center;
   height: 100%;
   font-family: 'Futura PT', var(--font-family);
-  font-size: .5rem;
+  font-size: .75rem;
   font-weight: 700;
   text-align: center;
+  text-box: trim-both ex alphabetic;
 
   background: linear-gradient(135deg, #4a9eff 0%, #995eff 50%, #ff74b9 100%);
   -webkit-background-clip: text;
@@ -368,65 +369,15 @@ watch(() => messagesStore.messages, async () => {
   align-content: center;
   padding: calc(var(--spacing) * .5);
   border-radius: .25rem;
-  background-color: var(--border-color);
   cursor: pointer;
-  transition: background-color .2s, opacity .2s;
-
-  &.connected {
-    background-color: var(--success-color);
-  }
-}
-
-.btn {
-  padding: calc(var(--spacing) * .5);
-  border-radius: .25rem;
-
-  color: var(--text-color);
-
-  font-size: .85rem;
-  font-weight: 500;
   transition: background-color .2s;
 
-  @media (width > 400px) {
-    padding: calc(var(--spacing) * .5) calc(var(--spacing) * .75);
-  }
-
-  @media (width > 450px) {
-    padding: calc(var(--spacing) * .5) var(--spacing);
-    font-size: .9rem;
-  }
-
-  &:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-  }
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-
-  &:hover {
-    background-color: color-mix(in srgb, var(--primary-color) 80%, white 20%);
-  }
-}
-
-.btn-secondary {
-  background-color: var(--border-color);
-
   &:hover {
     background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
   }
-}
 
-.btn-tertiary {
-  &:hover {
-    background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
-  }
-}
-
-.btn-warn {
-  &:hover {
-    background-color: var(--error-color);
+  &.connected:hover {
+    background-color: var(--success-color);
   }
 }
 
@@ -493,12 +444,17 @@ watch(() => messagesStore.messages, async () => {
   flex-wrap: wrap;
   gap: calc(var(--spacing) * .5);
 
-  padding: calc(var(--spacing) * .5);
+  padding: calc(var(--spacing) * .5) calc(var(--spacing) * .75);
 
   transition: background-color .2s;
 
+  @media (width > 450px) {
+    padding: calc(var(--spacing) * .5) var(--spacing);
+  }
+
   &.selection-mode {
-    background-color: var(--bg-color);
+    background-color: var(--bg-color-modal);
+    backdrop-filter: blur(10px);
   }
 }
 
@@ -685,6 +641,11 @@ watch(() => messagesStore.messages, async () => {
   text-align: center;
   color: var(--text-muted);
   padding: 2rem;
+}
+
+input[type="checkbox"] {
+  width: 1.25ex;
+  height: 1.25ex;
 }
 </style>
 

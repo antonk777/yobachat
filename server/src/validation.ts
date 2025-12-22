@@ -145,19 +145,8 @@ export const ChatMessageSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional()
 }) satisfies z.ZodType<ChatMessage>;
 
-// FontWidth schema (matches FontWidth type)
-const FontWidthSchema = z.union([
-  z.string().regex(/^\d+%$/), // Percentage string like "75%"
-  z.literal('normal'),
-  z.literal('ultra-condensed'),
-  z.literal('extra-condensed'),
-  z.literal('condensed'),
-  z.literal('semi-condensed'),
-  z.literal('semi-expanded'),
-  z.literal('expanded'),
-  z.literal('extra-expanded'),
-  z.literal('ultra-expanded')
-]);
+// FontWidth schema (matches width type - number representing percentage)
+const FontWidthSchema = z.number().min(50).max(200);
 
 // FontStyle schema
 const FontStyleSchema = z.object({

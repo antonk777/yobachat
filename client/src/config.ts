@@ -1,23 +1,6 @@
-import { SharedConfig, FontWidth } from "@shared/shared-types";
+import { SharedConfig } from "@shared/shared-types";
 
 export const kMaxMessages = 60;
-
-/**
- * All available font width values that can be selected.
- * These are the standard CSS font-stretch keyword values.
- * Percentage values (like "75%") are also valid but not included here as they're dynamic.
- */
-export const kAvailableFontWidths: FontWidth[] = [
-  'normal',
-  'ultra-condensed',
-  'extra-condensed',
-  'condensed',
-  'semi-condensed',
-  'semi-expanded',
-  'expanded',
-  'extra-expanded',
-  'ultra-expanded'
-];
 
 function loadSharedConfig(): SharedConfig {
   // Vite's define will replace this at build time with the actual config object

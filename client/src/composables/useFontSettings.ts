@@ -131,7 +131,7 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
 
   // Apply font stretch (width)
   if (fontOption?.selectedStyle?.width !== undefined) {
-    root.style.setProperty('--font-stretch', String(fontOption.selectedStyle.width));
+    root.style.setProperty('--font-stretch', `${fontOption.selectedStyle.width}%`);
   } else {
     root.style.removeProperty('--font-stretch');
   }
@@ -161,7 +161,7 @@ function updateFontSettings(settings: ChatSettings | null, widgetType: WidgetTyp
     }
 
     if (settings.usernameFont.selectedStyle?.width !== undefined) {
-      root.style.setProperty('--username-font-stretch', String(settings.usernameFont.selectedStyle.width));
+      root.style.setProperty('--username-font-stretch', `${settings.usernameFont.selectedStyle.width}%`);
     } else {
       root.style.removeProperty('--username-font-stretch');
     }

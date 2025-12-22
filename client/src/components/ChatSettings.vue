@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, useTemplateRef, watchEffect } from 'vue';
 
 import type { ChatSettings } from '@shared/shared-types';
 
@@ -20,7 +20,8 @@ const
 
 const
   isOpen = computed(() => globalStore.isSettingsOpen),
-  badWords = computed(() => settingsStore.badWords);
+  badWords = computed(() => settingsStore.badWords),
+  dialogRef = useTemplateRef<HTMLDialogElement>('dialog');
 
 const
   kChatScaleFactor = 100,
@@ -34,6 +35,13 @@ const
 
 const handleClose = () => {
   globalStore.isSettingsOpen = false;
+};
+
+const handleBackdropClick = (event: MouseEvent) => {
+  // If the click target is the dialog itself (backdrop), close it
+  if (event.target === event.currentTarget) {
+    handleClose();
+  }
 };
 
 const handleApply = () => {
@@ -158,19 +166,39 @@ function handleAdminScaleInput(event: Event): void {
     debouncedUpdateAdminScale(value);
   }
 }
+
+watchEffect(() => {
+  if (isOpen.value && localSettings.value) {
+    dialogRef.value?.showModal();
+  } else {
+    dialogRef.value?.close();
+  }
+});
 </script>
 
 <template>
-  <div
+  <dialog
     v-if="isOpen && localSettings"
-    class="settings-modal-backdrop"
-    @mousedown.self="handleClose"
+    ref="dialog"
+    class="settings-modal"
+    @close="handleClose"
+    @click="handleBackdropClick"
   >
-    <div class="settings-modal">
+    <div class="settings-modal-header">
       <h2 class="settings-modal-title">Chat Settings</h2>
+      <button
+        class="settings-modal-close"
+        @click.prevent="handleClose"
+        autofocus
+        title="Close"
+      >
+        ✕
+      </button>
+    </div>
 
+    <div class="settings-modal-content">
       <div class="settings-section settings-grid">
-        <label class="settings-item">
+        <label class="settings-checkbox-item">
           <input
             v-model="localSettings.showAvatars"
             type="checkbox"
@@ -178,7 +206,7 @@ function handleAdminScaleInput(event: Event): void {
           Show avatars
         </label>
 
-        <label class="settings-item">
+        <label class="settings-checkbox-item">
           <input
             v-model="localSettings.showEmotes"
             type="checkbox"
@@ -186,7 +214,7 @@ function handleAdminScaleInput(event: Event): void {
           Show emotes
         </label>
 
-        <label class="settings-item">
+        <label class="settings-checkbox-item">
           <input
             v-model="localSettings.showModeratorBadges"
             type="checkbox"
@@ -194,7 +222,7 @@ function handleAdminScaleInput(event: Event): void {
           Show moderator badge
         </label>
 
-        <label class="settings-item">
+        <label class="settings-checkbox-item">
           <input
             v-model="localSettings.showEditedBadges"
             type="checkbox"
@@ -202,7 +230,7 @@ function handleAdminScaleInput(event: Event): void {
           Highlight edited messages
         </label>
 
-        <label class="settings-item">
+        <label class="settings-checkbox-item">
           <input
             v-model="localSettings.showSubscriberBadges"
             type="checkbox"
@@ -210,7 +238,7 @@ function handleAdminScaleInput(event: Event): void {
           Show subscriber badges
         </label>
 
-        <label class="settings-item">
+        <label class="settings-checkbox-item">
           <input
             v-model="localSettings.showVipBadges"
             type="checkbox"
@@ -219,39 +247,37 @@ function handleAdminScaleInput(event: Event): void {
         </label>
       </div>
 
-      <div class="settings-section">
-        <h4>Chat scale</h4>
-        <div class="line-height-control">
-          <label class="line-height-label" for="chat-scale">Scale</label>
-          <input
-            id="chat-scale"
-            class="line-height-input"
-            type="number"
-            :min="kChatScaleMin"
-            :max="kChatScaleMax"
-            :step="1"
-            :value="(localSettings.chatScale ?? kDefaultChatScale / kChatScaleFactor) * kChatScaleFactor"
-            @input="handleChatScaleInput"
-          />
-          %
+      <div class="settings-scale-section">
+        <div class="settings-section">
+          <h4 class="settings-section-title">Chat scale</h4>
+          <div class="numeric-control">
+            Scale
+            <input
+              type="number"
+              :min="kChatScaleMin"
+              :max="kChatScaleMax"
+              :step="1"
+              :value="(localSettings.chatScale ?? kDefaultChatScale / kChatScaleFactor) * kChatScaleFactor"
+              @input="handleChatScaleInput"
+            />
+            %
+          </div>
         </div>
-      </div>
 
-      <div class="settings-section">
-        <h4>Admin Panel scale</h4>
-        <div class="line-height-control">
-          <label class="line-height-label" for="admin-scale">Scale</label>
-          <input
-            id="admin-scale"
-            class="line-height-input"
-            type="number"
-            :min="kAdminScaleMin"
-            :max="kAdminScaleMax"
-            :step="1"
-            :value="(localSettings.adminScale ?? kDefaultAdminScale / kAdminScaleFactor) * kAdminScaleFactor"
-            @input="handleAdminScaleInput"
-          />
-          %
+        <div class="settings-section">
+          <h4 class="settings-section-title">Admin scale</h4>
+          <div class="numeric-control">
+            Scale
+            <input
+              type="number"
+              :min="kAdminScaleMin"
+              :max="kAdminScaleMax"
+              :step="1"
+              :value="(localSettings.adminScale ?? kDefaultAdminScale / kAdminScaleFactor) * kAdminScaleFactor"
+              @input="handleAdminScaleInput"
+            />
+            %
+          </div>
         </div>
       </div>
 
@@ -264,7 +290,7 @@ function handleAdminScaleInput(event: Event): void {
       <div class="settings-section bad-words-section">
         <h3>Bad Words Filter</h3>
 
-        <label class="settings-item">
+        <label class="settings-checkbox-item">
           <input
             v-model="localSettings.filterBadWords"
             type="checkbox"
@@ -273,14 +299,13 @@ function handleAdminScaleInput(event: Event): void {
         </label>
 
         <div class="bad-words-input">
-          <textarea
+          <input
             v-model="newBadWord"
             @keydown.ctrl.enter="addBadWord"
             placeholder="Add bad words (comma-separated)..."
-            class="input textarea bad-words-input-textarea"
+            class="bad-words-input-field"
             minlength="3"
-            rows="3"
-          ></textarea>
+          />
           <button @click="addBadWord" class="btn btn-primary">Add</button>
         </div>
 
@@ -304,48 +329,82 @@ function handleAdminScaleInput(event: Event): void {
           </div>
         </div>
       </div>
-
-      <div class="settings-section settings-actions">
-        <button class="btn btn-primary" @click="handleSave">
-          Save
-        </button>
-        <button class="btn btn-secondary" @click="handleApply">
-          Apply
-        </button>
-        <button class="btn btn-secondary" @click="handleClose">
-          Cancel
-        </button>
-      </div>
     </div>
-  </div>
+
+    <div class="settings-section settings-actions">
+      <button class="btn btn-primary" @click="handleSave">
+        Save
+      </button>
+      <button class="btn btn-secondary" @click="handleApply">
+        Apply
+      </button>
+      <button class="btn btn-secondary" @click="handleClose">
+        Cancel
+      </button>
+    </div>
+  </dialog>
 </template>
 
 <style scoped>
-.settings-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
 .settings-modal {
   display: flex;
   flex-direction: column;
-  width: min(480px, calc(100vw - 2rem));
+
+  width: min(520px, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
-  overflow: hidden auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) var(--bg-color);
+  padding: 0;
+  margin: auto;
+  overflow: hidden;
+
   border: 1px solid var(--border-color);
-  background: var(--bg-color);
+  background: var(--bg-color-modal);
   border-radius: .5rem;
+  backdrop-filter: blur(10px);
+
+  &::backdrop {
+    background-color: var(--bg-color-modal-backdrop);
+  }
+}
+
+.settings-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .settings-modal-title {
-  padding: var(--spacing);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.settings-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1;
+
+  color: var(--text-color);
+
+  font-size: 1.25rem;
+  cursor: pointer;
+  opacity: .7;
+  transition: opacity .2s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.settings-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-color);
 }
 
 .settings-grid {
@@ -353,11 +412,20 @@ function handleAdminScaleInput(event: Event): void {
   gap: var(--spacing);
 }
 
-.settings-item {
+.settings-checkbox-item {
   display: flex;
   align-items: center;
   gap: calc(var(--spacing) * .5);
   font-size: .95rem;
+  color: var(--text-muted);
+  transition: color .2s;
+  user-select: none;
+  cursor: pointer;
+
+  &:has(input:checked),
+  &:hover {
+    color: var(--text-color);
+  }
 }
 
 .settings-section {
@@ -365,13 +433,29 @@ function handleAdminScaleInput(event: Event): void {
   padding: var(--spacing);
 }
 
+.settings-section-title {
+  margin-bottom: calc(var(--spacing) * .75);
+  font-weight: 500;
+}
+
+.settings-scale-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+
+  .settings-section:not(:first-child) {
+    border-left: 1px solid var(--border-color);
+  }
+}
+
 .settings-actions {
-  position: sticky;
-  bottom: 0;
   display: flex;
-  justify-content: flex-end;
-  gap: .5rem;
-  background: var(--bg-color-bright);
+  justify-content: center;
+  gap: calc(var(--spacing) * .75);
+}
+
+.font-settings {
+  display: contents;
 }
 
 .bad-words-section {
@@ -385,65 +469,33 @@ function handleAdminScaleInput(event: Event): void {
 }
 
 .bad-words-input {
-  display: grid;
-  gap: var(--spacing);
+  display: flex;
+  gap: calc(var(--spacing) * .5);
+  overflow: hidden;
 
   .btn {
+    flex: none;
     width: fit-content;
-    align-self: end;
+    align-self: stretch;
+    align-content: center;
   }
 }
 
-.bad-words-input-textarea {
-  field-sizing: content;
-}
-
-.input {
+.bad-words-input-field {
   flex: 1;
+  field-sizing: content;
   padding: var(--spacing);
+
   background-color: var(--bg-color-dark);
   border: 1px solid var(--border-color);
   border-radius: .25rem;
   color: var(--text-color);
-  font-size: 1rem;
+
+  font-size: .75rem;
 
   &:focus {
     outline: none;
     border-color: var(--primary-color);
-  }
-}
-
-.textarea {
-  resize: vertical;
-  font-family: inherit;
-}
-
-.btn {
-  padding: calc(var(--spacing) * .5) calc(var(--spacing) * .75);
-  border-radius: .25rem;
-
-  color: var(--text-color);
-
-  font-size: .9rem;
-  font-weight: 500;
-  transition: background-color .2s;
-
-  @media (width > 400px) {
-    padding: calc(var(--spacing) * .5) var(--spacing);
-  }
-
-  &:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-  }
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  color: var(--text-color);
-
-  &:hover {
-    background-color: color-mix(in srgb, var(--primary-color) 80%, white 20%);
   }
 }
 
@@ -491,35 +543,8 @@ function handleAdminScaleInput(event: Event): void {
   text-align: center;
 }
 
-.line-height-control {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--spacing) * .5);
-}
-
-.line-height-label {
-  flex: none;
-  color: var(--text-muted);
-}
-
-.line-height-input {
-  width: auto;
-  field-sizing: content;
-  min-width: 4rem;
-  max-width: 100%;
-  padding: .375rem 0;
-  background-color: var(--bg-color-dark);
-  border: 1px solid var(--border-color);
-  border-radius: .25rem;
-  color: var(--text-color);
-  font-size: 1rem;
-  text-align: center;
-}
-
-h4 {
-  font-weight: 700;
-  margin-bottom: calc(var(--spacing) * .75);
+input[type="checkbox"] {
+  width: 1.25ex;
+  height: 1.25ex;
 }
 </style>
-
-

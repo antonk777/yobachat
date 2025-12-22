@@ -133,17 +133,20 @@ watchEffect(() => {
 .status-history-modal {
   display: flex;
   flex-direction: column;
+
   width: min(600px, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  border-radius: .5rem;
   padding: 0;
   margin: auto;
+  overflow: hidden;
+
+  border: 1px solid var(--border-color);
+  background: var(--bg-color-modal);
+  border-radius: .5rem;
+  backdrop-filter: blur(10px);
 
   &::backdrop {
-    background: rgba(0, 0, 0, 0.6);
+    background-color: var(--bg-color-modal-backdrop);
   }
 }
 
@@ -170,7 +173,7 @@ watchEffect(() => {
   line-height: 1;
 
   color: var(--text-color);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   cursor: pointer;
   opacity: .7;
   transition: opacity 0.2s;

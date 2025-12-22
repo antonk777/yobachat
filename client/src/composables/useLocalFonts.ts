@@ -41,6 +41,10 @@ const kWeightPatterns: Array<{ patterns: string[]; weight: FontWeight }> = [
   {
     patterns: ['black', 'heavy'],
     weight: 900
+  },
+  {
+    patterns: ['extra black', 'extrablack', 'ultra black', 'ultrablack'],
+    weight: 950
   }
 ];
 
@@ -49,6 +53,7 @@ const kWeightPatterns: Array<{ patterns: string[]; weight: FontWeight }> = [
  */
 function styleNameToFontStyle(style: string): FontStyle {
   const normalized = style.toLowerCase();
+
   const isItalic = normalized.includes('italic') || normalized.includes('oblique');
 
   // Find matching weight pattern
@@ -92,6 +97,7 @@ export function useLocalFonts() {
 
     for (const variant of allVariants.value) {
       const fontStyle = styleNameToFontStyle(variant.style);
+
       const styleKey = `${fontStyle.weight}-${fontStyle.style}`;
 
       if (!familyMap.has(variant.family)) {

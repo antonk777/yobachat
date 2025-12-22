@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import type { ChatSettings, FontFamily, FontStyle, FontOption, FontStyleName, FontWidth } from '@shared/shared-types';
+import type { ChatSettings, FontFamily, FontStyle, FontOption, FontStyleName } from '@shared/shared-types';
 
 import { useGoogleFonts } from '@/composables/useGoogleFonts';
 import { useLocalFonts } from '@/composables/useLocalFonts';
-import { kAvailableFontWidths } from '@/config';
 
 import FontFamilyDropdown from '@/components/FontFamilyDropdown.vue';
 import { clamp, useDebounceFn } from '@vueuse/core';
+
 
 type FontField = 'userFont' | 'adminFont' | 'usernameFont';
 
@@ -265,7 +265,7 @@ function updateFontStyle(style: FontStyleName, targetField: FontField): void {
   });
 }
 
-function updateFontWidth(width: FontWidth | undefined, targetField: FontField): void {
+function updateFontWidth(width: number | undefined, targetField: FontField): void {
   const currentFont = props.modelValue[targetField];
 
   if (!currentFont) {
@@ -286,6 +286,46 @@ function updateFontWidth(width: FontWidth | undefined, targetField: FontField): 
       selectedStyle: updatedStyle
     }
   });
+}
+
+function updateFontWidthFromNumber(value: number | null, targetField: FontField): void {
+  if (value === null) {
+    updateFontWidth(undefined, targetField);
+    return;
+  }
+
+  // Clamp value between 50 and 200
+  const clampedValue = clamp(value, 50, 200);
+
+  updateFontWidth(clampedValue, targetField);
+}
+
+function getFontWidthNumber(font: FontOption | null): number {
+  return font?.selectedStyle.width ?? 100;
+}
+
+const debouncedUpdateFontWidth = useDebounceFn((
+  value: number | null,
+  targetField: FontField
+): void => {
+  updateFontWidthFromNumber(value, targetField);
+}, 300);
+
+function handleFontWidthInput(
+  event: Event,
+  targetField: FontField
+): void {
+  const input = event.target as HTMLInputElement | null;
+
+  if (!input) {
+    return;
+  }
+
+  const value = input.value === '' ? null : parseInt(input.value, 10);
+
+  if (value === null || !isNaN(value)) {
+    debouncedUpdateFontWidth(value, targetField);
+  }
 }
 
 function clampLineHeight(value: number): number {
@@ -332,24 +372,6 @@ function handleLineHeightInput(
     debouncedUpdateLineHeight(value, targetField);
   }
 }
-
-function formatWidthLabel(width: FontWidth): string {
-  // Format width labels nicely
-  const widthMap: Record<string, string> = {
-    'normal': 'Normal',
-    'ultra-condensed': 'Ultra Condensed',
-    'extra-condensed': 'Extra Condensed',
-    'condensed': 'Condensed',
-    'semi-condensed': 'Semi Condensed',
-    'semi-expanded': 'Semi Expanded',
-    'expanded': 'Expanded',
-    'extra-expanded': 'Extra Expanded',
-    'ultra-expanded': 'Ultra Expanded'
-  };
-
-  return widthMap[width] || width;
-}
-
 </script>
 
 <template>
@@ -371,7 +393,7 @@ function formatWidthLabel(width: FontWidth): string {
             v-for="weight in availableUserWeights"
             :key="weight"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.userFont.selectedStyle.weight === weight }"
             :style="{ '--weight': weight }"
             @click="updateFontWeight(weight, 'userFont')"
@@ -384,7 +406,7 @@ function formatWidthLabel(width: FontWidth): string {
           <button
             v-if="availableUserStyles.includes('normal')"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.userFont.selectedStyle.style === 'normal' }"
             :style="{ '--style': 'normal' }"
             @click="updateFontStyle('normal', 'userFont')"
@@ -394,7 +416,7 @@ function formatWidthLabel(width: FontWidth): string {
           <button
             v-if="availableUserStyles.includes('italic')"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.userFont.selectedStyle.style === 'italic' }"
             :style="{ '--style': 'italic' }"
             @click="updateFontStyle('italic', 'userFont')"
@@ -403,33 +425,23 @@ function formatWidthLabel(width: FontWidth): string {
           </button>
         </div>
 
-        <div v-if="modelValue.userFont" class="switch-group">
-          <button
-            type="button"
-            class="style-switch"
-            :class="{ active: modelValue.userFont.selectedStyle.width === undefined }"
-            @click="updateFontWidth(undefined, 'userFont')"
-          >
-            Default Width
-          </button>
-          <button
-            v-for="width in kAvailableFontWidths"
-            :key="width"
-            type="button"
-            class="style-switch"
-            :class="{ active: modelValue.userFont.selectedStyle.width === width }"
-            @click="updateFontWidth(width, 'userFont')"
-          >
-            {{ formatWidthLabel(width) }}
-          </button>
-        </div>
+        <label v-if="modelValue.userFont" class="numeric-control">
+          Font Width
+          <input
+            type="number"
+            :min="50"
+            :max="200"
+            :step="1"
+            :value="getFontWidthNumber(modelValue.userFont)"
+            @input="(event: Event) => handleFontWidthInput(event, 'userFont')"
+          />
+          %
+        </label>
       </template>
 
-      <div class="line-height-control">
-        <label class="line-height-label" for="user-line-height">Line height</label>
+      <label class="numeric-control">
+        Line height
         <input
-          id="user-line-height"
-          class="line-height-input"
           type="number"
           :min="kLineHeightMin"
           :max="kLineHeightMax"
@@ -438,7 +450,7 @@ function formatWidthLabel(width: FontWidth): string {
           @input="(event: Event) => handleLineHeightInput(event, 'userLineHeight')"
         />
         %
-      </div>
+      </label>
     </div>
 
     <div class="font-widget-section">
@@ -458,7 +470,7 @@ function formatWidthLabel(width: FontWidth): string {
             v-for="weight in availableUsernameWeights"
             :key="weight"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.usernameFont.selectedStyle.weight === weight }"
             :style="{ '--weight': weight }"
             @click="updateFontWeight(weight, 'usernameFont')"
@@ -471,7 +483,7 @@ function formatWidthLabel(width: FontWidth): string {
           <button
             v-if="availableUsernameStyles.includes('normal')"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.usernameFont.selectedStyle.style === 'normal' }"
             :style="{ '--style': 'normal' }"
             @click="updateFontStyle('normal', 'usernameFont')"
@@ -481,7 +493,7 @@ function formatWidthLabel(width: FontWidth): string {
           <button
             v-if="availableUsernameStyles.includes('italic')"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.usernameFont.selectedStyle.style === 'italic' }"
             :style="{ '--style': 'italic' }"
             @click="updateFontStyle('italic', 'usernameFont')"
@@ -490,26 +502,18 @@ function formatWidthLabel(width: FontWidth): string {
           </button>
         </div>
 
-        <div v-if="modelValue.usernameFont" class="switch-group">
-          <button
-            type="button"
-            class="style-switch"
-            :class="{ active: modelValue.usernameFont.selectedStyle.width === undefined }"
-            @click="updateFontWidth(undefined, 'usernameFont')"
-          >
-            Default Width
-          </button>
-          <button
-            v-for="width in kAvailableFontWidths"
-            :key="width"
-            type="button"
-            class="style-switch"
-            :class="{ active: modelValue.usernameFont.selectedStyle.width === width }"
-            @click="updateFontWidth(width, 'usernameFont')"
-          >
-            {{ formatWidthLabel(width) }}
-          </button>
-        </div>
+        <label v-if="modelValue.usernameFont" class="numeric-control">
+          Font Width
+          <input
+            type="number"
+            :min="50"
+            :max="200"
+            :step="1"
+            :value="getFontWidthNumber(modelValue.usernameFont)"
+            @input="(event: Event) => handleFontWidthInput(event, 'usernameFont')"
+          />
+          %
+        </label>
       </template>
     </div>
 
@@ -530,7 +534,7 @@ function formatWidthLabel(width: FontWidth): string {
             v-for="weight in availableAdminWeights"
             :key="weight"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.adminFont.selectedStyle.weight === weight }"
             :style="{ '--weight': weight }"
             @click="updateFontWeight(weight, 'adminFont')"
@@ -543,7 +547,7 @@ function formatWidthLabel(width: FontWidth): string {
           <button
             v-if="availableAdminStyles.includes('normal')"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.adminFont.selectedStyle.style === 'normal' }"
             :style="{ '--style': 'normal' }"
             @click="updateFontStyle('normal', 'adminFont')"
@@ -553,7 +557,7 @@ function formatWidthLabel(width: FontWidth): string {
           <button
             v-if="availableAdminStyles.includes('italic')"
             type="button"
-            class="style-switch"
+            class="switch-option"
             :class="{ active: modelValue.adminFont.selectedStyle.style === 'italic' }"
             :style="{ '--style': 'italic' }"
             @click="updateFontStyle('italic', 'adminFont')"
@@ -562,33 +566,23 @@ function formatWidthLabel(width: FontWidth): string {
           </button>
         </div>
 
-        <div v-if="modelValue.adminFont" class="switch-group">
-          <button
-            type="button"
-            class="style-switch"
-            :class="{ active: modelValue.adminFont.selectedStyle.width === undefined }"
-            @click="updateFontWidth(undefined, 'adminFont')"
-          >
-            Default Width
-          </button>
-          <button
-            v-for="width in kAvailableFontWidths"
-            :key="width"
-            type="button"
-            class="style-switch"
-            :class="{ active: modelValue.adminFont.selectedStyle.width === width }"
-            @click="updateFontWidth(width, 'adminFont')"
-          >
-            {{ formatWidthLabel(width) }}
-          </button>
-        </div>
+        <label v-if="modelValue.adminFont" class="numeric-control">
+          Font Width
+          <input
+            type="number"
+            :min="50"
+            :max="200"
+            :step="1"
+            :value="getFontWidthNumber(modelValue.adminFont)"
+            @input="(event: Event) => handleFontWidthInput(event, 'adminFont')"
+          />
+          %
+        </label>
       </template>
 
-      <div class="line-height-control">
-        <label class="line-height-label" for="admin-line-height">Line height</label>
+      <label class="numeric-control">
+        Line height
         <input
-          id="admin-line-height"
-          class="line-height-input"
           type="number"
           :min="kLineHeightMin"
           :max="kLineHeightMax"
@@ -597,7 +591,7 @@ function formatWidthLabel(width: FontWidth): string {
           @input="(event: Event) => handleLineHeightInput(event, 'adminLineHeight')"
         />
         %
-      </div>
+      </label>
     </div>
 
     <div v-if="googleFontsLoading" class="font-loading">
@@ -617,93 +611,21 @@ function formatWidthLabel(width: FontWidth): string {
 </template>
 
 <style scoped>
-.font-section {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--spacing) * 1.5);
-}
-
 .font-widget-section {
   display: flex;
   flex-direction: column;
   gap: calc(var(--spacing) * .75);
+  padding: var(--spacing);
+  border-top: 1px solid var(--border-color);
 
   h4 {
-    font-weight: 700;
+    font-weight: 500;
   }
 }
 
 .font-control-label {
   font-size: .9rem;
   color: var(--text-muted);
-}
-
-.switch-group {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.style-switch {
-  padding: .375rem .75rem;
-
-  background-color: var(--bg-color-dark);
-  color: var(--text-color);
-
-  font-size: .9rem;
-  font-weight: var(--weight, 400);
-  font-style: var(--style, normal);
-
-  cursor: pointer;
-  transition: all .2s;
-
-  &:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-  }
-
-  &:hover:not(:disabled) {
-    background-color: var(--primary-color);
-  }
-
-  &.active {
-    background-color: var(--primary-color);
-    color: var(--text-color);
-  }
-
-  &:first-child {
-    border-top-left-radius: .25rem;
-    border-bottom-left-radius: .25rem;
-  }
-
-  &:last-child {
-    border-top-right-radius: .25rem;
-    border-bottom-right-radius: .25rem;
-  }
-}
-
-.line-height-control {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--spacing) * .5);
-}
-
-.line-height-label {
-  flex: none;
-  color: var(--text-muted);
-}
-
-.line-height-input {
-  width: auto;
-  field-sizing: content;
-  min-width: 4rem;
-  max-width: 100%;
-  padding: .375rem 0;
-  background-color: var(--bg-color-dark);
-  border: 1px solid var(--border-color);
-  border-radius: .25rem;
-  color: var(--text-color);
-  font-size: 1rem;
-  text-align: center;
 }
 
 .font-loading {

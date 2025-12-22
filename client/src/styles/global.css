@@ -6,6 +6,8 @@
   --bg-color: #1a1a1a;
   --bg-color-dark: #141414;
   --bg-color-bright: #2a2a2a;
+  --bg-color-modal: hsl(0 0% 16% / .7);
+  --bg-color-modal-backdrop: hsl(0 0% 0% / .5);
   --border-color: #3a3a3a;
 
   --text-color: #ffffff;
@@ -124,4 +126,123 @@ body {
   width: 100%;
   min-height: 100vh;
   height: 100dvh;
+}
+
+.btn {
+  padding: calc(var(--spacing) * .5);
+  border-radius: .25rem;
+
+  color: var(--text-color);
+
+  font-size: .85rem;
+  font-weight: 500;
+  transition: background-color .2s;
+
+  @media (width > 400px) {
+    padding: calc(var(--spacing) * .5) calc(var(--spacing) * .75);
+  }
+
+  @media (width > 450px) {
+    padding: calc(var(--spacing) * .5) var(--spacing);
+    font-size: .9rem;
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 80%, white 20%);
+  }
+}
+
+.btn-secondary {
+  background-color: var(--border-color);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
+  }
+}
+
+.btn-tertiary {
+  &:hover {
+    background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
+  }
+}
+
+.btn-warn {
+  &:hover {
+    background-color: var(--error-color);
+  }
+}
+
+.numeric-control {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--spacing) * .5);
+  color: var(--text-muted);
+  font-size: .9rem;
+
+  input {
+    width: auto;
+    min-width: 4rem;
+    max-width: 100%;
+    field-sizing: content;
+    padding: .375rem .5rem;
+    background-color: var(--bg-color-dark);
+    border: 1px solid var(--border-color);
+    border-radius: .25rem;
+    color: var(--text-color);
+    font-size: 1rem;
+    text-align: center;
+
+    &:webkit-inner-spin-button {
+      border-radius: .125rem;
+      overflow: hidden;
+    }
+  }
+}
+
+.switch-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .125rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: .25rem;
+  background-color: var(--bg-color-dark);
+  border-radius: .25rem;
+}
+
+.switch-option {
+  padding: .25rem .5rem;
+
+  color: var(--text-color);
+  border-radius: .125rem;
+
+  font-size: .9rem;
+  font-weight: var(--weight, 400);
+  font-style: var(--style, normal);
+
+  cursor: pointer;
+  transition: background-color .2s, color .2s;
+
+  &:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-color);
+  }
+
+  &.active {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+  }
 }

@@ -325,6 +325,8 @@ export class VKVideoService extends EventEmitter<PlatformServiceEvents> implemen
 
   private handleChatMessage(data: any): void {
     try {
+      // console.log(`${this.logPrefix} Chat message send:`, JSON.stringify(data, null, 2));
+
       if (data.type === 'channel_chat_message_send' && data.data?.chat_message) {
         // Handle new chat messages
         this.handleChatMessageSend(data.data as VKMessageSendData);

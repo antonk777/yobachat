@@ -92,11 +92,13 @@ export interface ChatMessage {
   editDate?: number;
   emotesMap?: Record<string, string>;
   metadata?: Record<string, unknown>;
+  replyToId?: string; // Message ID of the message this message is replying to
 }
 
-export interface ChatMessageWithSegments extends ChatMessage {
+export interface ChatMessageClient extends ChatMessage {
   usernameFiltered: string;
   segments: ChatMessageSegment[];
+  replyTo?: ChatMessageClient;
 }
 
 export interface ChatMessageUpdate {

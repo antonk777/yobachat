@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 
-import type { ChatMessage, ChatMessageSegment, ChatMessageWithSegments } from '@shared/shared-types.js';
+import type { ChatMessage, ChatMessageSegment, ChatMessageClient } from '@shared/shared-types.js';
 
 import { kMaxMessages } from '@shared/shared-constants';
 import { useSettingsStore } from '@/stores/settings';
@@ -11,7 +11,7 @@ export const useMessagesStore = defineStore('messages', () => {
 
   const
     seenMessageIds = ref<Set<string>>(new Set()),
-    messages = ref<ChatMessageWithSegments[]>([]),
+    messages = ref<ChatMessageClient[]>([]),
     deletedMessageIds = ref<string[]>([]),
     isSelectionMode = ref(false),
     selectedMessageIds = ref<string[]>([]),
@@ -102,11 +102,23 @@ export const useMessagesStore = defineStore('messages', () => {
     }
   }
 
-  function processMessage(message: ChatMessage): ChatMessageWithSegments {
+  function processMessage(message: ChatMessage): ChatMessageClient {
+    let replyTo: ChatMessageClient | undefined;
+
+    if (message.replyToId && message.id !== message.replyToId) {
+      const foundReply = messages.value.find(m => m.id === message.replyToId);
+
+      if (foundReply) {
+        // Deep clone the message, excluding replyTo to prevent circular references
+        replyTo = deepCloneMessage(foundReply);
+      }
+    }
+
     return {
       ...message,
       usernameFiltered: settingsStore.filterText(message.username),
-      segments: getMessageSegments(message, settingsStore.settings?.showEmotes ?? true)
+      segments: getMessageSegments(message, settingsStore.settings?.showEmotes ?? true),
+      replyTo
     }
   }
 
@@ -160,6 +172,62 @@ export const useMessagesStore = defineStore('messages', () => {
     }
 
     return segments;
+  }
+
+  function deepCloneMessage(message: ChatMessageClient, visited = new WeakSet<object>()): ChatMessageClient {
+    // Handle circular references
+    if (visited.has(message)) {
+      throw new Error('Circular reference detected');
+    }
+
+    visited.add(message);
+
+    // Deep clone arrays
+    const cloneArray = <T>(arr: T[]): T[] => {
+      return arr.map(item => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+          return deepCloneObject(item as Record<string, unknown>, visited) as T;
+        }
+        return item;
+      });
+    };
+
+    // Deep clone objects
+    const deepCloneObject = (obj: Record<string, unknown>, visited: WeakSet<object>): Record<string, unknown> => {
+      const cloned: Record<string, unknown> = {};
+
+      for (const key in obj) {
+        if (key === 'replyTo') {
+          // Skip replyTo to prevent circular references
+          continue;
+        }
+
+        const value = obj[key];
+
+        if (value === null || value === undefined) {
+          cloned[key] = value;
+        } else if (Array.isArray(value)) {
+          cloned[key] = cloneArray(value);
+        } else if (value instanceof Date) {
+          cloned[key] = new Date(value);
+        } else if (typeof value === 'object') {
+          if (visited.has(value as object)) {
+            // Skip circular references
+            continue;
+          }
+
+          visited.add(value as object);
+          cloned[key] = deepCloneObject(value as Record<string, unknown>, visited);
+        } else {
+          cloned[key] = value;
+        }
+      }
+      return cloned;
+    };
+
+    const cloned = deepCloneObject(message as unknown as Record<string, unknown>, visited) as unknown as ChatMessageClient;
+
+    return cloned;
   }
 
   // Update messages when bad words or filter bad words setting change

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import type { ChatMessageWithSegments, ChatSettings } from '@shared/shared-types.js';
+import type { ChatMessageClient, ChatSettings } from '@shared/shared-types.js';
 
-const props = defineProps<{
-  message: ChatMessageWithSegments;
-  settings: ChatSettings;
-}>();
+const props = withDefaults(defineProps<{
+  message: ChatMessageClient;
+    settings: ChatSettings;
+    isQuote?: boolean;
+  }>(),
+  {
+    isQuote: false
+  }
+);
 
 const hasPlatformIcon = computed(() => {
   const platformId = props.message.platform.id;
@@ -16,32 +21,46 @@ const hasPlatformIcon = computed(() => {
 const isDeluxe = computed(() => {
   return props.message.username.toLowerCase().includes('deluxe');
 })
+
+const replyTo = computed(() => props.message.replyTo);
 </script>
 
 <template>
   <div
     class="chat-message"
-    :class="[`platform-${message.platform.id}`, { 'is-deluxe': isDeluxe }]"
+    :class="[`platform-${message.platform.id}`, {
+      'is-quote': isQuote,
+      'is-deluxe': isDeluxe
+    }]"
     :style="{
       '--user-color': message.color ?? null,
       '--platform-color': message.platform.color ?? null,
     }"
   >
+    <ChatMessage
+      v-if="replyTo && !isQuote"
+      :message="replyTo"
+      :settings="settings"
+      :is-quote="true"
+    />
+
     <div class="message-header">
+      <div class="reply-icon" v-if="isQuote" />
+
       <div
-        v-if="hasPlatformIcon"
+        v-if="hasPlatformIcon && !isQuote"
         class="platform-icon"
         :class="`icon-${message.platform.id}`"
         :aria-label="message.platform.abbr"
       />
 
       <div
-        v-if="settings.showModeratorBadges && message.isModerator"
+        v-if="settings.showModeratorBadges && message.isModerator && !isQuote"
         class="moderator-badge"
       />
 
       <div
-        v-if="settings.showBadges && message.badgeImages && Object.keys(message.badgeImages).length > 0"
+        v-if="settings.showBadges && message.badgeImages && Object.keys(message.badgeImages).length > 0 && !isQuote"
         class="badges"
       >
         <img
@@ -55,7 +74,7 @@ const isDeluxe = computed(() => {
 
       <img
         class="avatar"
-        v-if="settings.showAvatars && message.avatar"
+        v-if="settings.showAvatars && message.avatar && !isQuote"
         :src="message.avatar"
         :alt="message.usernameFiltered"
       />
@@ -65,7 +84,7 @@ const isDeluxe = computed(() => {
       </div>
 
       <div
-        v-if="settings.showEditedBadges && message.isEdited"
+        v-if="settings.showEditedBadges && message.isEdited && !isQuote"
         class="edited-badge"
       />
     </div>
@@ -85,6 +104,21 @@ const isDeluxe = computed(() => {
 </template>
 
 <style scoped>
+@keyframes username-gradient-shift {
+  0% {
+    --src-color: #6bf8d5;
+  }
+  33% {
+    --src-color: #ba92ff;
+  }
+  66% {
+    --src-color: #ff88c4;
+  }
+  100% {
+    --src-color: #6bf8d5;
+  }
+}
+
 .chat-message {
   display: block;
   flex: none;
@@ -94,6 +128,14 @@ const isDeluxe = computed(() => {
   &.deleted {
     opacity: .5;
   }
+
+  &.is-quote {
+    margin-left: calc(var(--spacing) * .5);
+    margin-bottom: calc(var(--spacing) * .4);
+    line-height: calc(var(--chat-line-height, var(--line-height)) * .75);
+    opacity: .65;
+    font-size: .75rem;
+  }
 }
 
 .message-header {
@@ -102,6 +144,34 @@ const isDeluxe = computed(() => {
   gap: var(--whitespace);
   flex-wrap: wrap;
   margin-right: var(--whitespace);
+
+  .chat-message.is-quote & {
+    gap: calc(var(--whitespace) * 1.5);
+  }
+}
+
+.reply-icon {
+  --src-color: var(--user-color, var(--platform-color));
+
+  display: block;
+  align-self: center;
+  flex: none;
+
+  width: calc(var(--platform-icon-size) * .8);
+  aspect-ratio: 799.96 / 694.747;
+  object-fit: contain;
+
+  background-color: var(--src-color);
+  background-color: lch(from var(--src-color) calc(l + 20) c h);
+
+  mask-image: url('@/assets/arrow-reply-5.svg');
+  mask-position: center center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+
+  .chat-message.is-deluxe & {
+    animation: username-gradient-shift 90s ease infinite;
+  }
 }
 
 .platform-icon {
@@ -162,21 +232,6 @@ const isDeluxe = computed(() => {
   height: var(--avatar-size);
   object-fit: cover;
   border-radius: 50%;
-}
-
-@keyframes username-gradient-shift {
-  0% {
-    color: #6bf8d5;
-  }
-  33% {
-    color: #ba92ff;
-  }
-  66% {
-    color: #ff88c4;
-  }
-  100% {
-    color: #6bf8d5;
-  }
 }
 
 .username {

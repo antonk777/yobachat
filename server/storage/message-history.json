@@ -68,5 +68,526 @@
         ]
       }
     }
+  },
+  {
+    "id": "telegram-44773",
+    "channel": "-1001573899349",
+    "username": "Анатолий",
+    "message": "зверополис два это великое антисионистское произведение про то как израиль (рысевичи) переписывает историю, дегуманизирует палестинцев (рептилий), расширяют поселения на западном берегу (тундратаун) и коррумпируют политиков (aipac)\n\nБольшая благодарность создателям за то, что подняли важную и актуальную тему.",
+    "timestamp": 1766450534000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5296550618,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Анатолий",
+      "lastName": "Стацуло"
+    }
+  },
+  {
+    "id": "telegram-44773",
+    "channel": "-1001573899349",
+    "username": "Анатолий",
+    "message": "зверополис два это великое антисионистское произведение про то как израиль (рысевичи) переписывает историю, дегуманизирует палестинцев (рептилий), расширяют поселения на западном берегу (тундратаун) и коррумпируют политиков (aipac)\n\nБольшая благодарность создателям за то, что подняли важную и актуальную тему.",
+    "timestamp": 1766450534000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": true,
+    "editDate": 1766456842000,
+    "metadata": {
+      "userId": 5296550618,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Анатолий",
+      "lastName": "Стацуло"
+    }
+  },
+  {
+    "id": "telegram-44778",
+    "channel": "-1001573899349",
+    "username": "Danzel",
+    "message": "Йозеф в двойне прав",
+    "timestamp": 1766490758000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5603734574,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Danzel"
+    }
+  },
+  {
+    "id": "telegram-44779",
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "йося",
+    "timestamp": 1766490791000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44781",
+    "channel": "-1001573899349",
+    "username": "Danzel",
+    "message": "Belethrim не прав",
+    "timestamp": 1766495214000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5603734574,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Danzel"
+    }
+  },
+  {
+    "id": "telegram-44783",
+    "channel": "-1001573899349",
+    "username": "Антон",
+    "message": "🖼️  #жидкиевайбы",
+    "timestamp": 1766506635000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 305168046,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Антон"
+    }
+  },
+  {
+    "id": "telegram-44784",
+    "channel": "-1001573899349",
+    "username": "Group",
+    "message": "Уфь вот так и надо жить!",
+    "timestamp": 1766507018000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1087968824,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Group"
+    }
+  },
+  {
+    "id": "twitch-18fbd4c0-18ef-48a1-a251-03b3a0577799",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "test",
+    "timestamp": 1766509801287,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "metadata": {
+      "userId": "40134375",
+      "roomId": "16144345",
+      "emotes": null
+    }
+  },
+  {
+    "id": "twitch-8573cfbb-baba-47c1-8609-6b8bc9184b93",
+    "channel": "silentium_vulpes",
+    "username": "boba_deluxe",
+    "message": "@Yoba_Deluxe test",
+    "timestamp": 1766510116191,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "metadata": {
+      "userId": "1156830766",
+      "roomId": "16144345",
+      "emotes": null
+    }
+  },
+  {
+    "id": "telegram-44785",
+    "channel": "-1001573899349",
+    "username": "Антон",
+    "message": "https://live.vkvideo.ru/zhmil/clip/ca400246-abb9-40b9-afe7-756956113fcd?tab=clips",
+    "timestamp": 1766510502000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 305168046,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Антон"
+    }
+  },
+  {
+    "id": "telegram-44786",
+    "channel": "-1001573899349",
+    "username": "Group",
+    "message": "Ну это понятно…любит человек когда понятно.",
+    "timestamp": 1766510762000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1087968824,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Group"
+    }
+  },
+  {
+    "id": "telegram-44787",
+    "channel": "-1001573899349",
+    "username": "Group",
+    "message": "Всех с католическим сочельником, кста.",
+    "timestamp": 1766510783000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1087968824,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Group"
+    }
+  },
+  {
+    "id": "twitch-30a2ff09-3817-4202-a54f-eb1514e5df56",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "@boba_deluxe test",
+    "timestamp": 1766511028763,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "metadata": {
+      "userId": "40134375",
+      "roomId": "16144345",
+      "emotes": null
+    }
+  },
+  {
+    "id": "telegram-44788",
+    "channel": "-1001573899349",
+    "username": "Денис",
+    "message": "Спасибо. Он завтра вроде.",
+    "timestamp": 1766512058000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 357415382,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Денис",
+      "lastName": "О."
+    }
+  },
+  {
+    "id": "telegram-44789",
+    "channel": "-1001573899349",
+    "username": "Group",
+    "message": "Рождество завтра а сочельник сегодня.",
+    "timestamp": 1766512115000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1087968824,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Group"
+    }
+  },
+  {
+    "id": "telegram-44790",
+    "channel": "-1001573899349",
+    "username": "Danzel",
+    "message": "🖼️  Приколюхи.Подписаться",
+    "timestamp": 1766512199000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5603734574,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Danzel"
+    }
+  },
+  {
+    "id": "telegram-44791",
+    "channel": "-1001573899349",
+    "username": "Денис",
+    "message": "Рождество с 24 на 25. Сочельник 24-го.",
+    "timestamp": 1766512237000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 357415382,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Денис",
+      "lastName": "О."
+    }
+  },
+  {
+    "id": "telegram-44792",
+    "channel": "-1001573899349",
+    "username": "Group",
+    "message": "Реально, вот я обосрался.",
+    "timestamp": 1766512287000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1087968824,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Group"
+    }
+  },
+  {
+    "id": "telegram-44793",
+    "channel": "-1001573899349",
+    "username": "Summerson",
+    "message": "К",
+    "timestamp": 1766512382000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 594450087,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Summerson"
+    }
+  },
+  {
+    "id": "telegram-44794",
+    "channel": "-1001573899349",
+    "username": "Summerson",
+    "message": "К",
+    "timestamp": 1766512383000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 594450087,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Summerson"
+    }
+  },
+  {
+    "id": "telegram-44795",
+    "channel": "-1001573899349",
+    "username": "Денис",
+    "message": "Тут надо быть католиковедом, чтобы не запутаться. Я то погуглил.",
+    "timestamp": 1766512437000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 357415382,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Денис",
+      "lastName": "О."
+    }
+  },
+  {
+    "id": "telegram-44796",
+    "channel": "-1001573899349",
+    "username": "Group",
+    "message": "Тем лучше значит отмечать будем на стриме",
+    "timestamp": 1766513392000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#00FFFF",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1087968824,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Group"
+    }
+  },
+  {
+    "id": "kick-c95e673a-2d95-4ee4-b2f1-d8ef08b9fd58",
+    "platform": {
+      "id": "kick",
+      "name": "Kick",
+      "color": "#53FC18",
+      "abbr": "KI"
+    },
+    "channel": "62697839",
+    "username": "boba_deluxe",
+    "message": "[emote:39277:politeCat]",
+    "emotesMap": {
+      "[emote:39277:politeCat]": "https://files.kick.com/emotes/39277/fullsize"
+    },
+    "timestamp": 1766522944000,
+    "color": "#E9113C",
+    "badges": [
+      "moderator"
+    ],
+    "metadata": {
+      "userId": 87233689,
+      "chatroomId": 62697839,
+      "slug": "boba-deluxe",
+      "badges": [
+        {
+          "type": "moderator",
+          "text": "Moderator"
+        }
+      ],
+      "messageRef": "1766522940245"
+    }
   }
 ]

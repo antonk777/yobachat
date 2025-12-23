@@ -105,6 +105,53 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     }
   }
 
+  private handleMessage(channel: string, message: string, tags: tmi.ChatUserstate): void {
+    // console.log(`${this.logPrefix} Message:`, message, tags);
+
+    if (!tags.id) {
+      console.warn(`${this.logPrefix} Message ID is required:`, tags);
+      return;
+    }
+
+    const emotesMap = this.parseEmotes(tags.emotes, message);
+
+    const badgeImages = this.parseBadgeImages(tags.badges);
+
+    const messageId = `twitch-${tags.id}`;
+
+    const replyToId = tags['reply-parent-msg-id']
+      ? `twitch-${tags['reply-parent-msg-id']}`
+      : undefined;
+
+    if (
+      replyToId &&
+      tags['reply-parent-display-name'] &&
+      message.includes(`@${tags['reply-parent-display-name']}`)
+    ) {
+      message = message.replace(`@${tags['reply-parent-display-name']}`, '').trim();
+    }
+
+    const chatMessage: ChatMessage = {
+      id: messageId,
+      platform: this.platform,
+      channel: channel.replace('#', ''),
+      username: tags['display-name'] || tags.username || '',
+      message: message,
+      timestamp: tags['tmi-sent-ts'] ? parseInt(tags['tmi-sent-ts']) : Date.now(),
+      avatar: tags['user-profile-image-url'],
+      badges: tags.badges ? Object.keys(tags.badges) : [],
+      badgeImages: Object.keys(badgeImages).length > 0 ? badgeImages : undefined,
+      color: tags.color || undefined,
+      isSubscriber: tags.subscriber === true,
+      isModerator: tags.mod === true,
+      isVip: tags.vip === true,
+      emotesMap: Object.keys(emotesMap).length > 0 ? emotesMap : undefined,
+      replyToId
+    };
+
+    this.emit('messageUpdated', chatMessage);
+  }
+
   /**
    * Setup event handlers for the Twitch client
    */
@@ -116,35 +163,7 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
       tags: tmi.ChatUserstate,
       message: string
     ) => {
-      const emotesMap = this.parseEmotes(tags.emotes, message);
-
-      const badgeImages = this.parseBadgeImages(tags.badges);
-
-      const messageId = `twitch-${tags.id ?? randomUUID()}`;
-
-      const chatMessage: ChatMessage = {
-        id: messageId,
-        platform: this.platform,
-        channel: channel.replace('#', ''),
-        username: tags['display-name'] || tags.username || '',
-        message: message,
-        timestamp: tags['tmi-sent-ts'] ? parseInt(tags['tmi-sent-ts']) : Date.now(),
-        avatar: tags['user-profile-image-url'],
-        badges: tags.badges ? Object.keys(tags.badges) : [],
-        badgeImages: Object.keys(badgeImages).length > 0 ? badgeImages : undefined,
-        color: tags.color || undefined,
-        isSubscriber: tags.subscriber === true,
-        isModerator: tags.mod === true,
-        isVip: tags.vip === true,
-        emotesMap: Object.keys(emotesMap).length > 0 ? emotesMap : undefined,
-        metadata: {
-          userId: tags['user-id'],
-          roomId: tags['room-id'],
-          emotes: tags.emotes
-        },
-      };
-
-      this.emit('messageUpdated', chatMessage);
+      this.handleMessage(channel, message, tags);
     });
 
     this.client.on('connected', () => {

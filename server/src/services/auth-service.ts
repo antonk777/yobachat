@@ -46,9 +46,6 @@ export class AuthService {
   private readonly jwtSecret: string;
 
   constructor(config: ServerConfig) {
-    if (!config.admin) {
-      throw new Error('Admin config is required for AuthService');
-    }
     this.config = config.admin;
     this.sharedConfig = config.sharedConfig;
     // Generate a secret from clientSecret for JWT signing

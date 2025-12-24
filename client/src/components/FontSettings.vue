@@ -388,7 +388,7 @@ function handleLineHeightInput(
       />
 
       <template v-if="modelValue.userFont">
-        <div class="switch-group">
+        <div class="switch-group" v-if="availableUserWeights.length > 0">
           <button
             v-for="weight in availableUserWeights"
             :key="weight"
@@ -402,7 +402,7 @@ function handleLineHeightInput(
           </button>
         </div>
 
-        <div class="switch-group">
+        <div class="switch-group" v-if="availableUserStyles.length > 0">
           <button
             v-if="availableUserStyles.includes('normal')"
             type="button"
@@ -529,7 +529,7 @@ function handleLineHeightInput(
       />
 
       <template v-if="modelValue.adminFont">
-        <div class="switch-group">
+        <div class="switch-group" v-if="availableAdminWeights.length > 0">
           <button
             v-for="weight in availableAdminWeights"
             :key="weight"
@@ -543,7 +543,7 @@ function handleLineHeightInput(
           </button>
         </div>
 
-        <div class="switch-group">
+        <div class="switch-group" v-if="availableAdminStyles.length > 0">
           <button
             v-if="availableAdminStyles.includes('normal')"
             type="button"

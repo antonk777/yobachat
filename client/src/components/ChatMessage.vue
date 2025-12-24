@@ -104,21 +104,6 @@ const replyTo = computed(() => props.message.replyTo);
 </template>
 
 <style scoped>
-@keyframes username-gradient-shift {
-  0% {
-    --src-color: #6bf8d5;
-  }
-  33% {
-    --src-color: #ba92ff;
-  }
-  66% {
-    --src-color: #ff88c4;
-  }
-  100% {
-    --src-color: #6bf8d5;
-  }
-}
-
 .chat-message {
   display: block;
   flex: none;
@@ -234,6 +219,21 @@ const replyTo = computed(() => props.message.replyTo);
   border-radius: 50%;
 }
 
+@keyframes username-gradient-shift {
+  0% {
+    color: #6bf8d5;
+  }
+  33% {
+    color: #ba92ff;
+  }
+  66% {
+    color: #ff88c4;
+  }
+  100% {
+    color: #6bf8d5;
+  }
+}
+
 .username {
   --src-color: var(--user-color, var(--platform-color));
 
@@ -246,7 +246,7 @@ const replyTo = computed(() => props.message.replyTo);
   font-stretch: var(--username-font-stretch, normal);
 
   .chat-message.is-deluxe & {
-    animation: username-gradient-shift 90s ease infinite;
+    animation: username-gradient-shift 120s ease infinite;
   }
 
   .chat-message.deleted & {
@@ -258,8 +258,10 @@ const replyTo = computed(() => props.message.replyTo);
   display: block;
   align-self: center;
   flex: none;
-  width: var(--badge-size);
-  height: var(--badge-size);
+  width: .9rem;
+  height: .9rem;
+  mask: url('@/assets/edited.svg') center center / contain no-repeat;
+  background-color: var(--text-muted);
 }
 
 .badges {

@@ -1,8 +1,6 @@
 @import '@/styles/normalize.css';
 
 :root {
-  font-size: calc(4.75vmin * var(--chat-scale, 1));
-
   --bg-color: #1a1a1a;
   --bg-color-dark: #141414;
   --bg-color-bright: #2a2a2a;
@@ -42,6 +40,8 @@
 }
 
 :root {
+  font-size: calc(min(4.75vmin, 16px) * var(--admin-scale, 1));
+
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden auto;
@@ -58,11 +58,8 @@
   }
 
   &.widget-page {
+    font-size: calc(4.75vmin * var(--chat-scale, 1));
     scrollbar-width: none;
-  }
-
-  &.admin-page {
-    font-size: calc(min(4.75vmin, 16px) * var(--admin-scale, 1));
   }
 }
 

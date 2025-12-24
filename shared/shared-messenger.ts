@@ -13,7 +13,7 @@ export const decodeWSMessage = (message: string) => {
     }
 
     switch (messageParsed.type) {
-      case kWSMessageType.serverStatus:
+      case kWSMessageType.adminServerStatus:
       case kWSMessageType.messageUpdate:
       case kWSMessageType.messageUpdateDeletedIds:
       case kWSMessageType.messageClearAll:

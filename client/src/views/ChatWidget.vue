@@ -18,7 +18,13 @@ const
 
 const userLineHeight = computed(() => (settingsStore.settings?.userLineHeight ?? DEFAULT_LINE_HEIGHT).toString());
 
-const { connected: wsConnected, status: wsStatus } = useWSConnection();
+const { connected: wsConnected, status: wsStatus, connect } = useWSConnection();
+
+// Connect immediately for widget (no authentication required)
+onMounted(() => {
+  connect();
+  window.addEventListener('widgetRefresh', handleWidgetRefresh);
+});
 
 // Apply font settings for user widget
 useFontSettings(() => settingsStore.settings, 'user');
@@ -29,9 +35,6 @@ function handleWidgetRefresh() {
   window.location.reload();
 }
 
-onMounted(() => {
-  window.addEventListener('widgetRefresh', handleWidgetRefresh);
-});
 
 onUnmounted(() => {
   window.removeEventListener('widgetRefresh', handleWidgetRefresh);

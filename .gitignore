@@ -30,3 +30,6 @@ client/src/types/vue-global.d.ts
 
 # Storage files
 server/storage/*.json
+
+server/server-config.json
+server/server-config.dev.json

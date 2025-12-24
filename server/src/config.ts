@@ -158,6 +158,7 @@ function loadServerConfig(serverConfigPath?: string, sharedConfigPath?: string):
       kick: validatedConfig.kick,
       goodgame: validatedConfig.goodgame,
       betterttv: validatedConfig.betterttv,
+      admin: validatedConfig.admin,
       platforms
     };
   } catch (error) {

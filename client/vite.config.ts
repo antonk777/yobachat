@@ -79,6 +79,7 @@ export default defineConfig({
         index: resolve(__dirname, 'index.html'),
         widget: resolve(__dirname, 'widget.html'),
         admin: resolve(__dirname, 'admin.html'),
+        login: resolve(__dirname, 'login.html'),
       },
       output: {
         // Top-level entries: send each app's entry to its own folder, everything
@@ -92,6 +93,10 @@ export default defineConfig({
 
           if (name === 'widget') {
             return 'widget/[name].js';
+          }
+
+          if (name === 'login') {
+            return 'login/[name].js';
           }
 
           return 'assets/[name].js';
@@ -113,12 +118,22 @@ export default defineConfig({
             id.includes('widget.html')
           );
 
+          const belongsToLogin = moduleIds.some(id =>
+            id.includes('login-main') ||
+            id.includes('Login') ||
+            id.includes('login.html')
+          );
+
           if (belongsToAdmin) {
             return 'admin/[name]-[hash].js';
           }
 
           if (belongsToWidget) {
             return 'widget/[name]-[hash].js';
+          }
+
+          if (belongsToLogin) {
+            return 'login/[name]-[hash].js';
           }
 
           return 'assets/[name]-[hash].js';
@@ -143,12 +158,20 @@ export default defineConfig({
               name.includes('widget')
             );
 
+            const belongsToLoginCss = identifiers.some(name =>
+              name.includes('login')
+            );
+
             if (belongsToAdminCss) {
               return 'admin/[name]-[hash][extname]';
             }
 
             if (belongsToWidgetCss) {
               return 'widget/[name]-[hash][extname]';
+            }
+
+            if (belongsToLoginCss) {
+              return 'login/[name]-[hash][extname]';
             }
 
             return 'assets/[name]-[hash][extname]'; // e.g., index or shared

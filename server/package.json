@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "prod:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js",
-    "dev:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js",
+    "prod:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js --external:jsonwebtoken",
+    "dev:build": "npm run clean && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js --external:jsonwebtoken",
     "dev:start": "SERVER_CONFIG_PATH=./server-config.dev.json SHARED_CONFIG_PATH=./shared/shared-config.dev.json node dist/index.js",
     "clean": "rimraf dist",
     "test:youtube-websocket": "tsx test-youtube-websocket.ts"
@@ -13,6 +13,7 @@
     "centrifuge": "^5.5.2",
     "chalk": "^5.3.0",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "node-telegram-bot-api": "^0.66.0",
     "reflect-metadata": "^0.2.2",
     "tmi.js": "^1.8.5",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/gapi.client.youtube": "^3.0.4",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.10.0",
     "@types/node-telegram-bot-api": "^0.64.12",
     "@types/tmi.js": "^1.8.6",

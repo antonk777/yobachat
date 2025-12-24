@@ -3,6 +3,8 @@ import { createServer, Server as HttpServer } from 'http';
 import chalk from 'chalk';
 
 import type { FontFamily, FontStyle, FontWeight } from '@shared/shared-types.js';
+import type { AuthService } from './auth-service.js';
+import { kServerConfig } from '@/config.js';
 
 const kFontsApiPort = 8010;
 
@@ -13,6 +15,7 @@ export class WebAPIService {
   private logPrefix = chalk.magenta('[WebAPI]');
   private app: Express;
   private server: HttpServer | null = null;
+  private readonly authService: AuthService;
 
   /**
    * Convert font style names to FontStyle
@@ -73,14 +76,15 @@ export class WebAPIService {
     }
   }
 
-  constructor() {
+  constructor(authService: AuthService) {
     this.app = express();
+    this.authService = authService;
 
     // Enable CORS for all routes
     this.app.use((req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
       if (req.method === 'OPTIONS') {
         res.sendStatus(200);
@@ -88,6 +92,9 @@ export class WebAPIService {
       }
       next();
     });
+
+    // Parse JSON bodies for auth endpoints
+    this.app.use(express.json());
 
     // GET /fonts endpoint
     this.app.get('/fonts', async (req, res) => {
@@ -101,6 +108,62 @@ export class WebAPIService {
           message: error instanceof Error ? error.message : 'Unknown error'
         });
       }
+    });
+
+    // GET /auth/twitch/login - Redirect to Twitch OAuth
+    this.app.get('/auth/twitch/login', (req, res) => {
+      const state = this.authService.generateState();
+      const loginUrl = this.authService.getLoginUrl(state);
+      res.redirect(loginUrl);
+    });
+
+    // GET /auth/twitch/callback - Handle OAuth callback
+    this.app.get('/auth/twitch/callback', async (req, res) => {
+      const { code, state, error } = req.query;
+
+      if (error) {
+        console.error(`${this.logPrefix} OAuth error: ${error}`);
+        res.redirect(`/login.html?error=${encodeURIComponent(String(error))}`);
+        return;
+      }
+
+      if (!code || !state) {
+        res.status(400).json({ error: 'Missing code or state parameter' });
+        return;
+      }
+
+      const result = await this.authService.handleCallback(String(code), String(state));
+
+      const rootUrl = `https://${kServerConfig.sharedConfig.host}${kServerConfig.sharedConfig.basePath}`;
+
+      if (!result) {
+        res.redirect(`${rootUrl}login?error=${encodeURIComponent('Authentication failed')}`);
+        return;
+      }
+
+      // Redirect to login page with token in hash (will handle redirect to admin)
+      // Assumes reverse proxy routes both API and admin panel
+      res.redirect(`${rootUrl}login#token=${encodeURIComponent(result.token)}`);
+    });
+
+    // GET /auth/verify - Verify token validity
+    this.app.get('/auth/verify', (req, res) => {
+      const authHeader = req.headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        res.status(401).json({ error: 'Unauthorized', valid: false });
+        return;
+      }
+
+      const token = authHeader.substring(7);
+      const user = this.authService.verifyToken(token);
+
+      if (!user) {
+        res.status(401).json({ error: 'Invalid token', valid: false });
+        return;
+      }
+
+      res.json({ valid: true, username: user.username });
     });
 
     // Health check endpoint

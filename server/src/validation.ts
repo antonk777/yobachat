@@ -3,7 +3,7 @@ import chalk from 'chalk';
 
 import type { ChatMessage, ChatSettings, Platform, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, GoodgameServiceConfig, BetterTTVConfig, SharedConfig } from '@shared/shared-types.js';
 import { kWSMessageType } from '@shared/shared-types.js';
-import type { ServerConfigFile } from '@/types';
+import type { ServerConfigFile, AdminConfig } from '@/types';
 
 
 const kLogPrefix = chalk.cyan('[Validation]');
@@ -196,7 +196,7 @@ export const PartialChatSettingsSchema = ChatSettingsSchema.partial();
 
 // WebSocket message schemas
 const ServerStatusSchema = z.object({
-  type: z.literal(kWSMessageType.serverStatus),
+  type: z.literal(kWSMessageType.adminServerStatus),
   data: z.object({
     connected: z.boolean(),
     message: z.string().max(500).optional()
@@ -431,6 +431,14 @@ const BetterTTVConfigSchema = z.object({
   color: z.string().regex(/^#[A-Fa-f0-9]{6}$/)
 }) satisfies z.ZodType<BetterTTVConfig>;
 
+const AdminConfigSchema = z.object({
+  allowedTwitchUsernames: z.array(z.string().min(1).max(100)).min(1),
+  twitchOAuth: z.object({
+    clientId: z.string().min(1).max(200),
+    clientSecret: z.string().min(1).max(200)
+  })
+});
+
 const SharedConfigSchema = z.object({
   host: z.string().min(1).max(100),
   apiHost: z.string().min(1).max(100),
@@ -453,6 +461,7 @@ export const ServerConfigSchema = z.object({
   kick: KickServiceConfigSchema,
   goodgame: GoodgameServiceConfigSchema,
   betterttv: BetterTTVConfigSchema,
+  admin: AdminConfigSchema,
   platforms: z.array(
       z.object({
       id: PlatformTypeSchema,

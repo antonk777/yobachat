@@ -38,6 +38,7 @@ import { BetterTTVService } from '@/services/betterttv-service.js';
 import { WebhookService } from '@/services/webhook-service.js';
 import { WebSocketService } from '@/services/websocket-service.js';
 import { WebAPIService } from '@/services/webapi-service.js';
+import { AuthService } from '@/services/auth-service.js';
 
 import { kWSMessageType } from '@shared/shared-types.js';
 
@@ -64,6 +65,7 @@ class ChatServer {
   private betterttvService: BetterTTVService | null = null;
   private webhookService: WebhookService;
   private webApiService: WebAPIService;
+  private readonly authService: AuthService;
 
   // Message batching
   private messageBatch: ChatMessage[] = [];
@@ -76,9 +78,10 @@ class ChatServer {
 
   constructor(config: ServerConfig) {
     this.config = config;
+    this.authService = new AuthService(config);
     this.webhookService = new WebhookService(config.webhookPort);
-    this.websocketService = new WebSocketService(config);
-    this.webApiService = new WebAPIService();
+    this.websocketService = new WebSocketService(config, this.authService);
+    this.webApiService = new WebAPIService(this.authService);
 
     // Set up WebSocket event listeners
     this.websocketService
@@ -454,24 +457,49 @@ class ChatServer {
    */
   private handleWSConnection(clientId: string): void {
     // Send welcome message and initial data
-    this.websocketService.send(clientId, kWSMessageType.serverStatus, {
+    this.websocketService.send(clientId, kWSMessageType.adminServerStatus, {
       connected: true,
       message: 'Hello from server!'
     });
 
-    // Send initial data to admin clients
-    this.sendPlatformsStatus(clientId);
     this.sendChatSettings(clientId);
     this.sendDeletedMessageIds(clientId);
 
     // Send message history to the new client
     this.sendMessageHistory(clientId);
+
+    // Only send admin data to authenticated users
+    if (this.isClientAuthenticated(clientId)) {
+      this.sendPlatformsStatus(clientId);
+    }
+  }
+
+  /**
+   * Check if a client is authenticated for admin operations
+   */
+  private isClientAuthenticated(clientId: string): boolean {
+    const user = this.websocketService.getAuthenticatedUser(clientId);
+
+    if (!user) {
+      return false;
+    }
+
+    // Verify username is still in allowlist
+    return this.authService.isUsernameAllowed(user.username);
   }
 
   /**
    * Handle incoming WebSocket messages (already decoded and validated)
    */
   private async handleWSMessage(clientId: string, message: WSMessage): Promise<void> {
+    // Check authentication for admin messages
+    // const isAdminMessage = message.type.startsWith('admin');
+
+    if (!this.isClientAuthenticated(clientId)) {
+      console.warn(`${this.logPrefix} Unauthorized admin message attempt from ${clientId}`);
+      return;
+    }
+
     switch (message.type) {
       case kWSMessageType.adminDeleteMessage:
         await this.handleAdminDeleteMessage(clientId, message);
@@ -508,7 +536,11 @@ class ChatServer {
    * Send server status message to a specific client
    */
   private sendServerMessage(clientId: string, message: string): void {
-    this.websocketService.send(clientId, kWSMessageType.serverStatus, {
+    if (!this.isClientAuthenticated(clientId)) {
+      return;
+    }
+
+    this.websocketService.send(clientId, kWSMessageType.adminServerStatus, {
       connected: true,
       message
     });
@@ -518,6 +550,10 @@ class ChatServer {
    * Send platform status to a client
    */
   private sendPlatformsStatus(clientId: string): void {
+    if (!this.isClientAuthenticated(clientId)) {
+      return;
+    }
+
     const platformsStatus: PlatformWithStatus[] = Array.from(this.platforms.values())
       .map(platform => ({
         id: platform.id,
@@ -575,7 +611,7 @@ class ChatServer {
    * Handle admin delete message command
    */
   private async handleAdminDeleteMessage(clientId: string, message: WSAdminDeleteMessage): Promise<void> {
-    if (message.type !== kWSMessageType.adminDeleteMessage) {
+    if (message.type !== kWSMessageType.adminDeleteMessage || !this.isClientAuthenticated(clientId)) {
       return;
     }
 
@@ -607,7 +643,7 @@ class ChatServer {
    * Handle admin update settings command
    */
   private async handleAdminUpdateSettings(clientId: string, message: WSMessage): Promise<void> {
-    if (message.type !== kWSMessageType.adminUpdateSettings) {
+    if (message.type !== kWSMessageType.adminUpdateSettings || !this.isClientAuthenticated(clientId)) {
       return;
     }
 
@@ -661,7 +697,7 @@ class ChatServer {
         ...platform,
         active
       }
-    });
+    }, this.isClientAuthenticated.bind(this));
   }
 
 

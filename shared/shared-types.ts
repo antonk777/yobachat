@@ -145,7 +145,6 @@ export interface ChatSettings {
 }
 
 export enum kWSMessageType {
-  serverStatus = 'serverStatus',
   messageUpdate = 'messageUpdate',
   messageUpdateDeletedIds = 'messageUpdateDeletedIds',
   messageClearAll = 'messageClearAll',
@@ -160,12 +159,13 @@ export enum kWSMessageType {
   adminRefreshWidget = 'adminRefreshWidget',
 
   // Admin responses (server -> client)
+  adminServerStatus = 'adminServerStatus',
   adminPlatformsStatus = 'adminPlatformsStatus',
   adminPlatformStatusUpdate = 'adminPlatformStatusUpdate',
 }
 
 export interface WSServerStatus {
-  type: kWSMessageType.serverStatus;
+  type: kWSMessageType.adminServerStatus;
   data: ServerStatus;
 }
 
@@ -235,7 +235,7 @@ export interface WSAdminPlatformStatusUpdate {
 
 export type WSMessageTypeMap = {
   // Client responses (server -> client)
-  [kWSMessageType.serverStatus]: WSServerStatus;
+  [kWSMessageType.adminServerStatus]: WSServerStatus;
   [kWSMessageType.messageUpdate]: WSMessageUpdate;
   [kWSMessageType.messageUpdateDeletedIds]: WSMessageUpdateDeletedIds;
   [kWSMessageType.messageClearAll]: WSMessageClearAll;

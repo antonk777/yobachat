@@ -6,12 +6,23 @@ import type { ServerConfig } from '@/types.js';
 import type { WSMessage, WSMessageTypeMap } from '@shared/shared-types.js';
 import { decodeWSMessage, encodeWSMessage } from '@shared/shared-messenger.js';
 import { validateWSMessage } from '@/validation.js';
+import type { AuthService } from './auth-service.js';
+
 
 export interface WebSocketEvents {
   'connection': [clientId: string];
   'disconnection': [clientId: string, code: number];
   'message': [clientId: string, message: WSMessage];
   'error': [clientId: string, error: string];
+}
+
+interface AuthenticatedUser {
+  username: string;
+}
+
+interface WebSocketUserData {
+  wsKey?: string;
+  authInfo: AuthenticatedUser | null;
 }
 
 /**
@@ -22,13 +33,16 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
   public logPrefix = chalk.blue('[WebSocket]');
 
   private app: uWS.TemplatedApp | null = null;
-  private clients: Map<string, uWS.WebSocket<any>> = new Map();
+  private clients: Map<string, uWS.WebSocket<WebSocketUserData>> = new Map();
+  private authenticatedUsers: Map<string, AuthenticatedUser> = new Map();
   private config: ServerConfig;
+  private authService: AuthService;
   private clientIdCounter = 0;
 
-  constructor(config: ServerConfig) {
+  constructor(config: ServerConfig, authService: AuthService) {
     super();
     this.config = config;
+    this.authService = authService;
   }
 
   /**
@@ -91,9 +105,20 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
   }
 
   /**
+   * Get authenticated user for a client ID
+   */
+  getAuthenticatedUser(clientId: string): AuthenticatedUser | null {
+    return this.authenticatedUsers.get(clientId) || null;
+  }
+
+  /**
    * Send a message to a specific client by ID
    */
-  send<T extends keyof WSMessageTypeMap>(clientId: string, type: T, data: WSMessageTypeMap[T]['data']): void {
+  send<T extends keyof WSMessageTypeMap>(
+    clientId: string,
+    type: T,
+    data: WSMessageTypeMap[T]['data']
+  ): void {
     const ws = this.clients.get(clientId);
 
     if (!ws) {
@@ -114,7 +139,11 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
   /**
    * Broadcast a message to all connected clients
    */
-  broadcast<T extends keyof WSMessageTypeMap>(type: T, data: WSMessageTypeMap[T]['data']): void {
+  broadcast<T extends keyof WSMessageTypeMap>(
+    type: T,
+    data: WSMessageTypeMap[T]['data'],
+    clientGuard?: (clientId: string) => boolean
+  ): void {
     if (this.config.consoleMode || !this.app) {
       return;
     }
@@ -125,6 +154,10 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
       const encoded = encodeWSMessage(message);
 
       this.clients.forEach((ws, clientId) => {
+        if (clientGuard && !clientGuard(clientId)) {
+          return;
+        }
+
         try {
           ws.send(encoded, false);
         } catch (error) {
@@ -140,7 +173,7 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
   /**
    * Handle incoming message from a WebSocket client
    */
-  private handleIncomingMessage(ws: uWS.WebSocket<any>, message: ArrayBuffer): void {
+  private handleIncomingMessage(ws: uWS.WebSocket<WebSocketUserData>, message: ArrayBuffer): void {
     // Find client ID by WebSocket instance
     let clientId: string | undefined;
 
@@ -204,14 +237,54 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
       idleTimeout: 32,
       maxBackpressure: 1024,
 
-      open: (ws: uWS.WebSocket<any>) => {
+      upgrade: (res, req, context) => {
+        // Extract token from query string and verify if present
+        const token = req.getQuery('token') || '';
+        const wsKey = req.getHeader('sec-websocket-key');
+
+        let authInfo: AuthenticatedUser | null = null;
+
+        // If token provided and auth service available, verify it
+        if (token && wsKey) {
+          const user = this.authService.verifyToken(token);
+
+          if (user && this.authService.isUsernameAllowed(user.username)) {
+            authInfo = { username: user.username };
+          }
+        }
+
+        const userData: WebSocketUserData = { wsKey, authInfo };
+        res.upgrade(
+          userData,
+          wsKey,
+          req.getHeader('sec-websocket-protocol'),
+          req.getHeader('sec-websocket-extensions'),
+          context
+        );
+      },
+
+      open: (ws: uWS.WebSocket<WebSocketUserData>) => {
         const clientId = this.generateClientId();
         this.clients.set(clientId, ws);
+
+        // Try to get authenticated user info from userData
+        try {
+          const userData = ws.getUserData();
+          if (userData.authInfo != null) {
+            this.authenticatedUsers.set(clientId, userData.authInfo);
+            console.log(`${this.logPrefix} WS Client connected (authenticated): ${clientId} (${userData.authInfo.username})`);
+            this.emit('connection', clientId);
+            return;
+          }
+        } catch (error) {
+          console.warn(`${this.logPrefix} Failed to access userData in open handler:`, error);
+        }
+
         console.log(`${this.logPrefix} WS Client connected: ${clientId}`);
         this.emit('connection', clientId);
       },
 
-      close: (ws: uWS.WebSocket<any>, code: number, message: ArrayBuffer) => {
+      close: (ws: uWS.WebSocket<WebSocketUserData>, code: number, message: ArrayBuffer) => {
         // Find client ID by WebSocket instance
         let clientId: string | undefined;
         for (const [id, clientWs] of this.clients.entries()) {
@@ -224,23 +297,24 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
         if (clientId) {
           console.log(`${this.logPrefix} WS Client disconnected: ${clientId} (code: ${code})`);
           this.clients.delete(clientId);
+          this.authenticatedUsers.delete(clientId);
           this.emit('disconnection', clientId, code);
         }
       },
 
-      message: (ws: uWS.WebSocket<any>, message: ArrayBuffer, isBinary: boolean) => {
+      message: (ws: uWS.WebSocket<WebSocketUserData>, message: ArrayBuffer, isBinary: boolean) => {
         this.handleIncomingMessage(ws, message);
       },
 
-      drain: (ws: uWS.WebSocket<any>) => {
+      drain: (ws: uWS.WebSocket<WebSocketUserData>) => {
         // Handle backpressure relief
       },
 
-      ping: (ws: uWS.WebSocket<any>, message: ArrayBuffer) => {
+      ping: (ws: uWS.WebSocket<WebSocketUserData>, message: ArrayBuffer) => {
         // Handle ping
       },
 
-      pong: (ws: uWS.WebSocket<any>, message: ArrayBuffer) => {
+      pong: (ws: uWS.WebSocket<WebSocketUserData>, message: ArrayBuffer) => {
         // Handle pong
       }
     });

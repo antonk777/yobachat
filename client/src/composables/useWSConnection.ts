@@ -1,4 +1,4 @@
-import { computed, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { useWebSocket, createGlobalState } from '@vueuse/core';
 
 import { ChatSettings, kWSMessageType, WSMessage } from '@shared/shared-types';
@@ -7,25 +7,47 @@ import { decodeWSMessage, encodeWSMessage } from '@shared/shared-messenger';
 import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
+import { useAuth } from '@/composables/useAuth';
 
 import { kSharedConfig } from '@/config';
 
 
 export const useWSConnection = createGlobalState(() => {
-  const url = `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`;
+  const auth = useAuth();
+
+  // Build WebSocket URL with token if authenticated
+  function buildWsUrl(): string {
+    let url = `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`;
+    const token = auth.token.value;
+    if (token) {
+      url += `?token=${encodeURIComponent(token)}`;
+    }
+    return url;
+  }
+
+  // Initialize URL ref with initial value
+  const wsUrl = ref(buildWsUrl());
 
   const
     messagesStore = useMessagesStore(),
     settingsStore = useSettingsStore(),
     uiStore = useUIStore()
 
-  const { status, data, send: wsSend } = useWebSocket(url, {
-    immediate: true,
+  const { status, data, send: wsSend, close, open } = useWebSocket(wsUrl, {
+    immediate: false, // Don't connect immediately - let views decide when to connect
     autoReconnect: {
       retries: Infinity,
       // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s
-      delay: (retries: number) => Math.min(1000 * 2 ** (retries - 1), 30000),
-      onFailed: () => console.error('WebSocket reconnection failed')
+      delay: (retries: number) => Math.min(1000 * 2 ** (retries - 1), 30000)
+    }
+  });
+
+  // Close connection when user logs out (token becomes null)
+  watch(() => auth.token.value, (newToken, oldToken) => {
+    // Only handle logout case (token becomes null)
+    // Login/connection is handled manually via connect() after verification
+    if (oldToken !== undefined && newToken === null && oldToken !== null && status.value === 'OPEN') {
+      close();
     }
   });
 
@@ -36,6 +58,7 @@ export const useWSConnection = createGlobalState(() => {
     // Track initial connection or status changes
     if (oldStatus === undefined || newStatus !== oldStatus) {
       const isConnected = newStatus === 'OPEN';
+
       let message: string;
 
       if (isConnected) {
@@ -73,9 +96,10 @@ export const useWSConnection = createGlobalState(() => {
       // Handle connection status
 
       switch (parsed.type) {
-        case kWSMessageType.serverStatus:
+        case kWSMessageType.adminServerStatus:
           uiStore.serverStatus.push({
-            ...parsed.data,
+            connected: parsed.data.connected,
+            message: parsed.data.message,
             type: 'server',
             timestamp: Date.now()
           });
@@ -179,9 +203,16 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
+  function connect() {
+    // Update URL to ensure it has the latest token before connecting
+    wsUrl.value = buildWsUrl();
+    open();
+  }
+
   return {
     status,
     connected,
+    connect,
     send,
     deleteMessage,
     updateBadWords,

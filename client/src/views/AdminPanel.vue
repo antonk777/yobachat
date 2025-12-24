@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core';
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
 
 import ChatMessageComponent from '@/components/ChatMessage.vue';
 import ChatSettingsModal from '@/components/ChatSettings.vue';
@@ -11,15 +11,40 @@ import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
 import { useWSConnection } from '@/composables/useWSConnection';
 import { useFontSettings } from '@/composables/useFontSettings';
+import { useAuth } from '@/composables/useAuth';
 
 
 const kDefaultLineHeight = 1.2;
 
 const
+  auth = useAuth(),
   ws = useWSConnection(),
   settingsStore = useSettingsStore(),
   messagesStore = useMessagesStore(),
   uiStore = useUIStore();
+
+// Check authentication on mount and redirect to login if not authenticated
+onMounted(async () => {
+  // Verify token if authenticated
+  if (auth.isAuthenticated.value) {
+    try {
+      const isValid = await auth.verifyToken();
+      if (isValid) {
+        // Token is valid, now connect to WebSocket
+        ws.connect();
+      } else {
+        // Token invalid, redirect to login
+        window.location.href = '/login';
+      }
+    } catch {
+      // Token invalid, redirect to login
+      window.location.href = '/login';
+    }
+  } else {
+    // Not authenticated, redirect to login
+    window.location.href = '/login';
+  }
+});
 
 const messagesContainer = useTemplateRef('messagesContainer');
 const moreMenuRef = ref<HTMLElement | null>(null);
@@ -32,12 +57,14 @@ const adminLineHeight = computed(() => (settingsStore.settings?.adminLineHeight 
 const isMoreMenuOpen = ref(false);
 const platformsExpanded = ref(false);
 
+const wsConnected = computed(() => ws.connected.value);
+
 function hasPlatformIcon(platformId: string): boolean {
   return ['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame'].includes(platformId);
 }
 
 function toggleMoreMenu() {
-  if (!ws.connected) {
+  if (!wsConnected.value) {
     return;
   }
 
@@ -49,7 +76,7 @@ function closeMoreMenu() {
 }
 
 function handleRefreshBetterTTV() {
-  if (!ws.connected) {
+  if (!wsConnected.value) {
     return;
   }
 
@@ -58,7 +85,7 @@ function handleRefreshBetterTTV() {
 }
 
 function handleRefreshWidget() {
-  if (!ws.connected) {
+  if (!wsConnected.value) {
     return;
   }
 
@@ -92,14 +119,13 @@ function openStatusHistory() {
   uiStore.isStatusHistoryOpen = true;
 }
 
+function handleLogout() {
+  auth.logout();
+  window.location.href = '/login';
+}
+
 onClickOutside(moreMenuRef, () => {
   closeMoreMenu();
-});
-
-watch(() => ws.connected, (connected) => {
-  if (!connected) {
-    closeMoreMenu();
-  }
 });
 
 // Auto-scroll to bottom when new messages arrive
@@ -118,19 +144,25 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
       <h1 class="admin-header-title">yobachat</h1>
 
       <div class="admin-header-actions">
+
         <div
           class="connection-status"
-          :class="{ connected: ws.connected }"
+          :class="{ connected: wsConnected }"
           @click="openStatusHistory"
           title="View status history"
         >
-          {{ ws.connected ? '🟢' : '🔴 Disconnected' }}
+          <template v-if="wsConnected">
+            🟢
+          </template>
+          <template v-else>
+            🔴 Disconnected
+          </template>
         </div>
 
         <button
           class="btn btn-secondary"
           @click="uiStore.isSettingsOpen = true"
-          :disabled="!ws.connected"
+          :disabled="!wsConnected"
           title="Configure chat appearance settings"
         >
           Settings
@@ -140,7 +172,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
           <button
             type="button"
             class="btn btn-secondary more-menu-toggle"
-            :disabled="!ws.connected"
+            :disabled="!wsConnected"
             @click="toggleMoreMenu"
             @keydown.escape="closeMoreMenu"
           >
@@ -148,11 +180,24 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
           </button>
 
           <div v-if="isMoreMenuOpen" class="more-menu-dropdown">
+            <div class="more-menu-item user-info-container">
+              <div class="user-info" v-if="auth.username">
+                {{ auth.username }}
+              </div>
+              <button
+                class="btn btn-secondary"
+                @click="handleLogout"
+                title="Logout"
+              >
+                Logout
+              </button>
+            </div>
+
             <button
               type="button"
               class="more-menu-item"
               @click="handleRefreshWidget"
-              :disabled="!ws.connected"
+              :disabled="!wsConnected"
               title="Refresh the chat widget"
             >
               Refresh Widget
@@ -161,7 +206,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
               type="button"
               class="more-menu-item"
               @click="handleRefreshBetterTTV"
-              :disabled="!ws.connected"
+              :disabled="!wsConnected"
               title="Reload BetterTTV emotes on the server"
             >
               Refresh BetterTTV
@@ -187,7 +232,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
           <button
             @click="deleteSelectedMessages"
             class="btn btn-secondary"
-            :disabled="!ws.connected || !messagesStore.hasSelectedMessages"
+            :disabled="!wsConnected || !messagesStore.hasSelectedMessages"
             title="Delete selected messages"
           >
             Delete Selected
@@ -205,7 +250,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
         <button
           @click="ws.clearAllMessages"
           class="btn btn-warn"
-          :disabled="!ws.connected"
+          :disabled="!wsConnected"
           title="Delete all messages from the chat"
         >
           🧹
@@ -405,12 +450,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 .more-menu-item {
   width: 100%;
   padding: .65rem calc(var(--spacing) * .75);
-  background: none;
-  border: none;
   color: var(--text-color);
-  text-align: left;
-  font-size: 1rem;
-  cursor: pointer;
 
   &:hover:not(:disabled) {
     background-color: var(--bg-color-dark);
@@ -420,6 +460,17 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
     opacity: .5;
     cursor: not-allowed;
   }
+}
+
+.user-info-container {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * .5);
+}
+
+.user-info {
+  font-size: .9rem;
+  color: var(--text-muted);
 }
 
 .messages-section {

@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, useTemplateRef, watchEffect } from 'vue';
+import { computed, onUnmounted, ref, useTemplateRef, watchEffect } from 'vue';
 
 import { useUIStore } from '@/stores/ui';
 import { ServerStatusConnection } from '@shared/shared-types';
 
 
 const uiStore = useUIStore();
+const currentTime = ref(Date.now());
+
+let intervalId: ReturnType<typeof setInterval> | null = null;
 
 const isOpen = computed(() => uiStore.isStatusHistoryOpen);
 const dialogRef = useTemplateRef<HTMLDialogElement>('dialog');
@@ -49,24 +52,87 @@ const statusHistory = computed(() => {
 
 function formatTimestamp(timestamp: number): string {
   const date = new Date(timestamp);
-  const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+  const milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0');
 
-  return date.toLocaleString(undefined, {
+  const timedate = date.toLocaleString('ru-RU', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false
-  }) + `.${milliseconds}`;
+    hour12: false,
+    timeZone: 'UTC'
+  })
+
+  return `${timedate}.${milliseconds} UTC`;
+}
+
+function formatTimeElapsed(timestamp: number): string {
+  const now = currentTime.value;
+  const elapsed = now - timestamp;
+  const seconds = Math.floor(elapsed / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  const parts: string[] = [];
+
+  if (days > 0) {
+    parts.push(`${days}d`);
+  }
+
+  if (hours > 0) {
+    const remainingHours = hours % 24;
+    if (remainingHours > 0) {
+      parts.push(`${remainingHours}h`);
+    }
+  }
+
+  if (minutes > 0) {
+    const remainingMinutes = minutes % 60;
+    if (remainingMinutes > 0) {
+      parts.push(`${remainingMinutes}m`);
+    }
+  }
+
+  if (seconds > 0 || parts.length === 0) {
+    const remainingSeconds = seconds % 60;
+
+    if (remainingSeconds <= 2) {
+      return 'just now';
+    }
+
+    if (remainingSeconds > 0 || parts.length === 0) {
+      parts.push(`${remainingSeconds}s`);
+    }
+  }
+
+  return parts.join(' ') + ' ago';
 }
 
 watchEffect(() => {
   if (isOpen.value) {
     dialogRef.value?.showModal();
+    // Start updating time every 2 seconds when modal opens
+    currentTime.value = Date.now();
+    intervalId = setInterval(() => {
+      currentTime.value = Date.now();
+    }, 1000);
   } else {
     dialogRef.value?.close();
+    // Stop interval when modal closes
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+});
+
+onUnmounted(() => {
+  // Clean up interval on component unmount
+  if (intervalId) {
+    clearInterval(intervalId);
   }
 });
 </script>
@@ -124,7 +190,11 @@ watchEffect(() => {
             {{ entry.message }}
           </div>
 
-          <time class="status-time">{{ formatTimestamp(entry.timestamp) }}</time>
+          <time class="status-time">
+            {{ formatTimeElapsed(entry.timestamp) }}
+
+            <span>{{ formatTimestamp(entry.timestamp) }}</span>
+          </time>
         </div>
       </div>
     </div>
@@ -247,8 +317,8 @@ watchEffect(() => {
 }
 
 .status-type {
-  font-weight: 600;
   color: var(--text-color);
+  font-weight: 600;
 }
 
 .status-state {
@@ -257,13 +327,23 @@ watchEffect(() => {
 }
 
 .status-message {
-  font-size: .9rem;
   line-height: 1.4;
+  font-size: .9rem;
 }
 
 .status-time {
-  font-size: .7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
   color: var(--text-muted);
+  font-size: .7rem;
+  font-variant-numeric: tabular-nums;
+
+  span {
+    font-size: .5rem;
+    opacity: .5;
+  }
 }
 
 .empty-state {

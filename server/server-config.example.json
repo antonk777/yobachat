@@ -5,6 +5,13 @@
   "wsPort": 9011,
   "webhookPort": 9012,
   "webhookPath": "webhook/",
+  "admin": {
+    "allowedTwitchUsernames": ["username1", "username2"],
+    "twitchOAuth": {
+      "clientId": "your_twitch_client_id",
+      "clientSecret": "your_twitch_client_secret"
+    }
+  },
   "telegram": {
     "mode": "webhook",
     "botToken": "YOUR_TELEGRAM_BOT_TOKEN",

@@ -5,6 +5,13 @@
   "wsPort": 9011,
   "webhookPort": 9012,
   "webhookPath": "webhook/",
+  "admin": {
+    "allowedTwitchUsernames": ["silentium_vulpes", "yoba_deluxe"],
+    "twitchOAuth": {
+      "clientId": "8raqmxrwmx93v83mlyq9n0uu8canrwt",
+      "clientSecret": "36vntlsy8lnc60bv1nmr482meih0he"
+    }
+  },
   "telegram": {
     "mode": "webhook",
     "botToken": "8390455084:AAGaDpEewCn8A5XfdE8rzHITxtJvU0adT6M",
@@ -19,7 +26,7 @@
   "twitch": {
     "channelId": "silentium_vulpes",
     "clientId": "8raqmxrwmx93v83mlyq9n0uu8canrwt",
-    "clientSecret": "z4vc4l6nkkp23gubgxxc246jc8vf4p"
+    "clientSecret": "36vntlsy8lnc60bv1nmr482meih0he"
   },
   "vkvideo": {
     "channelId": "silentium_vulpes",

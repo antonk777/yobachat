@@ -13,6 +13,17 @@ export interface PlatformServiceEvents {
 // Interfaces
 
 /**
+ * Admin authentication configuration
+ */
+export interface AdminConfig {
+  allowedTwitchUsernames: string[];
+  twitchOAuth: {
+    clientId: string;
+    clientSecret: string;
+  };
+}
+
+/**
  * Type representing the validated JSON structure from server-config.json
  * (platforms don't have config yet - that's added during loading)
  */
@@ -30,6 +41,7 @@ export type ServerConfigFile = {
   kick: KickServiceConfig;
   goodgame: GoodgameServiceConfig;
   betterttv: BetterTTVConfig;
+  admin: AdminConfig;
   platforms: Platform[];
 };
 

@@ -9,6 +9,7 @@ const isLoading = ref(true);
 onMounted(async () => {
   // Check for OAuth error in URL
   const oauthError = auth.handleOAuthError();
+
   if (oauthError) {
     error.value = oauthError;
     isLoading.value = false;
@@ -50,7 +51,8 @@ function handleLogin() {
       </div>
 
       <button
-        class="btn btn-primary login-button"
+        class="btn login-button"
+        :class="isLoading ? 'btn-secondary' : 'btn-primary'"
         @click="handleLogin"
         :disabled="isLoading"
       >
@@ -101,11 +103,12 @@ function handleLogin() {
   padding: 1rem 2rem;
   font-size: 1.1rem;
   min-width: 200px;
+  text-align: center;
 }
 
 .login-button:disabled {
-  opacity: .6;
   cursor: not-allowed;
+  background-color: var(--bg-color-dark);
 }
 </style>
 

@@ -4,7 +4,7 @@
   --bg-color: #1a1a1a;
   --bg-color-dark: #141414;
   --bg-color-bright: #2a2a2a;
-  --bg-color-modal: hsl(0 0% 16% / .7);
+  --bg-color-modal: hsl(0 0% 13% / .75);
   --bg-color-modal-backdrop: hsl(0 0% 0% / .5);
   --border-color: #3a3a3a;
 
@@ -12,7 +12,7 @@
   --text-muted: #aaaaaa;
 
   --primary-color: #be4ad4;
-  --success-color: #2f852f;
+  --success-color: #32954b;
   --error-color: #ff5555;
   --indicator-color: #666;
   --moderator-color: #e2c000;

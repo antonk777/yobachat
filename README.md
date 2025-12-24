@@ -52,7 +52,7 @@ cp shared/shared-config.example.json shared/shared-config.json
   - `consoleMode`: true disables WebSocket and only prints chat to stdout
   - `enableConsoleOutput`: mirror messages to stdout while WebSocket stays enabled
   - `apiPort`, `wsPort`, `webhookPort`, `webhookPath`: internal listener ports/paths (proxy externally as needed)
-  - Platform configs: credentials and channel IDs for twitch, youtube (API key + `pollInterval` ms), telegram (`botToken`, `chatId`, mode `webhook|polling`, `certificatePath` for webhook, `pollInterval`), vkvideo, kick, goodgame
+  - Platform configs: credentials and channel IDs for twitch, youtube (API key + `pollInterval` ms), telegram (`botToken`, `chatId`, mode `webhook|polling` for webhook, `pollInterval`), vkvideo, kick, goodgame
   - `betterttv`: `channelId`, `includeGlobal`, `includeChannel`, `color`
   - `platforms`: the list that drives badges/colors in the widget; ids must match the platform keys above
 

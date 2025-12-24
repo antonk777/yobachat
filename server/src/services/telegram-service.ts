@@ -59,9 +59,6 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       if (!this.webhookUrl) {
         throw new Error('webhookUrl is required when mode is set to "webhook"');
       }
-      if (!this.config.certificatePath) {
-        throw new Error('certificatePath is required when mode is set to "webhook"');
-      }
     }
 
     this.logPrefix = chalk.hex(this.platform.color)(`[${this.platform.abbr}]`);
@@ -136,9 +133,7 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
     const baseUrl = this.webhookUrl?.replace(/\/webhook\/?$/, '') || '';
     const fullWebhookUrl = `${baseUrl}${this.webhookPath}`;
 
-    await this.bot.setWebHook(fullWebhookUrl, {
-      certificate: this.config.certificatePath
-    });
+    await this.bot.setWebHook(fullWebhookUrl);
 
     this.setupEventHandlers();
     this.setActive(true);
@@ -152,9 +147,6 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
   private validateWebhookRequirements(): void {
     if (!this.webhookUrl) {
       throw new Error('webhookUrl is required for webhook mode');
-    }
-    if (!this.config.certificatePath) {
-      throw new Error('certificatePath is required for webhook mode');
     }
     if (!this.registerHandler || !this.unregisterHandler) {
       throw new Error('registerHandler and unregisterHandler are required for webhook mode');

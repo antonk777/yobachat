@@ -180,6 +180,7 @@ export const ChatSettingsSchema = z.object({
   showSubscriberBadges: z.boolean(),
   showVipBadges: z.boolean(),
   showEmotes: z.boolean(),
+  showReplyTo: z.boolean(),
   filterBadWords: z.boolean(),
   badWords: z.array(z.string().min(1).max(100)),
   userFont: FontOptionSchema.nullable(),
@@ -406,7 +407,6 @@ const TelegramServiceConfigSchema = z.object({
   chatId: z.number().int().negative(),
   botToken: z.string().min(1).max(200),
   mode: z.enum(['polling', 'webhook']).optional(),
-  certificatePath: z.string().min(1).max(500).optional(),
   pollInterval: z.number().int().positive().max(3600000).optional() // Max 1 hour
 }) satisfies z.ZodType<TelegramServiceConfig>;
 

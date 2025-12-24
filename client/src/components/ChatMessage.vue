@@ -38,7 +38,7 @@ const replyTo = computed(() => props.message.replyTo);
     }"
   >
     <ChatMessage
-      v-if="replyTo && !isQuote"
+      v-if="settings.showReplyTo && replyTo && !isQuote"
       :message="replyTo"
       :settings="settings"
       :is-quote="true"

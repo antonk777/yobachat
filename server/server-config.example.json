@@ -16,7 +16,6 @@
     "mode": "webhook",
     "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
     "chatId": -1337,
-    "certificatePath": "/etc/letsencrypt/live/your-domain.com/fullchain.pem",
     "pollInterval": 1000
   },
   "youtube": {

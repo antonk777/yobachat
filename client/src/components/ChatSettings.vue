@@ -216,6 +216,14 @@ watchEffect(() => {
 
         <label class="settings-checkbox-item">
           <input
+            v-model="localSettings.showReplyTo"
+            type="checkbox"
+          />
+          Show reply quotes
+        </label>
+
+        <label class="settings-checkbox-item">
+          <input
             v-model="localSettings.showModeratorBadges"
             type="checkbox"
           />
@@ -227,7 +235,7 @@ watchEffect(() => {
             v-model="localSettings.showEditedBadges"
             type="checkbox"
           />
-          Highlight edited messages
+          Show a badge on edited messages
         </label>
 
         <label class="settings-checkbox-item">

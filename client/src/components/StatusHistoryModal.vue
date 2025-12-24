@@ -323,7 +323,7 @@ onUnmounted(() => {
 
 .status-state {
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: .9rem;
 }
 
 .status-message {

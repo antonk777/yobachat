@@ -12,6 +12,7 @@ export const kDefaultChatSettings: ChatSettings = {
   showSubscriberBadges: true,
   showVipBadges: true,
   showEmotes: true,
+  showReplyTo: true,
   filterBadWords: true,
   badWords: [],
   userFont: null,

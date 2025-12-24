@@ -438,13 +438,18 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
   position: absolute;
   top: calc(100% + .5rem);
   right: 0;
-  min-width: 12rem;
-  background-color: var(--bg-color);
+  z-index: 5;
+
   border: 1px solid var(--border-color);
+  min-width: 12rem;
+  padding: .35rem 0;
+
+  background-color: var(--bg-color);
   border-radius: .35rem;
   box-shadow: 0 10px 30px hsla(0 0% 0% / .35);
-  padding: .35rem 0;
-  z-index: 5;
+
+  background: var(--bg-color-modal);
+  backdrop-filter: blur(10px);
 }
 
 .more-menu-item {
@@ -464,6 +469,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
 .user-info-container {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: calc(var(--spacing) * .5);
 }

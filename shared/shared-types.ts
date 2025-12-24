@@ -25,7 +25,6 @@ export interface TelegramServiceConfig {
   chatId: number;
   botToken: string;
   mode?: 'polling' | 'webhook'; // Default: 'webhook' if webhookUrl is provided, otherwise 'polling'
-  certificatePath?: string; // Required only for webhook mode
   pollInterval?: number; // Polling interval in milliseconds (default: 1000)
 }
 
@@ -133,6 +132,7 @@ export interface ChatSettings {
   showSubscriberBadges: boolean;
   showVipBadges: boolean;
   showEmotes: boolean;
+  showReplyTo: boolean;
   filterBadWords: boolean;
   badWords: string[];
   userFont: FontOption | null;

@@ -164,3 +164,8 @@ export type YouTubeLiveChatMessage = gapi.client.youtube.LiveChatMessage;
 
 // Webhook types
 export type WebhookHandler = (req: Request, res: Response) => void;
+
+// Authentication types
+export interface AuthenticatedUser {
+  username: string;
+}

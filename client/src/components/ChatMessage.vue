@@ -115,10 +115,15 @@ const replyTo = computed(() => props.message.replyTo);
   }
 
   &.is-quote {
-    margin-left: calc(var(--spacing) * .5);
-    margin-bottom: calc(var(--spacing) * .4);
+    position: relative;
+    margin-left: calc(var(--spacing) * .3);
+    padding-bottom: calc(var(--spacing) * .25);
+    padding-left: calc((var(--platform-icon-size) * .8) + var(--whitespace));
     line-height: calc(var(--chat-line-height, var(--line-height)) * .75);
-    opacity: .65;
+    max-height: 1.5rem;
+    mask: linear-gradient(#fff calc(100% - (var(--spacing) * .25)), transparent 100%);
+    overflow: hidden;
+
     font-size: .75rem;
   }
 }
@@ -142,21 +147,21 @@ const replyTo = computed(() => props.message.replyTo);
   align-self: center;
   flex: none;
 
+  position: absolute;
+  top: 0;
+  left: 0;
+
   width: calc(var(--platform-icon-size) * .8);
   aspect-ratio: 799.96 / 694.747;
   object-fit: contain;
 
   background-color: var(--src-color);
-  background-color: lch(from var(--src-color) calc(l + 20) c h);
+  background-color: hsl(from var(--src-color) h calc(s * .5) calc(l * .9));
 
   mask-image: url('@/assets/arrow-reply-5.svg');
   mask-position: center center;
   mask-repeat: no-repeat;
   mask-size: contain;
-
-  .chat-message.is-deluxe & {
-    animation: username-gradient-shift 90s ease infinite;
-  }
 }
 
 .platform-icon {
@@ -245,8 +250,12 @@ const replyTo = computed(() => props.message.replyTo);
   font-style: var(--username-font-style, normal);
   font-stretch: var(--username-font-stretch, normal);
 
-  .chat-message.is-deluxe & {
+  .chat-message.is-deluxe > .message-header > & {
     animation: username-gradient-shift 120s ease infinite;
+  }
+
+  .chat-message.is-quote & {
+    color: hsl(from var(--src-color) h calc(s * .5) calc(l * .9));
   }
 
   .chat-message.deleted & {
@@ -277,8 +286,8 @@ const replyTo = computed(() => props.message.replyTo);
   hyphens: auto;
   word-wrap: break-word;
 
-  .chat-message.deleted & {
-    text-decoration: line-through;
+  .chat-message.is-quote & {
+    color: var(--text-muted);
   }
 }
 

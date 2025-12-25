@@ -1,5 +1,5 @@
-import { computed, watch, ref } from 'vue';
-import { useWebSocket, createGlobalState } from '@vueuse/core';
+import { computed, ref, watch } from 'vue';
+import { createGlobalState } from '@vueuse/core';
 
 import { ChatSettings, kWSMessageType, WSMessage } from '@shared/shared-types';
 
@@ -11,51 +11,200 @@ import { useAuth } from '@/composables/useAuth';
 
 import { kSharedConfig } from '@/config';
 
+type WSStatus = 'CONNECTING' | 'OPEN' | 'CLOSED';
+
+// --- Low-level WebSocket state ---
+let ws: WebSocket | null = null;
 
 export const useWSConnection = createGlobalState(() => {
   const auth = useAuth();
 
-  // Build WebSocket URL with token if authenticated
+  const status = ref<WSStatus>('CLOSED');
+  const wsUrl = ref(buildWsUrl());
+
+  const maxDelay = 30000;
+  let reconnectAttempts = 0;
+  let reconnectTimer: number | null = null;
+  const shouldReconnect = ref(true);
+
+  const messagesStore = useMessagesStore();
+  const settingsStore = useSettingsStore();
+  const uiStore = useUIStore();
+
+  // --- Build URL with token ---
   function buildWsUrl(): string {
     let url = `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`;
     const token = auth.token.value;
+
     if (token) {
       url += `?token=${encodeURIComponent(token)}`;
     }
+
     return url;
   }
 
-  // Initialize URL ref with initial value
-  const wsUrl = ref(buildWsUrl());
-
-  const
-    messagesStore = useMessagesStore(),
-    settingsStore = useSettingsStore(),
-    uiStore = useUIStore()
-
-  const { status, data, send: wsSend, close, open } = useWebSocket(wsUrl, {
-    immediate: false, // Don't connect immediately - let views decide when to connect
-    autoReconnect: {
-      retries: Infinity,
-      // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s
-      delay: (retries: number) => Math.min(1000 * 2 ** (retries - 1), 30000)
+  function clearReconnectTimer(): void {
+    if (reconnectTimer != null) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
     }
-  });
+  }
+
+  function scheduleReconnect(): void {
+    if (!shouldReconnect.value) {
+      return;
+    }
+
+    reconnectAttempts += 1;
+    const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), maxDelay);
+
+    clearReconnectTimer();
+    reconnectTimer = window.setTimeout(() => {
+      connectInternal();
+    }, delay);
+  }
+
+  function handleIncomingMessage(rawData: string | ArrayBuffer | Blob): void {
+    let newData: string;
+
+    if (typeof rawData === 'string') {
+      newData = rawData;
+    } else if (rawData instanceof ArrayBuffer) {
+      newData = new TextDecoder().decode(rawData);
+    } else {
+      // Blob – handle asynchronously
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      (rawData as Blob).text().then(handleIncomingMessage).catch(error => {
+        console.error('Error reading Blob WebSocket message:', error);
+      });
+      return;
+    }
+
+    try {
+      const parsed = decodeWSMessage(newData);
+
+      if (!parsed) {
+        return;
+      }
+
+      switch (parsed.type) {
+        case kWSMessageType.adminServerStatus:
+          uiStore.serverStatus.push({
+            connected: parsed.data.connected,
+            message: parsed.data.message,
+            type: 'server',
+            timestamp: Date.now()
+          });
+          break;
+
+        case kWSMessageType.messageUpdate: {
+          const messages = parsed.data.messages;
+
+          if (Array.isArray(messages)) {
+            messages.forEach(message => messagesStore.addMessage(message));
+          }
+
+          break;
+        }
+
+        case kWSMessageType.messageUpdateDeletedIds:
+          messagesStore.setDeletedMessageIds(parsed.data.ids);
+          break;
+
+        case kWSMessageType.messageClearAll:
+          messagesStore.clearAllMessages();
+          break;
+
+        case kWSMessageType.chatSettings:
+          settingsStore.setSettings(parsed.data);
+          break;
+
+        case kWSMessageType.widgetRefresh:
+          window.dispatchEvent(new CustomEvent('widgetRefresh'));
+          break;
+
+        case kWSMessageType.adminPlatformsStatus:
+          uiStore.platforms = parsed.data.platforms;
+          break;
+
+        case kWSMessageType.adminPlatformStatusUpdate:
+          uiStore.updatePlatformStatus(parsed.data.platform);
+          break;
+
+        default:
+          console.error('Unknown WebSocket message type:', parsed.type);
+          break;
+      }
+    } catch (err) {
+      console.error('Error parsing WebSocket message:', err);
+    }
+  }
+
+  function connectInternal(): void {
+    // Prevent duplicate sockets
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+      // console.log('WebSocket already connected or connecting, skipping connection');
+      return;
+    }
+
+    clearReconnectTimer();
+
+    const url = buildWsUrl();
+    wsUrl.value = url;
+
+    // console.log('Connecting to WebSocket', wsUrl.value);
+
+    const socket = new WebSocket(url);
+    ws = socket;
+    status.value = 'CONNECTING';
+
+    socket.onopen = () => {
+      // console.log('WebSocket opened', ws);
+      status.value = 'OPEN';
+      reconnectAttempts = 0;
+    };
+
+    socket.onmessage = (event: MessageEvent) => {
+      handleIncomingMessage(event.data as any);
+    };
+
+    socket.onerror = () => {
+      // Errors are handled via onclose / reconnect
+      // console.error('WebSocket error', e);
+    };
+
+    socket.onclose = () => {
+      // console.error('WebSocket closed', e);
+      status.value = 'CLOSED';
+      ws = null;
+      scheduleReconnect();
+    };
+  }
 
   // Close connection when user logs out (token becomes null)
   watch(() => auth.token.value, (newToken, oldToken) => {
-    // Only handle logout case (token becomes null)
-    // Login/connection is handled manually via connect() after verification
-    if (oldToken !== undefined && newToken === null && oldToken !== null && status.value === 'OPEN') {
-      close();
+    if (oldToken !== undefined && newToken === null && oldToken !== null) {
+      // console.log('Token changed to null, closing WebSocket');
+      shouldReconnect.value = false;
+      clearReconnectTimer();
+
+      if (ws) {
+        try {
+          ws.close();
+        } catch {
+          // ignore
+        }
+        ws = null;
+      }
+
+      status.value = 'CLOSED';
     }
   });
 
   const connected = computed(() => status.value === 'OPEN');
 
-  // Track connection status changes
+  // Track connection status changes for UI
   watch(() => status.value, (newStatus, oldStatus) => {
-    // Track initial connection or status changes
     if (oldStatus === undefined || newStatus !== oldStatus) {
       const isConnected = newStatus === 'OPEN';
 
@@ -80,84 +229,20 @@ export const useWSConnection = createGlobalState(() => {
     }
   }, { immediate: true });
 
-  // Parse incoming messages
-  watch(data, newData => {
-    if (!newData) {
+  function send(message: WSMessage): void {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
       return;
     }
 
     try {
-      const parsed = decodeWSMessage(newData);
-
-      if (!parsed) {
-        return;
-      }
-
-      // Handle connection status
-
-      switch (parsed.type) {
-        case kWSMessageType.adminServerStatus:
-          uiStore.serverStatus.push({
-            connected: parsed.data.connected,
-            message: parsed.data.message,
-            type: 'server',
-            timestamp: Date.now()
-          });
-          break;
-
-        case kWSMessageType.messageUpdate:
-          const messages = parsed.data.messages;
-
-          if (Array.isArray(messages)) {
-            messages.forEach(message => messagesStore.addMessage(message));
-          }
-
-          break;
-
-        case kWSMessageType.messageUpdateDeletedIds:
-          messagesStore.setDeletedMessageIds(parsed.data.ids);
-          break;
-
-        case kWSMessageType.messageClearAll:
-          messagesStore.clearAllMessages();
-          break;
-
-        case kWSMessageType.chatSettings:
-          settingsStore.settings = parsed.data;
-          break;
-
-        case kWSMessageType.widgetRefresh:
-          // Trigger a custom event that widgets can listen to
-          window.dispatchEvent(new CustomEvent('widgetRefresh'));
-          break;
-
-        case kWSMessageType.adminPlatformsStatus:
-          uiStore.platforms = parsed.data.platforms;
-          break;
-
-        case kWSMessageType.adminPlatformStatusUpdate:
-          uiStore.updatePlatformStatus(parsed.data.platform);
-          break;
-
-        default:
-          console.error('Unknown WebSocket message type:', parsed.type);
-          break;
-      }
-    } catch (err) {
-      console.error('Error parsing WebSocket message:', err);
+      const encoded = encodeWSMessage(message);
+      ws.send(encoded);
+    } catch (error) {
+      console.error('Error encoding/sending WebSocket message:', error);
     }
-  });
-
-  function send(message: WSMessage) {
-    if (!connected.value) {
-      console.warn('Cannot send message: WebSocket not connected');
-      return;
-    }
-
-    wsSend(encodeWSMessage(message));
   }
 
-  function deleteMessage(messageIds: string[] | string) {
+  function deleteMessage(messageIds: string[] | string): void {
     const ids = Array.isArray(messageIds) ? messageIds : [messageIds];
 
     send({
@@ -166,7 +251,7 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
-  function updateBadWords(words: string[]) {
+  function updateBadWords(words: string[]): void {
     settingsStore.setBadWords(words);
 
     send({
@@ -175,38 +260,43 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
-  function clearAllMessages() {
+  function clearAllMessages(): void {
     send({
       type: kWSMessageType.adminClearAllMessages,
       data: {}
     });
   }
 
-  function refreshBetterTTV() {
+  function refreshBetterTTV(): void {
     send({
       type: kWSMessageType.adminRefreshBetterTTV,
       data: {}
     });
   }
 
-  function refreshWidget() {
+  function refreshWidget(): void {
     send({
       type: kWSMessageType.adminRefreshWidget,
       data: {}
     });
   }
 
-  function updateChatSettings(settings: Partial<ChatSettings>) {
+  function updateChatSettings(settings: Partial<ChatSettings>): void {
     send({
       type: kWSMessageType.adminUpdateSettings,
       data: settings
     });
   }
 
-  function connect() {
-    // Update URL to ensure it has the latest token before connecting
-    wsUrl.value = buildWsUrl();
-    open();
+  function connect(): void {
+    shouldReconnect.value = true;
+
+    if (status.value === 'OPEN' || status.value === 'CONNECTING') {
+      return;
+    }
+
+    reconnectAttempts = 0;
+    connectInternal();
   }
 
   return {

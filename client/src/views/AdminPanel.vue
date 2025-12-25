@@ -2,7 +2,7 @@
 import { onClickOutside } from '@vueuse/core';
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
 
-import ChatMessageComponent from '@/components/ChatMessage.vue';
+import ChatMessage from '@/components/ChatMessage.vue';
 import ChatSettingsModal from '@/components/ChatSettings.vue';
 import StatusHistoryModal from '@/components/StatusHistoryModal.vue';
 
@@ -25,25 +25,16 @@ const
 
 // Check authentication on mount and redirect to login if not authenticated
 onMounted(async () => {
-  // Verify token if authenticated
-  if (auth.isAuthenticated.value) {
-    try {
-      const isValid = await auth.verifyToken();
-      if (isValid) {
-        // Token is valid, now connect to WebSocket
-        ws.connect();
-      } else {
-        // Token invalid, redirect to login
-        window.location.href = '/login';
-      }
-    } catch {
-      // Token invalid, redirect to login
-      window.location.href = '/login';
-    }
-  } else {
-    // Not authenticated, redirect to login
+  const isValid = await auth.verifyToken();
+
+  if (!isValid) {
+    // Not authenticated or token invalid, redirect to login
     window.location.href = '/login';
+    return;
   }
+
+  // Token is valid, now connect to WebSocket
+  ws.connect();
 });
 
 const messagesContainer = useTemplateRef('messagesContainer');
@@ -275,7 +266,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
             @click.stop="messagesStore.toggleMessageSelection(message.id)"
           />
 
-          <ChatMessageComponent
+          <ChatMessage
             class="chat-message"
             :message="message"
             :settings="settingsStore.settings!"
@@ -523,13 +514,14 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
 .messages-container {
   flex: 1;
+  padding-block: calc(var(--message-spacing) / 2);
 }
 
 .message-item {
   display: flex;
   align-items: flex-start;
   gap: var(--spacing);
-  padding: calc(var(--spacing) * .5) var(--spacing);
+  padding: calc(var(--message-spacing) / 2) var(--spacing);
   position: relative;
   width: 100%;
   transition: background-color .2s;
@@ -548,7 +540,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
   }
 
   .chat-message {
-    margin-top: 0 !important;
     flex: 1 !important;
   }
 

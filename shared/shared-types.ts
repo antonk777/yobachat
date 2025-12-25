@@ -134,6 +134,7 @@ export interface ChatSettings {
   showEmotes: boolean;
   showReplyTo: boolean;
   filterBadWords: boolean;
+  filterLinks: boolean;
   badWords: string[];
   userFont: FontOption | null;
   adminFont: FontOption | null;

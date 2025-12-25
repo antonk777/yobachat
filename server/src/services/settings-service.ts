@@ -85,6 +85,7 @@ export class SettingsService {
   async updateChatSettings(partial: Partial<ChatSettings>): Promise<ChatSettings> {
     // Validate and sanitize settings before updating
     const validated = validatePartialChatSettings(partial);
+
     if (!validated) {
       throw new Error('Invalid chat settings');
     }

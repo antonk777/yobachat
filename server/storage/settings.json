@@ -8,6 +8,7 @@
   "showEmotes": true,
   "showReplyTo": true,
   "filterBadWords": true,
+  "filterLinks": true,
   "badWords": [
     "негр",
     "пидор",
@@ -52,13 +53,9 @@
     }
   },
   "adminFont": {
-    "type": "google",
-    "family": "Open Sans",
+    "type": "local",
+    "family": "ADYS",
     "styles": [
-      {
-        "weight": 300,
-        "style": "normal"
-      },
       {
         "weight": 400,
         "style": "normal"
@@ -68,34 +65,12 @@
         "style": "normal"
       },
       {
-        "weight": 600,
-        "style": "normal"
-      },
-      {
         "weight": 700,
-        "style": "normal"
-      },
-      {
-        "weight": 800,
         "style": "normal"
       }
     ],
-    "subsets": [
-      "menu",
-      "cyrillic",
-      "cyrillic-ext",
-      "greek",
-      "greek-ext",
-      "hebrew",
-      "latin",
-      "latin-ext",
-      "math",
-      "symbols",
-      "vietnamese"
-    ],
-    "googlePopularity": 3,
     "selectedStyle": {
-      "weight": 600,
+      "weight": 700,
       "style": "normal"
     }
   },
@@ -129,9 +104,8 @@
       }
     ],
     "selectedStyle": {
-      "weight": 700,
-      "style": "normal",
-      "width": 50
+      "weight": 500,
+      "style": "normal"
     }
   },
   "adminLineHeight": 1.3,

@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { randomBytes, createHash } from 'node:crypto';
 import chalk from 'chalk';
 
-import type { AdminConfig, ServerConfig } from '@/types.js';
+import type { AdminConfig, AuthenticatedUser, ServerConfig } from '@/types.js';
 import type { SharedConfig } from '@shared/shared-types.js';
 
 const kTokenExpiration = 365 * 24 * 60 * 60; // 365 days in seconds
@@ -201,7 +201,7 @@ export class AuthService {
    */
   verifyToken(token: string): { username: string } | null {
     try {
-      const decoded = jwt.verify(token, this.jwtSecret, { algorithms: ['HS256'] }) as { username: string };
+      const decoded = jwt.verify(token, this.jwtSecret, { algorithms: ['HS256'] }) as AuthenticatedUser;
       return { username: decoded.username.toLowerCase() };
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {

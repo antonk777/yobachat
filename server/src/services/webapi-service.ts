@@ -6,7 +6,6 @@ import type { FontFamily, FontStyle, FontWeight } from '@shared/shared-types.js'
 import type { AuthService } from './auth-service.js';
 import { kServerConfig } from '@/config.js';
 
-const kFontsApiPort = 8010;
 
 /**
  * Service for handling web API requests (fonts, etc.)
@@ -185,8 +184,8 @@ export class WebAPIService {
       try {
         this.server = createServer(this.app);
 
-        this.server.listen(kFontsApiPort, () => {
-          console.log(`${this.logPrefix} Web API server listening on port ${kFontsApiPort}`);
+        this.server.listen(kServerConfig.apiPort, () => {
+          console.log(`${this.logPrefix} Web API server listening on port ${kServerConfig.apiPort}`);
           resolve();
         });
 

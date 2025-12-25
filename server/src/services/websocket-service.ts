@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import chalk from 'chalk';
 import uWS from 'uWebSockets.js';
 
-import type { ServerConfig } from '@/types.js';
+import type { ServerConfig, AuthenticatedUser } from '@/types.js';
 import type { WSMessage, WSMessageTypeMap } from '@shared/shared-types.js';
 import { decodeWSMessage, encodeWSMessage } from '@shared/shared-messenger.js';
 import { validateWSMessage } from '@/validation.js';
@@ -14,10 +14,6 @@ export interface WebSocketEvents {
   'disconnection': [clientId: string, code: number];
   'message': [clientId: string, message: WSMessage];
   'error': [clientId: string, error: string];
-}
-
-interface AuthenticatedUser {
-  username: string;
 }
 
 interface WebSocketUserData {
@@ -237,20 +233,28 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
       idleTimeout: 32,
       maxBackpressure: 1024,
 
-      upgrade: (res, req, context) => {
+        upgrade: (res, req, context) => {
         // Extract token from query string and verify if present
         const token = req.getQuery('token') || '';
         const wsKey = req.getHeader('sec-websocket-key');
+
+        console.log(`${this.logPrefix} WebSocket upgrade request. Token present: ${!!token}, Token length: ${token.length}`);
 
         let authInfo: AuthenticatedUser | null = null;
 
         // If token provided and auth service available, verify it
         if (token && wsKey) {
           const user = this.authService.verifyToken(token);
+          console.log(`${this.logPrefix} Token verification result:`, user ? `User: ${user.username}` : 'Invalid token');
 
           if (user && this.authService.isUsernameAllowed(user.username)) {
             authInfo = { username: user.username };
+            console.log(`${this.logPrefix} User ${user.username} is allowed, setting authInfo`);
+          } else if (user) {
+            console.log(`${this.logPrefix} User ${user.username} is NOT allowed`);
           }
+        } else {
+          console.log(`${this.logPrefix} No token provided in WebSocket upgrade`);
         }
 
         const userData: WebSocketUserData = { wsKey, authInfo };
@@ -270,6 +274,7 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
         // Try to get authenticated user info from userData
         try {
           const userData = ws.getUserData();
+          console.log(`${this.logPrefix} WS Client ${clientId} connected. authInfo:`, userData.authInfo);
           if (userData.authInfo != null) {
             this.authenticatedUsers.set(clientId, userData.authInfo);
             console.log(`${this.logPrefix} WS Client connected (authenticated): ${clientId} (${userData.authInfo.username})`);
@@ -280,7 +285,7 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
           console.warn(`${this.logPrefix} Failed to access userData in open handler:`, error);
         }
 
-        console.log(`${this.logPrefix} WS Client connected: ${clientId}`);
+        console.log(`${this.logPrefix} WS Client connected (unauthenticated): ${clientId}`);
         this.emit('connection', clientId);
       },
 

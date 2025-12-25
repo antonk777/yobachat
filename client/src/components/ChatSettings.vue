@@ -253,6 +253,14 @@ watchEffect(() => {
           />
           Show VIP badges
         </label>
+
+        <label class="settings-checkbox-item">
+          <input
+            v-model="localSettings.filterLinks"
+            type="checkbox"
+          />
+          Filter links
+        </label>
       </div>
 
       <div class="settings-scale-section">

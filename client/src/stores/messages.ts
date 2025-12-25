@@ -231,11 +231,15 @@ export const useMessagesStore = defineStore('messages', () => {
   }
 
   // Update messages when bad words or filter bad words setting change
-  watch(() => settingsStore.badWords, () => {
-    updateMessages();
-  });
+  // watch(() => settingsStore.badWords, () => {
+  //   updateMessages();
+  // });
 
-  watch(() => settingsStore.filterBadWords, () => {
+  // watch(() => settingsStore.filterBadWords, () => {
+  //   updateMessages();
+  // });
+
+  watch(() => settingsStore.settings, () => {
     updateMessages();
   });
 

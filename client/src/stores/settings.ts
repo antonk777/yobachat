@@ -12,7 +12,8 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const
     badWords = computed(() => settings.value?.badWords ?? []),
-    filterBadWords = computed(() => settings.value?.filterBadWords ?? true);
+    filterBadWords = computed(() => settings.value?.filterBadWords ?? true),
+    filterLinks = computed(() => settings.value?.filterLinks ?? true);
 
   function setSettings(newSettings: ChatSettings) {
     settings.value = newSettings;
@@ -28,7 +29,8 @@ export const useSettingsStore = defineStore('settings', () => {
       ...newSettings
     };
 
-    ws.updateChatSettings(settings.value);
+    // Send only the changed properties (partial update) to the server
+    ws.updateChatSettings(newSettings);
   }
 
   function setBadWords(words: string[]) {
@@ -83,12 +85,20 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   function filterText(text: string): string {
-    if (badWords.value.length === 0 || !filterBadWords.value) {
-      return text;
+    let filtered = text;
+
+    // Filter out URLs if enabled
+    if (filterLinks.value) {
+      const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)/gi;
+      filtered = filtered.replace(urlRegex, '[🔗link filtered]');
     }
 
-    let filtered = text;
-    const lowerText = text.toLowerCase();
+    // Filter bad words if enabled
+    if (badWords.value.length === 0 || !filterBadWords.value) {
+      return filtered;
+    }
+
+    const lowerText = filtered.toLowerCase();
 
     for (const word of badWords.value) {
       if (lowerText.indexOf(word) !== -1) {
@@ -104,6 +114,7 @@ export const useSettingsStore = defineStore('settings', () => {
     settings,
     badWords,
     filterBadWords,
+    filterLinks,
     setSettings,
     updateChatSettings,
     setBadWords,

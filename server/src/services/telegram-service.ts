@@ -226,18 +226,70 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
   }
 
   private processMessage(msg: Message, isEdit: boolean = false): ChatMessage | null {
-    // Only process messages with text or caption
-    if (!msg.text && !msg.caption) {
-      return null;
+    const messageId = `telegram-${msg.message_id}`;
+
+    const hasAttachment = msg.photo ||
+      msg.video ||
+      msg.audio ||
+      msg.document ||
+      msg.voice ||
+      msg.video_note ||
+      msg.animation ||
+      msg.sticker ||
+      msg.poll ||
+      msg.dice;
+
+    let attachmentEmoji = '📎';
+
+    if (msg.photo) {
+      attachmentEmoji = '🖼️';
     }
 
-    const isCaptionOnly = !msg.text && !!msg.caption;
+    if (msg.video) {
+      attachmentEmoji = '🎥';
+    }
 
-    const caption = isCaptionOnly ? `🖼️  ${msg.caption}` : undefined;
+    if (msg.audio) {
+      attachmentEmoji = '🎧';
+    }
 
-    const messageText = caption || msg.text || '';
+    if (msg.document) {
+      attachmentEmoji = '📄';
+    }
 
-    const messageId = `telegram-${msg.message_id}`;
+    if (msg.voice) {
+      attachmentEmoji = '🎤';
+    }
+
+    if (msg.video_note) {
+      attachmentEmoji = '🎥';
+    }
+
+    if (msg.animation) {
+      attachmentEmoji = '🎞️';
+    }
+
+    if (msg.sticker) {
+      attachmentEmoji = '🎨';
+    }
+
+    if (msg.poll) {
+      attachmentEmoji = '📊';
+    }
+
+    if (msg.dice) {
+      attachmentEmoji = '🎲';
+    }
+
+    let messageText = msg.text || msg.caption || '';
+
+    if (hasAttachment) {
+      messageText = `${attachmentEmoji} ${messageText}`.trim();
+    }
+
+    const replyToId = msg.reply_to_message?.message_id
+      ? `telegram-${msg.reply_to_message.message_id}`
+      : undefined;
 
     const chatMessage: ChatMessage = {
       id: messageId,
@@ -249,6 +301,7 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       isModerator: false, // Telegram doesn't have a simple moderator flag
       isEdited: isEdit,
       editDate: msg.edit_date ? msg.edit_date * 1000 : undefined,
+      replyToId,
       metadata: {
         userId: msg.from?.id,
         chatId: msg.chat.id,

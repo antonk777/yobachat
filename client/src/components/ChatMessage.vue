@@ -297,7 +297,7 @@ const replyTo = computed(() => props.message.replyTo);
   min-width: var(--emote-size);
   height: var(--emote-size);
   object-fit: contain;
-  vertical-align: middle;
+  vertical-align: -0.4em;
 }
 </style>
 

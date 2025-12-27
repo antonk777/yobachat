@@ -491,10 +491,13 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
   align-items: stretch;
   flex-wrap: wrap;
   gap: calc(var(--spacing) * .5);
-
   padding: calc(var(--spacing) * .5) calc(var(--spacing) * .75);
-
+  pointer-events: none;
   transition: background-color .2s;
+
+  > * {
+    pointer-events: auto;
+  }
 
   @media (width > 450px) {
     padding: calc(var(--spacing) * .5) var(--spacing);

@@ -1,34 +1,1092 @@
 [
   {
-    "id": "kick-5b99efa5-4fe4-4c15-918f-fcc4d646d42d",
+    "id": "twitch-e723a699-4ff1-4300-b8d2-cd588acaf4eb",
+    "channel": "silentium_vulpes",
+    "username": "kotiiik_von_boooba",
+    "message": "подставив жопу с пустым пистолетом",
+    "timestamp": 1766816961573,
     "platform": {
-      "id": "kick",
-      "name": "Kick",
-      "color": "#53FC18",
-      "abbr": "KI"
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
     },
-    "channel": "62697839",
-    "username": "boba_deluxe",
-    "message": "[emote:1730772:emojiFire]",
-    "emotesMap": {
-      "[emote:1730772:emojiFire]": "https://files.kick.com/emotes/1730772/fullsize"
+    "badges": [],
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-5f7e5aad-564c-4e96-92a4-cc95e0279c73",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "я буду вашим секундантом",
+    "timestamp": 1766816971232,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
     },
-    "timestamp": 1766661470000,
-    "color": "#E9113C",
     "badges": [
       "moderator"
     ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-57ade3a6-4417-4f68-b990-8bf105a670eb",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "подержу ваше пиво",
+    "timestamp": 1766816978321,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-ccd7e2e5-d9d0-49e8-8825-47b48e5a5f32",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "это же этот как его",
+    "timestamp": 1766817006336,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-197f5c25-5642-47c5-acde-ca286c6aefdd",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "акаб",
+    "timestamp": 1766817008906,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-0dcec433-30ee-41d8-898a-780534fcfde1",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "аасуждаю",
+    "timestamp": 1766817012619,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-328e0a5b-3b72-4185-8df5-1b122fc47e04",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Качнуло",
+    "timestamp": 1766817100693,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-0636c2bc-e0c0-44ff-8ae6-ec9867c9b0f6",
+    "channel": "silentium_vulpes",
+    "username": "kotiiik_von_boooba",
+    "message": "он имеет ввиду конфликты",
+    "timestamp": 1766817179112,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "telegram-44976",
+    "channel": "-1001573899349",
+    "username": "Антон",
+    "message": "🎥 57. Объявление #2!\n\n\nИнформация о выходе новых роликов.\n\n\nДата загрузки: 30 сент. 2022 г.\n\n\n@nestorshiloarchive\n\n@nestorshilo\n\n#нестор #хамурия \n\n#объявление\n\n#несторвернулся\n\n\nСОДЕРЖАНИЕ ТУТ",
+    "timestamp": 1766817210000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
     "metadata": {
-      "userId": 87233689,
-      "chatroomId": 62697839,
-      "slug": "boba-deluxe",
-      "badges": [
-        {
-          "type": "moderator",
-          "text": "Moderator"
-        }
-      ],
-      "messageRef": "1766661470059"
+      "userId": 305168046,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Антон"
+    }
+  },
+  {
+    "id": "twitch-5068e8ce-6567-4d53-b4b0-a2b6cce03307",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "это походу реально был проект сбу",
+    "timestamp": 1766817239978,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-eff537a0-e7c2-4b80-9efe-b970ea277c36",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "думайте",
+    "timestamp": 1766817245779,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-b7ba8c58-2152-4169-bd79-a97da4c95c16",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Принблять охуенно пришел на работу, никого",
+    "timestamp": 1766817533570,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-4bb37545-7400-4db2-af11-3f50b859868e",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Я договорился, что комп с мониторами заберу домой",
+    "timestamp": 1766817578757,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-5ff35782-6b82-4d15-a7d7-ce9e2c21aa39",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "возможно вы работаете в синагоге",
+    "timestamp": 1766817589207,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-29e4ab36-ac5b-4cb0-9bd5-9a5efae7333f",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Есть, дозуя",
+    "timestamp": 1766817622215,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-884673ee-15e5-4c64-8773-5538a76b2ad8",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Блядь, я даже сигареты не  взял",
+    "timestamp": 1766817703929,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-e180b40a-f486-4755-bc1f-2c344e7d57a8",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "у ахеджаковой лучше получалось",
+    "timestamp": 1766817801295,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-2ae6bbee-0d7d-481f-a821-f6860a09eeae",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "высшая партийная награда ЛДПР",
+    "timestamp": 1766817838944,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-4a24179a-4dc3-4db2-a446-371dc4814c62",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Око Ра, это прото модераторы сили",
+    "timestamp": 1766818056212,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "telegram-44977",
+    "channel": "-1001573899349",
+    "username": "pr1nk337",
+    "message": "Я уж было подумал, что этот шиз воскрес, но нет, к сожалению",
+    "timestamp": 1766818084000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1469397569,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "pr1nk337"
+    }
+  },
+  {
+    "id": "twitch-dd9dc1c3-ee61-4eac-b301-a664d8a4aa63",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "Ра наш русский",
+    "timestamp": 1766818093758,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-237bedfb-37e1-4e06-8d64-38084ad3eca6",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Йоба же нас наградил оком",
+    "timestamp": 1766818101057,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-448215789",
+    "channel": "silentium_vulpes",
+    "username": "ChatBot",
+    "message": "пришел из портала!",
+    "timestamp": 1766818205000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12529926/avatar?change_time=1670417698",
+    "badges": [],
+    "color": "#B8AAFF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12529926,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-cf487acf-6ce0-4670-a9ad-f20cef0a9f59",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "малютка терпит",
+    "timestamp": 1766818215962,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-ce4d1eec-c8fe-4ebd-8b97-07e5942eaca8",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Доброго утра, пока",
+    "timestamp": 1766818324671,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-448216635",
+    "channel": "silentium_vulpes",
+    "username": "yoba_deluxe",
+    "message": "katastroffMEOWDY",
+    "timestamp": 1766818366000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/6349341/avatar?change_time=1685722802",
+    "badges": [],
+    "color": "#20BBA1",
+    "isSubscriber": true,
+    "isModerator": true,
+    "emotesMap": {
+      "katastroffMEOWDY": "https://images.live.vkvideo.ru/smile/cae20646-6c40-4542-baa0-a3d162987acd/icon/size/medium?change_time=1766775282"
+    },
+    "metadata": {
+      "userId": 6349341,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "telegram-44978",
+    "channel": "-1001573899349",
+    "username": "John",
+    "message": "Он не настолько интересее",
+    "timestamp": 1766820543000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 751469840,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "John",
+      "lastName": "Carpenter"
+    }
+  },
+  {
+    "id": "telegram-44978",
+    "channel": "-1001573899349",
+    "username": "John",
+    "message": "Он не настолько интересен",
+    "timestamp": 1766820543000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": true,
+    "editDate": 1766820547000,
+    "metadata": {
+      "userId": 751469840,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "John",
+      "lastName": "Carpenter"
+    }
+  },
+  {
+    "id": "telegram-44979",
+    "channel": "-1001573899349",
+    "username": "pr1nk337",
+    "message": "Йозеф прав",
+    "timestamp": 1766820904000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1469397569,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "pr1nk337"
+    }
+  },
+  {
+    "id": "telegram-44980",
+    "channel": "-1001573899349",
+    "username": "pr1nk337",
+    "message": "А не, это не Йозеф",
+    "timestamp": 1766820913000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1469397569,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "pr1nk337"
+    }
+  },
+  {
+    "id": "telegram-44981",
+    "channel": "-1001573899349",
+    "username": "Telegram",
+    "message": "Мне сегодня 37 и я хочу вам мои дорогие зрители сказать  огромное спасибо, что были со мной рядом все время, что я стримлю. Без вас, возможно, я бы не достиг этой даты и уж точно не стал тем, кто я есть. Мы вместе идем по этому волшебному пути кино познания друг друга и я не планирую с него сворачивать. Буду радовать вас ежедневными стримами снова и снова. Заходите днем на стрим посмотрим что-нибудь из нашей любимой классики.",
+    "timestamp": 1766827770000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 777000,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Telegram"
+    }
+  },
+  {
+    "id": "telegram-44981",
+    "channel": "-1001573899349",
+    "username": "Telegram",
+    "message": "🖼️ Мне сегодня 37 и я хочу вам мои дорогие зрители сказать  огромное спасибо, что были со мной рядом все время, что я стримлю. Без вас, возможно, я бы не достиг этой даты и уж точно не стал тем, кто я есть. Мы вместе идем по этому волшебному пути кино познания друг друга и я не планирую с него сворачивать. Буду радовать вас ежедневными стримами снова и снова. Заходите днем на стрим посмотрим что-нибудь из нашей любимой классики.",
+    "timestamp": 1766827770000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": true,
+    "editDate": 1766828265000,
+    "metadata": {
+      "userId": 777000,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Telegram"
+    }
+  },
+  {
+    "id": "telegram-44982",
+    "channel": "-1001573899349",
+    "username": "⁠",
+    "message": "🎥 Вкусно гадам",
+    "timestamp": 1766832593000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 327943597,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "⁠"
+    }
+  },
+  {
+    "id": "telegram-44983",
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🎞️",
+    "timestamp": 1766832871000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44984",
+    "channel": "-1001573899349",
+    "username": "Pave1",
+    "message": "Петербург и Выборг тут в составе Швеции, а Парфия в составе Рима.. чзх?",
+    "timestamp": 1766834225000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 74170957,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Pave1"
+    }
+  },
+  {
+    "id": "telegram-44985",
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "3 года",
+    "timestamp": 1766834564000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44986",
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️ ушёл на небо ангелом... С неба упала звезда...",
+    "timestamp": 1766834564000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44985",
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "4 года",
+    "timestamp": 1766834564000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": true,
+    "editDate": 1766834612000,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44987",
+    "channel": "-1001573899349",
+    "username": "Антон",
+    "message": "🎞️",
+    "timestamp": 1766835387000,
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 305168046,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Антон"
+    }
+  },
+  {
+    "id": "telegram-44987",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Антон",
+    "message": "🎞️",
+    "timestamp": 1766835387000,
+    "isModerator": false,
+    "isEdited": true,
+    "editDate": 1766839890000,
+    "metadata": {
+      "userId": 305168046,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Антон"
+    }
+  },
+  {
+    "id": "telegram-44989",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️ Собрал свой топ лучших фильмов, которые я посмотрел в 2025 году: \n\n«Убийство священного оленя» (2017) / реж. Йоргос Лантимос\n«Мегалополис» (2024) / реж. Фрэнсис Форд Коппола\n«Александр» (2004) / реж. Оливер Стоун \n«Уходя — уходи» (1978) / реж. Виктор Трегубович\n«Наследие» (2023) / реж. Роман Михайлов \n«Человек-бензопила» (2024) / реж. Рю Накаяма, Макото Накадзоно\n«Паранормальное явление» (2007) / реж. Орен Пели\n«Пункт назначения» (2000) / реж. Джеймс Вонг\n«Тетрадь смерти» (2006-2007) / реж. Тэцуро Араки, Томохико Ито, Хироюки Цутия\n«Прикосновение» (1992) / реж. Альберт Мкртчян",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44990",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44991",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44992",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44993",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44994",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44995",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44996",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44997",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-44998",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "🖼️",
+    "timestamp": 1766838600000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
     }
   }
 ]

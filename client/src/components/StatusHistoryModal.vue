@@ -69,12 +69,13 @@ function formatTimestamp(timestamp: number): string {
 }
 
 function formatTimeElapsed(timestamp: number): string {
-  const now = currentTime.value;
-  const elapsed = now - timestamp;
-  const seconds = Math.floor(elapsed / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+  const
+    now = currentTime.value,
+    elapsed = now - timestamp,
+    seconds = Math.floor(elapsed / 1000),
+    minutes = Math.floor(seconds / 60),
+    hours = Math.floor(minutes / 60),
+    days = Math.floor(hours / 24);
 
   const parts: string[] = [];
 
@@ -99,7 +100,7 @@ function formatTimeElapsed(timestamp: number): string {
   if (seconds > 0 || parts.length === 0) {
     const remainingSeconds = seconds % 60;
 
-    if (remainingSeconds <= 2) {
+    if (remainingSeconds <= 2 && parts.length === 0) {
       return 'just now';
     }
 
@@ -114,6 +115,7 @@ function formatTimeElapsed(timestamp: number): string {
 watchEffect(() => {
   if (isOpen.value) {
     dialogRef.value?.showModal();
+
     // Start updating time every 2 seconds when modal opens
     currentTime.value = Date.now();
     intervalId = setInterval(() => {
@@ -121,6 +123,7 @@ watchEffect(() => {
     }, 1000);
   } else {
     dialogRef.value?.close();
+
     // Stop interval when modal closes
     if (intervalId) {
       clearInterval(intervalId);

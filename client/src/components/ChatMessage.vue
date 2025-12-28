@@ -224,15 +224,6 @@ const replyTo = computed(() => props.message.replyTo);
   border-radius: 50%;
 }
 
-@keyframes username-gradient-shift {
-  0%, 100% {
-    background-position: 0% 0%;
-  }
-  50% {
-    background-position: 100% 100%;
-  }
-}
-
 .username {
   --src-color: var(--user-color, var(--platform-color));
 
@@ -245,10 +236,9 @@ const replyTo = computed(() => props.message.replyTo);
   font-stretch: var(--username-font-stretch, normal);
 
   .chat-message.is-deluxe > .message-header > & {
-    animation: username-gradient-shift 120s ease infinite;
     background-clip: text;
-    background-image: linear-gradient(in oklch 45deg, #6bf8d5, #ba92ff, #ff88c4, #6bf8d5);
-    background-size: 200% 200%;
+    background-image: linear-gradient(#6bf8d5, #ba92ff, #ff88c4);
+    background-image: linear-gradient(in oklch, #6bf8d5, #ba92ff, #ff88c4);
     background-attachment: fixed;
     color: transparent;
   }

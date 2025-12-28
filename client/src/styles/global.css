@@ -33,10 +33,21 @@
   --font-stretch: normal;
   --font-size-small: .84rem;
 
+  --deluxe-gradient-position: 0%;
+
   &.admin-page {
     @media (width <= 400px) {
       --spacing: .6rem;
     }
+  }
+}
+
+@keyframes deluxe-gradient-shift {
+  0%, 100% {
+    --deluxe-gradient-position: 0%;
+  }
+  50% {
+    --deluxe-gradient-position: 100%;
   }
 }
 
@@ -51,6 +62,8 @@
   scrollbar-gutter: auto;
   accent-color: var(--primary-color);
   color-scheme: only dark;
+
+  animation: deluxe-gradient-shift 120s ease infinite;
 
   &.welcome-page {
     scrollbar-gutter: auto;

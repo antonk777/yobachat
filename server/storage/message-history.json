@@ -1,450 +1,5 @@
 [
   {
-    "id": "telegram-45026",
-    "platform": {
-      "id": "telegram",
-      "name": "Telegram",
-      "color": "#0D83BE",
-      "abbr": "TG"
-    },
-    "channel": "-1001573899349",
-    "username": "Joseph",
-    "message": "🖼️",
-    "timestamp": 1766916832000,
-    "isModerator": false,
-    "isEdited": true,
-    "editDate": 1766927350000,
-    "metadata": {
-      "userId": 1128004995,
-      "chatId": -1001573899349,
-      "chatType": "supergroup",
-      "firstName": "Joseph",
-      "lastName": "Diehard"
-    }
-  },
-  {
-    "id": "telegram-45027",
-    "platform": {
-      "id": "telegram",
-      "name": "Telegram",
-      "color": "#0D83BE",
-      "abbr": "TG"
-    },
-    "channel": "-1001573899349",
-    "username": "Joseph",
-    "message": "🖼️",
-    "timestamp": 1766917261000,
-    "isModerator": false,
-    "isEdited": false,
-    "metadata": {
-      "userId": 1128004995,
-      "chatId": -1001573899349,
-      "chatType": "supergroup",
-      "firstName": "Joseph",
-      "lastName": "Diehard"
-    }
-  },
-  {
-    "id": "telegram-45028",
-    "platform": {
-      "id": "telegram",
-      "name": "Telegram",
-      "color": "#0D83BE",
-      "abbr": "TG"
-    },
-    "channel": "-1001573899349",
-    "username": "Danzel",
-    "message": "Лорды раздевалки фильм, 1999, дата выхода трейлеры актеры отзывы описание на Кинопоиске\nhttps://www.kinopoisk.ru/film/1252447/?ysclid=mjpqd6lmai125281949",
-    "timestamp": 1766926429000,
-    "isModerator": false,
-    "isEdited": false,
-    "metadata": {
-      "userId": 5603734574,
-      "chatId": -1001573899349,
-      "chatType": "supergroup",
-      "firstName": "Danzel"
-    }
-  },
-  {
-    "id": "telegram-45029",
-    "platform": {
-      "id": "telegram",
-      "name": "Telegram",
-      "color": "#0D83BE",
-      "abbr": "TG"
-    },
-    "channel": "-1001573899349",
-    "username": "Danzel",
-    "message": "🖼️ Santa Clause is coming \nTO TOWN 🎅🎅🎅🎅🎅🎅🎅",
-    "timestamp": 1766927283000,
-    "isModerator": false,
-    "isEdited": false,
-    "metadata": {
-      "userId": 5603734574,
-      "chatId": -1001573899349,
-      "chatType": "supergroup",
-      "firstName": "Danzel"
-    }
-  },
-  {
-    "id": "telegram-45030",
-    "platform": {
-      "id": "telegram",
-      "name": "Telegram",
-      "color": "#0D83BE",
-      "abbr": "TG"
-    },
-    "channel": "-1001573899349",
-    "username": "Kkk",
-    "message": "https://youtu.be/wQ5Ye13KU8Y?si=JyG1g2HelZoZOFgt",
-    "timestamp": 1766936060000,
-    "isModerator": false,
-    "isEdited": false,
-    "metadata": {
-      "userId": 1902602352,
-      "chatId": -1001573899349,
-      "chatType": "supergroup",
-      "firstName": "Kkk",
-      "lastName": "Israel"
-    }
-  },
-  {
-    "id": "twitch-b3f11d0a-a6ae-4cf5-8165-bae1f047209e",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "VELIKOLEPNJIMAESTRO",
-    "message": "Жесть",
-    "timestamp": 1766936365820,
-    "badges": [],
-    "badgeImages": {},
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": false,
-    "isVip": false
-  },
-  {
-    "id": "telegram-45031",
-    "platform": {
-      "id": "telegram",
-      "name": "Telegram",
-      "color": "#0D83BE",
-      "abbr": "TG"
-    },
-    "channel": "-1001573899349",
-    "username": "Telegram",
-    "message": "🖼️ Марафон по сериалу Сопрано / The Sopranos S1 E010-13 ENG + ENG subs\n\nhttps://www.twitch.tv/Silentium_Vulpes\n\nhttps://live.vkplay.ru/silentium_vulpes\n\nhttps://www.youtube.com/@SilentiumVulpes\n\nhttps://kick.com/silentium-vulpes",
-    "timestamp": 1766936387000,
-    "isModerator": false,
-    "isEdited": false,
-    "metadata": {
-      "userId": 777000,
-      "chatId": -1001573899349,
-      "chatType": "supergroup",
-      "firstName": "Telegram"
-    }
-  },
-  {
-    "id": "twitch-32a30dbb-f3e7-4e3c-a376-8c6b1537e13d",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "VELIKOLEPNJIMAESTRO",
-    "message": "силентиум у нас с вами уже нейросвязи как месячные у баб синхронизировались",
-    "timestamp": 1766936406115,
-    "badges": [],
-    "badgeImages": {},
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": false,
-    "isVip": false
-  },
-  {
-    "id": "twitch-13be793f-60fc-4a70-a9f4-0a9f8e6dd31e",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "VELIKOLEPNJIMAESTRO",
-    "message": "я прямо точно на твич зашел в момент начала стрима",
-    "timestamp": 1766936415351,
-    "badges": [],
-    "badgeImages": {},
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": false,
-    "isVip": false
-  },
-  {
-    "id": "twitch-a1618bdf-881e-48b4-91b6-d53ebbb7fc11",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "Yoba_Deluxe",
-    "message": "SabaPing",
-    "timestamp": 1766936754547,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#FF69B4",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false,
-    "emotesMap": {
-      "SabaPing": "https://static-cdn.jtvnw.net/emoticons/v2/160402/default/dark/2.0"
-    }
-  },
-  {
-    "id": "twitch-cc2555ff-8e53-4fba-a104-8a5ed38a25fd",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "redredseas",
-    "message": "Hi",
-    "timestamp": 1766936773557,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#B22222",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "twitch-f40fe520-087a-4bff-b3f0-2390097d7678",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "vodka_vasilek",
-    "message": "монстр",
-    "timestamp": 1766936924934,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "twitch-8c0ae9e6-8e77-4f8a-a14a-84c5bd841705",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "vodka_vasilek",
-    "message": "как ты так хорошо выглядишь",
-    "timestamp": 1766936928928,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "twitch-77243d0e-e426-4ee9-9692-6e65d85a2220",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "vodka_vasilek",
-    "message": "я похожа на человека которого переехал каток",
-    "timestamp": 1766936948078,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "twitch-1175d3c0-ac3d-40e5-adc0-643eafda2f12",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "vodka_vasilek",
-    "message": "не слышу тебя пока серик играет но это наверное даже к лучшему",
-    "timestamp": 1766936974694,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "twitch-cd70d068-7a53-4576-a736-03eb86824adb",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "redredseas",
-    "message": "Не понял",
-    "timestamp": 1766936979467,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#B22222",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "twitch-427bd413-1a75-4fea-8c5b-a3cee0fafe98",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "redredseas",
-    "message": "Женщина?",
-    "timestamp": 1766936987178,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#B22222",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "twitch-b0fd806c-d026-48f0-96e1-2ce84a0f3a01",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "redredseas",
-    "message": "Тревога товарищи",
-    "timestamp": 1766936998114,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#B22222",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
-    "id": "vkvideo-449502900",
-    "platform": {
-      "id": "vkvideo",
-      "name": "VK Video",
-      "color": "#0077FF",
-      "abbr": "VK"
-    },
-    "channel": "silentium_vulpes",
-    "username": "id211744818",
-    "message": "Хуан Валдес остался без осла",
-    "timestamp": 1766937005000,
-    "emotesMap": {},
-    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
-    "badges": [],
-    "color": "#E542FF",
-    "isModerator": false,
-    "isSubscriber": false,
-    "metadata": {
-      "userId": 12565882,
-      "channelId": "silentium_vulpes",
-      "messageType": "channel_chat_message_send",
-      "isPrivate": false
-    }
-  },
-  {
-    "id": "twitch-5cb5e98b-2757-4f30-a290-ff70505382bb",
-    "platform": {
-      "id": "twitch",
-      "name": "Twitch",
-      "color": "#FF00FF",
-      "abbr": "TW"
-    },
-    "channel": "silentium_vulpes",
-    "username": "vodka_vasilek",
-    "message": "а ты докажи",
-    "timestamp": 1766937013912,
-    "badges": [
-      "moderator"
-    ],
-    "badgeImages": {
-      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
-    },
-    "color": "#FF0000",
-    "isSubscriber": false,
-    "isModerator": true,
-    "isVip": false
-  },
-  {
     "id": "twitch-f600c48c-8ff9-43d1-8337-49f18ce353af",
     "platform": {
       "id": "twitch",
@@ -1122,6 +677,467 @@
     "isVip": false,
     "emotesMap": {
       "OSFrog": "https://static-cdn.jtvnw.net/emoticons/v2/81248/default/dark/2.0"
+    }
+  },
+  {
+    "id": "vkvideo-449544118",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Для них сходить к Тони - как в зверинец",
+    "timestamp": 1766939204000,
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "telegram-45034",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "🎥",
+    "timestamp": 1766939206000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "telegram-45035",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "🖼️ Дядины помои (Unc Slop) — пориджи придумали термин для обозначения всего, что нравится миллениалам\n\nАнкслопом (дядиными помоями) называют всё, что было популярно в девяностых и нулевых — Half-Life 2, Morrowind, Наруто, Евангелион, Sopranos, Lord of the Rings и другая классика скуфов и утят.\n\nлюбители анкслопа тут?🫤",
+    "timestamp": 1766939306000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "telegram-45036",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "🖼️",
+    "timestamp": 1766939306000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "telegram-45037",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "🖼️",
+    "timestamp": 1766939307000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "telegram-45038",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "🎞️",
+    "timestamp": 1766939318000,
+    "isModerator": false,
+    "isEdited": false,
+    "replyToId": "telegram-45035",
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "vkvideo-449547130",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Хава нагила",
+    "timestamp": 1766939359000,
+    "emotesMap": {},
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-06b508ef-8c4a-4bbc-bba4-86b0c7f7b0cb",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "рви душу бля",
+    "timestamp": 1766939390624,
+    "badges": [
+      "moderator"
+    ],
+    "badgeImages": {
+      "moderator": "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "telegram-45039",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "одно аниме, причем местами терпимое",
+    "timestamp": 1766939523000,
+    "isModerator": false,
+    "isEdited": false,
+    "replyToId": "telegram-45035",
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-45040",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "🖼️",
+    "timestamp": 1766939576000,
+    "isModerator": false,
+    "isEdited": false,
+    "replyToId": "telegram-45039",
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "telegram-45041",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "🎞️",
+    "timestamp": 1766939590000,
+    "isModerator": false,
+    "isEdited": false,
+    "replyToId": "telegram-45040",
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "vkvideo-449552745",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "ChatBot",
+    "message": "пришел из портала!",
+    "timestamp": 1766939650000,
+    "emotesMap": {},
+    "avatar": "https://images.live.vkvideo.ru/user/12529926/avatar?change_time=1670417698",
+    "badges": [],
+    "color": "#B8AAFF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12529926,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "telegram-45042",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Joseph",
+    "message": "тут ведь в другом мякотка — зумерки или кто там из детишек, очередной поколение, решили таким образом, бочку катить и в очередной раз стать нетакусями",
+    "timestamp": 1766939657000,
+    "isModerator": false,
+    "isEdited": false,
+    "replyToId": "telegram-45039",
+    "metadata": {
+      "userId": 1128004995,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Joseph",
+      "lastName": "Diehard"
+    }
+  },
+  {
+    "id": "vkvideo-449553177",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Whiplash: Beginning",
+    "timestamp": 1766939674000,
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "telegram-45043",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Константин",
+    "message": "братан, как ставить длинное тире?",
+    "timestamp": 1766939710000,
+    "isModerator": false,
+    "isEdited": false,
+    "replyToId": "telegram-45042",
+    "metadata": {
+      "userId": 5012509286,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Константин"
+    }
+  },
+  {
+    "id": "telegram-45044",
+    "platform": {
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0D83BE",
+      "abbr": "TG"
+    },
+    "channel": "-1001573899349",
+    "username": "Антон",
+    "message": "йозеф прав",
+    "timestamp": 1766939717000,
+    "isModerator": false,
+    "isEdited": false,
+    "metadata": {
+      "userId": 305168046,
+      "chatId": -1001573899349,
+      "chatType": "supergroup",
+      "firstName": "Антон"
+    }
+  },
+  {
+    "id": "vkvideo-449556701",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Нужно было спросить про Утиный суп",
+    "timestamp": 1766939851000,
+    "emotesMap": {},
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-b41119c8-41aa-4433-8b4b-bde89703c021",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "artimon12",
+    "message": "А у вас тут порог входа большой. Надо хорошо знать английский чтобы смотреть твой канал. LUL  А я учил французский.",
+    "timestamp": 1766939896439,
+    "badges": [],
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false,
+    "emotesMap": {
+      "LUL": "https://static-cdn.jtvnw.net/emoticons/v2/425618/default/dark/2.0"
+    }
+  },
+  {
+    "id": "vkvideo-449558493",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "многое помню наизусть",
+    "timestamp": 1766939940000,
+    "emotesMap": {},
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "vkvideo-449560077",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Готи тоже ньюйорский?",
+    "timestamp": 1766940021000,
+    "emotesMap": {},
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
     }
   }
 ]

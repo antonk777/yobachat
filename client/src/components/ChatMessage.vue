@@ -119,7 +119,7 @@ const replyTo = computed(() => props.message.replyTo);
     margin-left: calc(var(--spacing) * .3);
     padding-bottom: calc(var(--spacing) * .25);
     padding-left: calc((var(--platform-icon-size) * .8) + var(--whitespace));
-    line-height: calc(var(--chat-line-height, var(--line-height)) * .75);
+    line-height: calc(var(--chat-line-height, var(--line-height)) * .85);
     max-height: 1.5rem;
     mask: linear-gradient(#fff calc(100% - (var(--spacing) * .25)), transparent 100%);
     overflow: hidden;
@@ -225,17 +225,11 @@ const replyTo = computed(() => props.message.replyTo);
 }
 
 @keyframes username-gradient-shift {
-  0% {
-    color: #6bf8d5;
+  0%, 100% {
+    background-position: 0% 0%;
   }
-  33% {
-    color: #ba92ff;
-  }
-  66% {
-    color: #ff88c4;
-  }
-  100% {
-    color: #6bf8d5;
+  50% {
+    background-position: 100% 100%;
   }
 }
 
@@ -252,6 +246,11 @@ const replyTo = computed(() => props.message.replyTo);
 
   .chat-message.is-deluxe > .message-header > & {
     animation: username-gradient-shift 120s ease infinite;
+    background-clip: text;
+    background-image: linear-gradient(in oklch 45deg, #6bf8d5, #ba92ff, #ff88c4, #6bf8d5);
+    background-size: 200% 200%;
+    background-attachment: fixed;
+    color: transparent;
   }
 
   .chat-message.is-quote & {

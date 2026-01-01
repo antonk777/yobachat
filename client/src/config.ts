@@ -1,6 +1,6 @@
 import { SharedConfig } from "@shared/shared-types";
 
-export const kMaxMessages = 60;
+export const kMaxWidgetMessages = 30;
 
 function loadSharedConfig(): SharedConfig {
   // Vite's define will replace this at build time with the actual config object

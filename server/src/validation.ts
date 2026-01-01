@@ -183,6 +183,7 @@ export const ChatSettingsSchema = z.object({
   showReplyTo: z.boolean(),
   filterBadWords: z.boolean(),
   filterLinks: z.boolean(),
+  makeLinksClickable: z.boolean(),
   badWords: z.array(z.string().min(1).max(100)),
   userFont: FontOptionSchema.nullable(),
   adminFont: FontOptionSchema.nullable(),

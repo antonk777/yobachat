@@ -12,6 +12,7 @@ import { useUIStore } from '@/stores/ui';
 import { useWSConnection } from '@/composables/useWSConnection';
 import { useFontSettings } from '@/composables/useFontSettings';
 import { useAuth } from '@/composables/useAuth';
+import { useDeluxeUserColor } from '@/composables/useDeluxeUserColor';
 
 
 const kDefaultLineHeight = 1.2;
@@ -42,6 +43,9 @@ const moreMenuRef = ref<HTMLElement | null>(null);
 
 // Apply font settings for admin panel
 useFontSettings(() => settingsStore.settings, 'admin');
+
+// Animate deluxe user color
+useDeluxeUserColor();
 
 const adminLineHeight = computed(() => (settingsStore.settings?.adminLineHeight ?? kDefaultLineHeight).toString());
 
@@ -270,6 +274,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
             class="chat-message"
             :message="message"
             :settings="settingsStore.settings!"
+            :is-in-admin="true"
           />
 
           <button

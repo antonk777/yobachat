@@ -87,13 +87,8 @@ export const useSettingsStore = defineStore('settings', () => {
   function filterText(text: string): string {
     let filtered = text;
 
-    // Filter out URLs if enabled
-    if (filterLinks.value) {
-      const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)/gi;
-      filtered = filtered.replace(urlRegex, '[🔗link filtered]');
-    }
-
-    // Filter bad words if enabled
+    // Note: Link filtering is now handled in messages store based on context
+    // Only filter bad words here
     if (badWords.value.length === 0 || !filterBadWords.value) {
       return filtered;
     }

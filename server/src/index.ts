@@ -492,11 +492,6 @@ class ChatServer {
    * Handle incoming WebSocket messages (already decoded and validated)
    */
   private async handleWSMessage(clientId: string, message: WSMessage): Promise<void> {
-    // Check authentication for admin messages
-    // const isAdminMessage = message.type.startsWith('admin');
-    console.log('handleWSMessage:', clientId, message);
-    console.log('isClientAuthenticated:', this.isClientAuthenticated(clientId));
-
     if (!this.isClientAuthenticated(clientId)) {
       console.warn(`${this.logPrefix} Unauthorized admin message attempt from ${clientId}`);
       return;

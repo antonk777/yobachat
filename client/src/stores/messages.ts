@@ -3,8 +3,19 @@ import { ref, computed, watch } from 'vue';
 
 import type { ChatMessage, ChatMessageSegment, ChatMessageClient } from '@shared/shared-types.js';
 
-import { kMaxMessages } from '@shared/shared-constants';
 import { useSettingsStore } from '@/stores/settings';
+import { kMaxHistoryMessages } from '@shared/shared-constants';
+
+interface Match {
+  type: 'url' | 'emote';
+  index: number;
+  length: number;
+  content: string;
+  url?: string;
+}
+
+// URL regex pattern - matches http(s):// URLs and common patterns
+const urlRegex = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/gi;
 
 export const useMessagesStore = defineStore('messages', () => {
   const settingsStore = useSettingsStore();
@@ -14,8 +25,9 @@ export const useMessagesStore = defineStore('messages', () => {
     messages = ref<ChatMessageClient[]>([]),
     deletedMessageIds = ref<string[]>([]),
     isSelectionMode = ref(false),
-    selectedMessageIds = ref<string[]>([]),
-    hasSelectedMessages = computed(() => selectedMessageIds.value.length > 0);
+    selectedMessageIds = ref<string[]>([])
+
+  const hasSelectedMessages = computed(() => selectedMessageIds.value.length > 0);
 
   function addMessage(message: ChatMessage) {
     if (deletedMessageIds.value.includes(message.id)) {
@@ -39,8 +51,8 @@ export const useMessagesStore = defineStore('messages', () => {
     messages.value = messages.value.sort((a, b) => a.timestamp - b.timestamp);
 
     // Keep only the last N messages
-    if (messages.value.length > kMaxMessages) {
-      messages.value = messages.value.slice(-kMaxMessages);
+    if (messages.value.length > kMaxHistoryMessages) {
+      messages.value = messages.value.slice(-kMaxHistoryMessages);
     }
   }
 
@@ -97,8 +109,8 @@ export const useMessagesStore = defineStore('messages', () => {
       .sort((a, b) => a.timestamp - b.timestamp);
 
     // Keep only the last N messages
-    if (messages.value.length > kMaxMessages) {
-      messages.value = messages.value.slice(-kMaxMessages);
+    if (messages.value.length > kMaxHistoryMessages) {
+      messages.value = messages.value.slice(-kMaxHistoryMessages);
     }
   }
 
@@ -117,58 +129,154 @@ export const useMessagesStore = defineStore('messages', () => {
     return {
       ...message,
       usernameFiltered: settingsStore.filterText(message.username),
-      segments: getMessageSegments(message, settingsStore.settings?.showEmotes ?? true),
+      segments: getMessageSegments(message),
       replyTo
     }
   }
 
-  function getMessageSegments(message: ChatMessage, showEmotes: boolean): ChatMessageSegment[] {
-    const filtered = settingsStore.filterText(message.message);
+  /**
+   * Process text into segments (text, links, emotes) based on settings and context
+   * @param message - The message to process
+   * @returns Array of segments
+   */
+  function getMessageSegments(message: ChatMessage): ChatMessageSegment[] {
+    // Filter bad words but not links (we'll handle links separately based on context)
+    let filtered = message.message;
 
-    if (
-      !showEmotes ||
-      !message.emotesMap ||
-      Object.keys(message.emotesMap).length === 0
-    ) {
-      return [{ type: 'text', content: filtered }];
+    if (settingsStore.filterBadWords && settingsStore.badWords.length > 0) {
+      const lowerText = filtered.toLowerCase();
+
+      for (const word of settingsStore.badWords) {
+        if (lowerText.indexOf(word) !== -1) {
+          const regex = new RegExp(word, 'gi');
+          filtered = filtered.replace(regex, '*'.repeat(word.length));
+        }
+      }
     }
 
     const segments: ChatMessageSegment[] = [];
 
-    let remainingText = filtered;
+    const showEmotes = (
+      settingsStore.settings?.showEmotes &&
+      message.emotesMap &&
+      Object.keys(message.emotesMap).length > 0
+    )
 
-    const emoteIds = Object.keys(message.emotesMap)
-      .sort((a, b) => b.length - a.length);
+    const matches: Match[] = [];
 
-    while (remainingText.length > 0) {
-      let foundEmote: { id: string; index: number } | null = null;
+    // Find all URLs
+    urlRegex.lastIndex = 0;
+
+    let urlMatch;
+
+    while ((urlMatch = urlRegex.exec(filtered)) !== null) {
+      matches.push({
+        type: 'url',
+        index: urlMatch.index,
+        length: urlMatch[0].length,
+        content: urlMatch[0]
+      });
+    }
+
+    // Find all emotes if enabled
+    if (showEmotes) {
+      const emoteIds = Object.keys(message.emotesMap!)
+        .sort((a, b) => b.length - a.length);
 
       for (const emoteId of emoteIds) {
-        const index = remainingText.indexOf(emoteId);
+        let searchIndex = 0;
 
-        if (index !== -1 && (foundEmote === null || index < foundEmote.index)) {
-          foundEmote = { id: emoteId, index };
+        while (true) {
+          const index = filtered.indexOf(emoteId, searchIndex);
+          if (index === -1) break;
+
+          matches.push({
+            type: 'emote',
+            index,
+            length: emoteId.length,
+            content: emoteId,
+            url: message.emotesMap![emoteId]
+          });
+
+          searchIndex = index + 1;
         }
       }
+    }
 
-      if (foundEmote === null) {
-        if (remainingText.length > 0) {
-          segments.push({ type: 'text', content: remainingText });
+    // Sort matches by position
+    matches.sort((a, b) => a.index - b.index);
+
+    // Remove overlapping matches (emotes take precedence over URLs)
+    const filteredMatches: Match[] = [];
+    let lastProcessedEnd = 0;
+
+    for (const match of matches) {
+      const matchEnd = match.index + match.length;
+      const isOverlapping = match.index < lastProcessedEnd;
+
+      if (!isOverlapping) {
+        // No overlap, add the match
+        filteredMatches.push(match);
+        lastProcessedEnd = matchEnd;
+      } else if (match.type === 'emote') {
+        // Emote overlaps with previous matches - remove overlapping URLs
+        while (filteredMatches.length > 0) {
+          const lastMatch = filteredMatches[filteredMatches.length - 1];
+          const lastMatchEnd = lastMatch.index + lastMatch.length;
+
+          if (lastMatchEnd <= match.index) {
+            break; // No more overlaps
+          }
+
+          filteredMatches.pop();
         }
-        break;
+
+        filteredMatches.push(match);
+        lastProcessedEnd = matchEnd;
+      }
+      // If it's an overlapping URL, skip it (emotes take precedence)
+    }
+
+    // Build segments from matches
+    let lastIndex = 0;
+    for (const match of filteredMatches) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        segments.push({
+          type: 'text',
+          content: filtered.substring(lastIndex, match.index)
+        });
       }
 
-      if (foundEmote.index > 0) {
-        segments.push({ type: 'text', content: remainingText.substring(0, foundEmote.index) });
+      // Add the match as a segment
+      if (match.type === 'url') {
+        segments.push({
+          type: 'link',
+          content: match.content,
+          url: match.content
+        });
+      } else {
+        segments.push({
+          type: 'emote',
+          content: match.content,
+          url: match.url!
+        });
       }
 
+      lastIndex = match.index + match.length;
+    }
+
+    // Add remaining text after the last match
+    if (lastIndex < filtered.length) {
       segments.push({
-        type: 'emote',
-        content: foundEmote.id,
-        url: message.emotesMap![foundEmote.id]
+        type: 'text',
+        content: filtered.substring(lastIndex)
       });
+    }
 
-      remainingText = remainingText.substring(foundEmote.index + foundEmote.id.length);
+    // If no matches were found, return the original text as a single segment
+    if (segments.length === 0) {
+      return [{ type: 'text', content: filtered }];
     }
 
     return segments;
@@ -257,7 +365,8 @@ export const useMessagesStore = defineStore('messages', () => {
     removeDeletedMessageId,
     isDeleted,
     resetSelection,
-    toggleMessageSelection
+    toggleMessageSelection,
+    getMessageSegments
   };
 },
 {

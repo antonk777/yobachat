@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import type { ChatMessage } from '@shared/shared-types.js';
 
 import { ChatMessageSchema } from '@/validation.js';
-import { kMaxMessages } from '@shared/shared-constants';
+import { kMaxHistoryMessages } from '@shared/shared-constants';
 import { kIsDev } from '@/config';
 
 const kMessageHistoryFilePath = join(process.cwd(), 'storage', 'message-history.json');
@@ -67,8 +67,8 @@ export class MessageHistoryService {
       this.messageHistory = validMessages;
 
       // Ensure we don't exceed kMaxMessages
-      if (this.messageHistory.length > kMaxMessages) {
-        this.messageHistory = this.messageHistory.slice(-kMaxMessages);
+      if (this.messageHistory.length > kMaxHistoryMessages) {
+        this.messageHistory = this.messageHistory.slice(-kMaxHistoryMessages);
       }
     } catch (error) {
       console.warn(`${this.logPrefix} Failed to load message history: ${error}`);
@@ -143,8 +143,8 @@ export class MessageHistoryService {
     this.messageHistory.sort((a, b) => a.timestamp - b.timestamp);
 
     // Keep only the last kMaxMessages messages
-    if (this.messageHistory.length > kMaxMessages) {
-      this.messageHistory = this.messageHistory.slice(-kMaxMessages);
+    if (this.messageHistory.length > kMaxHistoryMessages) {
+      this.messageHistory = this.messageHistory.slice(-kMaxHistoryMessages);
     }
 
     // Schedule save (throttled)

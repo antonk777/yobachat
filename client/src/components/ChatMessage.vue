@@ -7,9 +7,11 @@ const props = withDefaults(defineProps<{
   message: ChatMessageClient;
     settings: ChatSettings;
     isQuote?: boolean;
+    isInAdmin?: boolean;
   }>(),
   {
-    isQuote: false
+    isQuote: false,
+    isInAdmin: false
   }
 );
 
@@ -91,11 +93,24 @@ const replyTo = computed(() => props.message.replyTo);
 
     <div class="message-content">
       <template v-for="(segment, index) in message.segments" :key="index">
-        <span v-if="segment.type === 'text'">{{ segment.content }}</span>
+        <a
+          v-if="segment.type === 'link' && props.isInAdmin && settings.makeLinksClickable"
+          :href="segment.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link"
+        >
+          {{ segment.content }}
+        </a>
+        <span v-else-if="segment.type === 'link'">
+          {{ (settings.filterLinks && !message.isModerator) ? '🔗link filtered' : segment.content }}
+        </span>
+        <span v-else-if="segment.type === 'text'">{{ segment.content }}</span>
         <img
-          v-else
+          v-else-if="segment.type === 'emote'"
           :src="segment.url"
           :alt="segment.content"
+          loading="lazy"
           class="emote"
         />
       </template>
@@ -226,9 +241,9 @@ const replyTo = computed(() => props.message.replyTo);
 
 .username {
   --src-color: var(--user-color, var(--platform-color));
+  --username-color: lch(from var(--src-color) calc(l + 20) c h);
 
-  color: var(--src-color);
-  color: lch(from var(--src-color) calc(l + 20) c h);
+  color: var(--username-color, var(--src-color));
 
   font-family: var(--username-font-family, inherit);
   font-weight: var(--username-font-weight, bolder);
@@ -236,11 +251,7 @@ const replyTo = computed(() => props.message.replyTo);
   font-stretch: var(--username-font-stretch, normal);
 
   .chat-message.is-deluxe > .message-header > & {
-    background-clip: text;
-    background-image: linear-gradient(#6bf8d5, #ba92ff, #ff88c4);
-    background-image: linear-gradient(in oklch, #6bf8d5, #ba92ff, #ff88c4);
-    background-attachment: fixed;
-    color: transparent;
+    color: var(--deluxe-user-color, var(--username-color, var(--src-color)));
   }
 
   .chat-message.is-quote & {
@@ -287,6 +298,19 @@ const replyTo = computed(() => props.message.replyTo);
   height: var(--emote-size);
   object-fit: contain;
   vertical-align: -0.4em;
+}
+
+.message-content .link {
+  color: var(--primary-color);
+  text-decoration: underline;
+  text-decoration-thickness: .075em;
+  text-underline-offset: .15em;
+  transition: color .2s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text-color);
+  }
 }
 </style>
 

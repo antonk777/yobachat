@@ -1,6 +1,6 @@
 import { ChatSettings } from "./shared-types";
 
-export const kMaxMessages = 50;
+export const kMaxHistoryMessages = 100;
 
 export const kBatchDelayMS = 200;
 
@@ -15,6 +15,7 @@ export const kDefaultChatSettings: ChatSettings = {
   showReplyTo: true,
   filterBadWords: true,
   filterLinks: true,
+  makeLinksClickable: false,
   badWords: [],
   userFont: null,
   adminFont: null,

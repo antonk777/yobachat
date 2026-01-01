@@ -261,6 +261,14 @@ watchEffect(() => {
           />
           Filter links
         </label>
+
+        <label class="settings-checkbox-item">
+          <input
+            v-model="localSettings.makeLinksClickable"
+            type="checkbox"
+          />
+          Make links clickable
+        </label>
       </div>
 
       <div class="settings-scale-section">

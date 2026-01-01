@@ -9,6 +9,7 @@
   "showReplyTo": true,
   "filterBadWords": true,
   "filterLinks": true,
+  "makeLinksClickable": true,
   "badWords": [
     "негр",
     "пидор",

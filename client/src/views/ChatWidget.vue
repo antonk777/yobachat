@@ -8,13 +8,15 @@ import { useSettingsStore } from '@/stores/settings';
 import { useWSConnection } from '@/composables/useWSConnection';
 import { useUIStore } from '@/stores/ui';
 import { useFontSettings } from '@/composables/useFontSettings';
-
-const kDefaultLineHeight = 1.2;
+import { useDeluxeUserColor } from '@/composables/useDeluxeUserColor';
+import { kMaxWidgetMessages } from '@/config';
 
 const
   messagesStore = useMessagesStore(),
   settingsStore = useSettingsStore(),
   uiStore = useUIStore();
+
+const kDefaultLineHeight = 1.2;
 
 const userLineHeight = computed(() => (settingsStore.settings?.userLineHeight ?? kDefaultLineHeight).toString());
 
@@ -22,6 +24,11 @@ const { connected: wsConnected, status: wsStatus, connect } = useWSConnection();
 
 // Apply font settings for user widget
 useFontSettings(() => settingsStore.settings, 'user');
+
+// Animate deluxe user color
+useDeluxeUserColor();
+
+const chatMessages = computed(() => messagesStore.messages.slice(-kMaxWidgetMessages));
 
 // Handle widget refresh event
 function handleWidgetRefresh() {
@@ -43,7 +50,9 @@ onUnmounted(() => {
 <template>
   <div
     class="chat"
-    :style="{ '--chat-line-height': userLineHeight }"
+    :style="{
+      '--chat-line-height': userLineHeight,
+    }"
   >
     <div
       class="chat-messages"
@@ -51,9 +60,10 @@ onUnmounted(() => {
       v-if="uiStore.isReady"
     >
       <ChatMessage
-        v-for="message in messagesStore.messages"
+        v-for="message in chatMessages"
         class="chat-message"
         :key="message.id"
+        v-memo="[message, message.id, message.isEdited, message.editDate, settingsStore.settings]"
         :message="message"
         :settings="settingsStore.settings!"
       />
@@ -83,10 +93,6 @@ onUnmounted(() => {
   filter:
     drop-shadow(.05rem .05rem .05rem #000)
     drop-shadow(.125rem .125rem .25rem #000);
-  /* -webkit-text-stroke: .1rem hsl(0 0% 0% / 50%); */
-  /* paint-order: stroke fill; */
-
-  /* mask: linear-gradient(to bottom, transparent, #fff 2.5rem); */
 }
 
 .chat-messages {

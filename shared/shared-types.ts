@@ -71,6 +71,10 @@ export type ChatMessageSegment = {
   type: 'emote';
   content: string;
   url: string;
+} | {
+  type: 'link';
+  content: string;
+  url: string;
 };
 
 export interface ChatMessage {
@@ -135,6 +139,7 @@ export interface ChatSettings {
   showReplyTo: boolean;
   filterBadWords: boolean;
   filterLinks: boolean;
+  makeLinksClickable: boolean;
   badWords: string[];
   userFont: FontOption | null;
   adminFont: FontOption | null;

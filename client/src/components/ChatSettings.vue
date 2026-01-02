@@ -224,6 +224,14 @@ watchEffect(() => {
 
         <label class="settings-checkbox-item">
           <input
+            v-model="localSettings.showBadges"
+            type="checkbox"
+          />
+          Show user badges
+        </label>
+
+        <label class="settings-checkbox-item">
+          <input
             v-model="localSettings.showModeratorBadges"
             type="checkbox"
           />

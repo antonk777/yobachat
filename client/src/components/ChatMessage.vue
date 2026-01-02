@@ -56,23 +56,30 @@ const replyTo = computed(() => props.message.replyTo);
         :aria-label="message.platform.abbr"
       />
 
+      <!-- <div
+        v-if="settings.showModeratorBadges && message.isAdmin && !isQuote"
+        class="admin-badge"
+      /> -->
+
       <div
         v-if="settings.showModeratorBadges && message.isModerator && !isQuote"
         class="moderator-badge"
       />
 
       <div
-        v-if="settings.showBadges && message.badgeImages && Object.keys(message.badgeImages).length > 0 && !isQuote"
-        class="badges"
-      >
+        v-if="settings.showVipBadges && message.isVip && !isQuote"
+        class="vip-badge"
+      />
+
+      <template v-if="settings.showBadges && message.badgeImages && Object.keys(message.badgeImages).length > 0 && !isQuote">
         <img
           v-for="(badge, badgeName) in message.badgeImages"
           :key="badgeName"
           :src="badge"
           :alt="badgeName"
-          class="badge"
+          class="user-badge"
         />
-      </div>
+      </template>
 
       <img
         class="avatar"
@@ -222,11 +229,46 @@ const replyTo = computed(() => props.message.replyTo);
   align-self: center;
   flex: none;
 
-  width: var(--badge-size);
-  height: var(--badge-size);
+  width: var(--moderator-badge-size);
+  height: var(--moderator-badge-size);
 
   background-color: var(--moderator-color);
   mask: url('@/assets/all-seeing-eye.webp') center center / contain no-repeat;
+}
+
+.vip-badge {
+  display: block;
+  align-self: center;
+  flex: none;
+
+  width: var(--vip-badge-size);
+  height: var(--vip-badge-size);
+
+  background-color: var(--vip-color);
+  mask: url('@/assets/vip.svg') center center / contain no-repeat;
+}
+
+.edited-badge {
+  display: block;
+  align-self: center;
+  flex: none;
+  width: var(--edited-badge-size);
+  height: var(--edited-badge-size);
+  mask: url('@/assets/edited.svg') center center / contain no-repeat;
+  background-color: var(--text-muted);
+}
+
+.user-badges {
+  display: contents;
+}
+
+.user-badge {
+  display: block;
+  align-self: center;
+  flex: none;
+
+  width: var(--user-badge-size);
+  height: var(--user-badge-size);
 }
 
 .avatar {
@@ -261,22 +303,6 @@ const replyTo = computed(() => props.message.replyTo);
   .chat-message.deleted & {
     text-decoration: line-through;
   }
-}
-
-.edited-badge {
-  display: block;
-  align-self: center;
-  flex: none;
-  width: .9rem;
-  height: .9rem;
-  mask: url('@/assets/edited.svg') center center / contain no-repeat;
-  background-color: var(--text-muted);
-}
-
-.badges {
-  display: flex;
-  gap: var(--whitespace);
-  flex-wrap: wrap;
 }
 
 .message-content {

@@ -1,1 +1,2081 @@
-[]
+[
+  {
+    "id": "twitch-61688830-adbc-44be-be6b-89bdce060453",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "SUBprise",
+    "timestamp": 1767374166180,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false,
+    "emotesMap": {
+      "SUBprise": "https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_fcbeed664f7c47d6ba3b57691275ef51/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-8752e1bf-c870-4faa-90bd-aa9e6ee12721",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "A FAVOR",
+    "timestamp": 1767374168673,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-3da0b331-2132-4206-adc0-310b9a61e0a4",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "ahahahaha",
+    "timestamp": 1767374171557,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-44a8f6af-d7fa-423f-ac57-15352238c647",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "LUL",
+    "timestamp": 1767374173270,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false,
+    "emotesMap": {
+      "LUL": "https://static-cdn.jtvnw.net/emoticons/v2/425618/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-5cbe86d7-5d1a-408a-925a-85ccdad64f9f",
+    "channel": "silentium_vulpes",
+    "username": "blackm0re_",
+    "message": "ща помогу",
+    "timestamp": 1767374178474,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-6b2eb8a8-c598-4eab-87f1-da040f98e23b",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Нифига, и правда насмерть убил",
+    "timestamp": 1767374211239,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-aabb642e-7683-4eb9-93c3-bd7ba6e7aabe",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "НЕу почти насмерть",
+    "timestamp": 1767374216413,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-7c7f08b4-6729-42de-80db-dedd82d47f7c",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "медвежьи услуги",
+    "timestamp": 1767374228436,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-be5fccc4-c459-4de4-8f3b-3bf33fe1c9d3",
+    "channel": "silentium_vulpes",
+    "username": "potkpot",
+    "message": "Там Шишу замочили",
+    "timestamp": 1767374233405,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#008000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-f7d5a2ba-f646-499f-8190-48b46c2cf219",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "рип",
+    "timestamp": 1767374246118,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-92d9ce27-4c40-4c72-acb3-421326bf9d54",
+    "channel": "silentium_vulpes",
+    "username": "ripppy",
+    "message": "Все на месте спортсмены",
+    "timestamp": 1767374276454,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#0000FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-d432cdfc-a7ec-414b-8758-ad791d210392",
+    "channel": "silentium_vulpes",
+    "username": "VELIKOLEPNJIMAESTRO",
+    "message": "всё?",
+    "timestamp": 1767374276675,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#FF0000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-d2a2bc62-6c10-47b1-a313-199f1fb18075",
+    "channel": "silentium_vulpes",
+    "username": "VELIKOLEPNJIMAESTRO",
+    "message": "крисс умер?",
+    "timestamp": 1767374278079,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#FF0000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-e3b8bbb3-42ae-4dc4-8d1a-94b2b669b15d",
+    "channel": "silentium_vulpes",
+    "username": "VELIKOLEPNJIMAESTRO",
+    "message": "кристафа!",
+    "timestamp": 1767374280233,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#FF0000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-4e9a2174-58ae-4293-92e5-a54598a1797a",
+    "channel": "silentium_vulpes",
+    "username": "VELIKOLEPNIY_DIBA",
+    "message": "Мустафа",
+    "timestamp": 1767374294307,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#FF0000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-5105c586-b436-49b6-b603-22adf1fa1143",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "ну не совсем технически",
+    "timestamp": 1767374296669,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "vkvideo-453932891",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "4 сезон может не понравиться, но все равно глянем.",
+    "timestamp": 1767374303000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-0042b96c-fca5-4933-b171-79760be6991c",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Пока смотрим нейросетевую картынку",
+    "timestamp": 1767374355086,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "vkvideo-453934906",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Мне очень зашел 4 сезон. Но много кому не понравился. Разделил аудиторию на два лагеря.",
+    "timestamp": 1767374412000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-219a943e-8ca3-48f0-b47b-42e15803597b",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Не, эта не нейросетевая, а вот до этого была",
+    "timestamp": 1767374471587,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-d88e40cd-0e37-450a-bd4a-129c6b1d3e0f",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Ну ладно, просмотр прослушки, спрослуш просмотрки, так и быть.",
+    "timestamp": 1767374533856,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-acd61aca-e745-4b50-aaaf-f0f932fea678",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "4-ый если не самый лучший, то самый эмпатогенный",
+    "timestamp": 1767374561205,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453938644",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Саймон вообще хотел  отдельный спин-офф о политиках по вселенной Прослушки снимать, но боссы HBO не дали ему денег на еще один сериал, который к тому же снова два с половиной человека будут смотреть. В итоге позволили ему снять еще один сезон.",
+    "timestamp": 1767374613000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "kick-7a7a4f93-60d4-4417-8915-19b026ccc4bf",
+    "channel": "62697839",
+    "username": "meskalin99",
+    "message": "[emote:1730769:emojiDJ][emote:1730769:emojiDJ][emote:1730769:emojiDJ][emote:1730769:emojiDJ][emote:1730769:emojiDJ]",
+    "timestamp": 1767374652000,
+    "platform": {
+      "id": "kick",
+      "name": "Kick",
+      "color": "#53FC18",
+      "abbr": "KI"
+    },
+    "badges": [],
+    "color": "#93EBE0",
+    "emotesMap": {
+      "[emote:1730769:emojiDJ]": "https://files.kick.com/emotes/1730769/fullsize"
+    },
+    "metadata": {
+      "userId": 91126977,
+      "chatroomId": 62697839,
+      "slug": "meskalin99",
+      "badges": [],
+      "messageRef": "1767374651596"
+    }
+  },
+  {
+    "id": "kick-d523a840-7b87-442f-8f28-c558a0b7fa85",
+    "channel": "62697839",
+    "username": "meskalin99",
+    "message": "[emote:1730830:emojiStare]​",
+    "timestamp": 1767374689000,
+    "platform": {
+      "id": "kick",
+      "name": "Kick",
+      "color": "#53FC18",
+      "abbr": "KI"
+    },
+    "badges": [],
+    "color": "#93EBE0",
+    "emotesMap": {
+      "[emote:1730830:emojiStare]": "https://files.kick.com/emotes/1730830/fullsize"
+    },
+    "metadata": {
+      "userId": 91126977,
+      "chatroomId": 62697839,
+      "slug": "meskalin99",
+      "badges": [],
+      "messageRef": "1767374688089"
+    }
+  },
+  {
+    "id": "twitch-4ac0e388-cdff-4ceb-b87a-896f3422c3a2",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "а есть какие-то парочку сериалов коротких у него, один  вроде политический с Оскаром Айзеком",
+    "timestamp": 1767374699457,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-469c7e82-e0b8-4b23-a21d-be480d620f0e",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "эмпатогенный, что за слово такое, мудреное",
+    "timestamp": 1767374704858,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-83635cd0-a7ca-469d-ac87-eff7f3ac1f15",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "которые я не видел еще",
+    "timestamp": 1767374707570,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-66c0af8f-eba6-4423-8493-88df9f94fea0",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "муденое",
+    "timestamp": 1767374709084,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453940522",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "С Айзеком плохой сериал, левая агитка",
+    "timestamp": 1767374719000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-adcf3372-131f-483b-9208-e793567856a9",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Это ж какой у вас словесный пирует вышел \"ЭМПАТОГЕННЫЙ\" ну теперь точно придется смотреть",
+    "timestamp": 1767374723382,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {
+      "vip": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-319bd9ee-4df8-4603-ab4e-8b22c02b2f85",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "чтоб не писать 2 слова: вызывающий эмпатию",
+    "timestamp": 1767374724431,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-caea827c-83ed-4223-a2f6-855d908bea11",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "эмпатия, это как импотенция?",
+    "timestamp": 1767374761803,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-d218ba22-2453-4efc-9721-995338ae9405",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "мне Тримей понравился, как Прослушка только про Новый Орлеан, но не такой задорный, криминальный, политический, попроще",
+    "timestamp": 1767374810153,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-264a4a01-96ca-403a-84d6-ff10c744ec13",
+    "channel": "silentium_vulpes",
+    "username": "VELIKOLEPNJIMAESTRO",
+    "message": "а что рекап  не будет?",
+    "timestamp": 1767375149430,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#FF0000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-1d0e4beb-1b64-4be3-baa3-5c07d2bf07f0",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "это че за гендерфлюид",
+    "timestamp": 1767375173542,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "moderator"
+    ],
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453949171",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Снуп",
+    "timestamp": 1767375186000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-dcafc1c4-9b5e-4a2b-a29c-ab08f5ca3bbf",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "баба",
+    "timestamp": 1767375194203,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-c10356e2-966c-46da-ba7c-9a7dec659be8",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "таких на самом деле не мало",
+    "timestamp": 1767375208679,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-ac9bb8d6-b271-4af0-a643-97407cc5460c",
+    "channel": "silentium_vulpes",
+    "username": "ripppy",
+    "message": "Женского. И она кстати реально сидела",
+    "timestamp": 1767375214208,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "color": "#0000FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-dac98ad0-091d-4264-92f0-431f841bc167",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "бесполое существо предназначенное только для убийств",
+    "timestamp": 1767375214737,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-26d89e0d-0d16-4429-ad4b-a303ffc62c43",
+    "channel": "silentium_vulpes",
+    "username": "blackm0re_",
+    "message": "ахах",
+    "timestamp": 1767375215671,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453949798",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Сидела за убийство в реальности",
+    "timestamp": 1767375221000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-32b1da40-1f2f-4859-9a41-2a2504fa2ebc",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "как среди африков, так и среди латинасов",
+    "timestamp": 1767375230587,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-24e2413b-df93-4334-ac16-b75786965e05",
+    "channel": "silentium_vulpes",
+    "username": "blackm0re_",
+    "message": "о кэш",
+    "timestamp": 1767375241098,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-ca8fbbd5-4d21-448e-a98c-4a77be7d22be",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "и тут даже хз, чьи сучки опаснее",
+    "timestamp": 1767375246612,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453950490",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Ее актер, играющий Омара позвал. Она в 3 сезоне играл эпизодическую роль, где с мотоцикла стреляла",
+    "timestamp": 1767375259000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-dbcfee86-537b-48fa-8b60-0d32c079b870",
+    "channel": "silentium_vulpes",
+    "username": "radical_subject1",
+    "message": "Здравствуйте Силя",
+    "timestamp": 1767375262270,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-c0c31d46-e95b-4f22-ae0d-c8bc95010e4b",
+    "channel": "silentium_vulpes",
+    "username": "potkpot",
+    "message": "Подумал и вернулся за деньгами",
+    "timestamp": 1767375273713,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#008000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453951302",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Да",
+    "timestamp": 1767375309000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-38f64ac5-4a7a-4f38-b08f-fe9e50f66c96",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "есть",
+    "timestamp": 1767375313476,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-a30ab8dd-7c20-4bcf-b1cd-bd127c0b1c84",
+    "channel": "silentium_vulpes",
+    "username": "ripppy",
+    "message": "Запросто",
+    "timestamp": 1767375317172,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "color": "#0000FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "vkvideo-453951541",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Самый мрачный сезон",
+    "timestamp": 1767375321000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-7ad95b2f-4a48-452e-a849-1ba02b89607f",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "и обычные могут",
+    "timestamp": 1767375323809,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-a4fdd69c-12eb-4b04-83eb-1b0c754ce1f4",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "кость лобную пробить",
+    "timestamp": 1767375328639,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-f09368df-f4ee-48c7-bbb1-59450a7e38cc",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "да, в тиктоке давно видел .22 калибр, в комментах рофлили про прослушку",
+    "timestamp": 1767375331023,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-b04c3421-0c58-4ede-b2b9-6e6a28b14b0f",
+    "channel": "silentium_vulpes",
+    "username": "trav9o9kur",
+    "message": "меня таким убило",
+    "timestamp": 1767375337076,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-c882de41-ba17-4818-8c55-0f711084b975",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "там насколько то джоулей настроенные",
+    "timestamp": 1767375342427,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-231ff102-17ba-4dd0-ae7d-1b9a964e93a5",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "не",
+    "timestamp": 1767375381108,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-8c56624f-66d0-4718-9c27-5d88d691c5b0",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Правильно что включили русские ссубтитры, речь подобных социальных элементов даже с субтитрами понять не представляется возможным",
+    "timestamp": 1767375381418,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {},
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-0748cb33-6987-467d-ba06-13523416490a",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "а вроде раньше боролись за сабы, мамонтенок контент завозил, а сейчас первые попавшиеся?",
+    "timestamp": 1767375416695,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-24f0aa1e-6a37-4dd1-b583-cfc67c99582d",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "здесь будут мочить вторых и третьих в последнем ряду",
+    "timestamp": 1767375425558,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-3042139d-e03a-4a9e-b91f-6a44e7c8cdcf",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "он брал откуда-то",
+    "timestamp": 1767375428916,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-10ff0099-b8cb-47ae-97b2-1c8083c0a4dd",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "мочилово будет в финальном сезоне",
+    "timestamp": 1767375443595,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453954195",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Ее в реальности тоже зовут Фелиция Пирсон",
+    "timestamp": 1767375457000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-e92c8898-8503-4036-829d-4687f37030ed",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Ну они бы разговаривали понятнее, и  нужны бы были субтитры",
+    "timestamp": 1767375502632,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {},
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-83b12638-e0e1-4863-b8a9-53a26408fbb8",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "А в этой серии вообще будут, извиняюсь, представители нашей этничности, кроме данной женщины?? IronmouseLuv NotLikeThis",
+    "timestamp": 1767375552518,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "badgeImages": {},
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true,
+    "emotesMap": {
+      "NotLikeThis": "https://static-cdn.jtvnw.net/emoticons/v2/58765/default/dark/2.0",
+      "IronmouseLuv": "https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_54c53ae67ad746d2bc866b6fc779183c/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-63d9b87d-778c-4efa-a679-db4024500d54",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "хоть с этого кайфуйте",
+    "timestamp": 1767375574494,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-70fae29a-63d5-4793-81d0-2878e7ad39f9",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "LUL",
+    "timestamp": 1767375579551,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false,
+    "emotesMap": {
+      "LUL": "https://static-cdn.jtvnw.net/emoticons/v2/425618/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-390da062-ee25-4be2-9f24-2b3fe4803614",
+    "channel": "silentium_vulpes",
+    "username": "ripppy",
+    "message": "Русские были во втором сезоне",
+    "timestamp": 1767375585578,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "vip"
+    ],
+    "color": "#0000FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-fe936ff6-fb89-47c6-8941-605c888ca871",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "хамстердам",
+    "timestamp": 1767375591056,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-69e2109a-ce04-45c1-898f-c7b16b9da020",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "греки, которые не греки",
+    "timestamp": 1767375598019,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-e34de2d4-18a8-4611-8c6c-6595b88ae065",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "черный рай на земле",
+    "timestamp": 1767375606701,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-3876529e-be00-49b3-90e5-4680f93e9244",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "Лестер мегамозг",
+    "timestamp": 1767375627902,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-bcc2c30c-5801-4bb4-85f9-5e7fe8a2b0d1",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "дед вылитый Вуди Ален",
+    "timestamp": 1767375657717,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-dd04aff0-8330-411b-8522-bc593a1299b1",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "ООО, так это он самый",
+    "timestamp": 1767375658581,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "twitch-recap-2024"
+    ],
+    "badgeImages": {
+      "twitch-recap-2024": "https://static-cdn.jtvnw.net/badges/v1/72f2a6ac-3d9b-4406-b9e9-998b27182f61/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "twitch-12cffac9-2abb-48db-8129-a9b144014fc4",
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "доктор павел я цру",
+    "timestamp": 1767375663032,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "twitch-recap-2025"
+    ],
+    "badgeImages": {
+      "twitch-recap-2025": "https://static-cdn.jtvnw.net/badges/v1/twitch-recap-2025/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "vkvideo-453958845",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "и мэров-христиан тоже)",
+    "timestamp": 1767375699000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-4232499e-43a8-4cde-84d6-c2fbf15d4975",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "итальянцы? белые? ахаххаахаха",
+    "timestamp": 1767375703427,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-80531770-6737-424b-807e-e9c50490ce46",
+    "channel": "silentium_vulpes",
+    "username": "rebeextravaganza1",
+    "message": "Ну тут он какой-то кукич в отличие от GoTR",
+    "timestamp": 1767375710163,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "twitch-recap-2024"
+    ],
+    "badgeImages": {
+      "twitch-recap-2024": "https://static-cdn.jtvnw.net/badges/v1/72f2a6ac-3d9b-4406-b9e9-998b27182f61/2"
+    },
+    "color": "#5F9EA0",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  },
+  {
+    "id": "vkvideo-453959310",
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "Подставили начальника",
+    "timestamp": 1767375722000,
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "emotesMap": {},
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-49b031f0-de59-4452-a8d7-68367429bcb3",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "А вы тоже подсовывали  свою хуйню начальству на попись?",
+    "timestamp": 1767375732595,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-8f5b2b20-f8cf-4049-adaf-d617871f4e4a",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "подпись***",
+    "timestamp": 1767375737916,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-c29b6efb-45d0-4b56-b6df-b6b0de1b06d3",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "это база, под видом одного документа, вытянуть подпись на другое",
+    "timestamp": 1767375765347,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-bf2de7a5-b79f-4528-8e44-e9ec9ccffa52",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "я и сам ставил их SUBprise",
+    "timestamp": 1767375779652,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false,
+    "emotesMap": {
+      "SUBprise": "https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_fcbeed664f7c47d6ba3b57691275ef51/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-62d1c6e4-4ecc-48aa-8b1b-fdcb25cf0032",
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "главное, чтобы потому не выявили на проверке, не выебали и не высушили",
+    "timestamp": 1767375785995,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-1ec6d669-b4c4-44e9-b9d6-1add5241f79f",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "mic",
+    "timestamp": 1767375789704,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-b7a7da0d-a024-4914-9a55-9a7f9efda7e2",
+    "channel": "silentium_vulpes",
+    "username": "divinemassager",
+    "message": "Долина так три суда выиграла",
+    "timestamp": 1767375825159,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [],
+    "badgeImages": {},
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-dd48b54f-8fbf-43d8-b3ef-3e1cecaf8918",
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "она уличная кошечка",
+    "timestamp": 1767375841647,
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-4847ad33-ef47-4421-a145-b2be61867beb",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "potkpot",
+    "message": "у него свой стул на улице?",
+    "timestamp": 1767375879607,
+    "badges": [],
+    "color": "#008000",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-31e8a883-7063-40ec-b78d-84e24eb23e5a",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "cmonBruh",
+    "timestamp": 1767375882552,
+    "badges": [
+      "twitch-recap-2025"
+    ],
+    "badgeImages": {
+      "twitch-recap-2025": "https://static-cdn.jtvnw.net/badges/v1/48b26ab3-c9f1-4f16-b02d-fe877be389fd/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "emotesMap": {
+      "cmonBruh": "https://static-cdn.jtvnw.net/emoticons/v2/84608/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-f77fd521-c189-4585-83ff-e1791123ffb2",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "по блату наняли",
+    "timestamp": 1767375887391,
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-bfe7fd31-2914-420d-ba51-41a66fd34204",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "Vezdesruschy",
+    "message": "Силентиум, хочется забористого ПАНДЕМИКА? cmonBruh",
+    "timestamp": 1767375891437,
+    "badges": [
+      "streamer-awards-tux"
+    ],
+    "badgeImages": {
+      "streamer-awards-tux": "https://static-cdn.jtvnw.net/badges/v1/d52bd174-3509-460b-80ac-4a8d5840194b/2"
+    },
+    "color": "#DAA520",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false,
+    "emotesMap": {
+      "cmonBruh": "https://static-cdn.jtvnw.net/emoticons/v2/84608/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-d099bf20-a504-4567-8277-b728d9158b3d",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "он же сын одного из солдат барксдейла",
+    "timestamp": 1767375898418,
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-2b513a64-f48f-4b1f-b29c-18c29feed77d",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "josephz13rainstorm",
+    "message": "мб даже лейтенанта",
+    "timestamp": 1767375908221,
+    "badges": [],
+    "color": "#B22222",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": false
+  },
+  {
+    "id": "twitch-caefc265-46e9-421c-b306-74aac68aed46",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "StinkyGlitch",
+    "timestamp": 1767375911742,
+    "badges": [
+      "no_video"
+    ],
+    "badgeImages": {
+      "no_video": "https://static-cdn.jtvnw.net/badges/v1/199a0dba-58f3-494e-a7fc-1fa0a1001fb8/2"
+    },
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "emotesMap": {
+      "StinkyGlitch": "https://static-cdn.jtvnw.net/emoticons/v2/304486324/default/dark/2.0"
+    }
+  },
+  {
+    "id": "vkvideo-453963258",
+    "platform": {
+      "id": "vkvideo",
+      "name": "VK Video",
+      "color": "#0077FF",
+      "abbr": "VK"
+    },
+    "channel": "silentium_vulpes",
+    "username": "id211744818",
+    "message": "да, сын Вибея",
+    "timestamp": 1767375929000,
+    "emotesMap": {},
+    "avatar": "https://images.live.vkvideo.ru/user/12565882/avatar?change_time=1670509087",
+    "badges": [],
+    "color": "#E542FF",
+    "isModerator": false,
+    "isSubscriber": false,
+    "metadata": {
+      "userId": 12565882,
+      "channelId": "silentium_vulpes",
+      "messageType": "channel_chat_message_send",
+      "isPrivate": false
+    }
+  },
+  {
+    "id": "twitch-b2b433de-540e-49df-870c-bee218d737e2",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "йоу",
+    "timestamp": 1767375935880,
+    "badges": [
+      "raging-wolf-helm"
+    ],
+    "badgeImages": {},
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false
+  },
+  {
+    "id": "twitch-f5dc6c9c-abea-461d-8e29-6961ee2760c8",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "Yoba_Deluxe",
+    "message": "TriHard",
+    "timestamp": 1767375963882,
+    "badges": [],
+    "badgeImages": {},
+    "color": "#FF69B4",
+    "isSubscriber": false,
+    "isModerator": true,
+    "isVip": false,
+    "emotesMap": {
+      "TriHard": "https://static-cdn.jtvnw.net/emoticons/v2/120232/default/dark/2.0"
+    }
+  },
+  {
+    "id": "twitch-28f50639-c9bf-4110-a505-4de7a2ded0c2",
+    "platform": {
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#FF00FF",
+      "abbr": "TW"
+    },
+    "channel": "silentium_vulpes",
+    "username": "ripppy",
+    "message": "Пошел на повышение",
+    "timestamp": 1767375980760,
+    "badges": [],
+    "badgeImages": {},
+    "color": "#0000FF",
+    "isSubscriber": false,
+    "isModerator": false,
+    "isVip": true
+  }
+]

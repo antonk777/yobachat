@@ -4,6 +4,7 @@ export const kTwitchBadgeMapping: Record<string, string> = {
   'staff': 'd97c37bd-a6f5-4c38-8f57-4e4bef88af34',
   'partner': 'd12a2e27-16f6-41d0-ab77-b780518f00a3',
   'premium': 'bbbe0db0-a598-423e-86d0-f9fb98ca1933',
+  'turbo': 'bd444ec6-8f34-4bf9-91f4-af1e3428d80f',
 
   // Channel Badges
   'broadcaster': '5527c58c-fb7d-422d-b71b-f309dcb85cc1',
@@ -20,7 +21,10 @@ export const kTwitchBadgeMapping: Record<string, string> = {
   'subscriber': '5d9f2208-5dd8-11e7-8513-2ff4adfae661',
 
   // Special Event Badges
-  'twitch-recap-2024': '72f2a6ac-3d9b-4406-b9e9-998b27182f61'
+  'twitch-recap-2023': '4d9e9812-ba9b-48a6-8690-13f3f338ee65',
+  'twitch-recap-2024': '72f2a6ac-3d9b-4406-b9e9-998b27182f61',
+  'twitch-recap-2025': '48b26ab3-c9f1-4f16-b02d-fe877be389fd',
+  'streamer-awards-tux': 'd52bd174-3509-460b-80ac-4a8d5840194b',
 };
 
 // Sub-gifter badge mappings (version determines which badge)

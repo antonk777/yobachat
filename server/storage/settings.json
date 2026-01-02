@@ -1,6 +1,6 @@
 {
   "showAvatars": false,
-  "showBadges": false,
+  "showBadges": true,
   "showModeratorBadges": true,
   "showEditedBadges": true,
   "showSubscriberBadges": true,

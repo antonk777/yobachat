@@ -15,7 +15,10 @@
   --success-color: #32954b;
   --error-color: #ff5555;
   --indicator-color: #666;
+  --admin-color: #ff3c4c;
   --moderator-color: #e2c000;
+  --vip-color: #ffa5f3;
+  --subscriber-color: #007bff;
 
   --line-height: 1.2rem;
   --spacing: .84rem;
@@ -23,6 +26,12 @@
   --whitespace: .5ch;
   --platform-icon-size: .85rem;
   --badge-size: 1.16rem;
+  --user-badge-size: .85rem;
+  --admin-badge-size: 1.16rem;
+  --edited-badge-size: .9rem;
+  --moderator-badge-size: 1.16rem;
+  --vip-badge-size: .85rem;
+  --subscriber-badge-size: .85rem;
   --emote-size: 1.58rem;
   --avatar-size: 1.58rem;
 

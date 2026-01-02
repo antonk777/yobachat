@@ -261,7 +261,7 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
   /**
    * Get badge ID based on name and version for URL construction
    */
-  private getBadgeId(badgeName: string, badgeVersion: string): string {
+  private getBadgeId(badgeName: string, badgeVersion: string): string | null {
     // Handle badges that have different UUIDs based on version
     if (badgeName === 'sub-gifter') {
       return kSubGifterBadgeMapping[badgeVersion] || kSubGifterBadgeMapping['1'];
@@ -271,8 +271,11 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
       return kBitsBadgeMapping[badgeVersion] || kBitsBadgeMapping['1'];
     }
 
-    // Use standard badge mapping
-    return kTwitchBadgeMapping[badgeName] || badgeName; // fallback to name if not found
+    if (!kTwitchBadgeMapping[badgeName]) {
+      return null;
+    }
+
+    return kTwitchBadgeMapping[badgeName]; // fallback to name if not found
   }
 
   /**
@@ -286,11 +289,18 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     }
 
     for (const [badgeName, badgeVersion] of Object.entries(badges)) {
-      if (badgeVersion !== undefined) {
-        const badgeId = this.getBadgeId(badgeName, badgeVersion);
-        const badgeUrl = `https://static-cdn.jtvnw.net/badges/v1/${badgeId}/2`;
-        badgeImages[badgeName] = badgeUrl;
+      if (!badgeVersion) {
+        continue;
       }
+
+      const badgeId = this.getBadgeId(badgeName, badgeVersion);
+
+      if (!badgeId) {
+        continue;
+      }
+
+      const badgeUrl = `https://static-cdn.jtvnw.net/badges/v1/${badgeId}/2`;
+      badgeImages[badgeName] = badgeUrl;
     }
 
     return badgeImages;

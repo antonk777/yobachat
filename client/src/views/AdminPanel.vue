@@ -662,9 +662,9 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
     align-self: center;
     flex: none;
 
-    min-width: var(--badge-size);
-    height: var(--badge-size);
-    line-height: var(--badge-size);
+    min-width: var(--platform-icon-size);
+    height: var(--platform-icon-size);
+    line-height: var(--platform-icon-size);
 
     font-size: var(--font-size-small);
     text-align: center;

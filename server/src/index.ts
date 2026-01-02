@@ -316,13 +316,17 @@ class ChatServer {
 
     // Filter badges
     if (message.badges && message.badges.length > 0) {
-      message.badges = message.badges.filter(badge => kHiddenBadgesFilter.includes(badge));
+      message.badges = message.badges.filter(badge =>
+        !kHiddenBadgesFilter.some(hiddenBadge => badge.toLowerCase().includes(hiddenBadge.toLowerCase()))
+      );
     }
 
     // Filter badge images
     if (message.badgeImages && Object.keys(message.badgeImages).length > 0) {
       const entries = Object.entries(message.badgeImages ?? {})
-        .filter(([badgeName]) => kHiddenBadgesFilter.includes(badgeName));
+        .filter(([badgeName]) =>
+          !kHiddenBadgesFilter.some(hiddenBadge => badgeName.toLowerCase().includes(hiddenBadge.toLowerCase()))
+        );
 
       message.badgeImages = Object.fromEntries(entries);
     }

@@ -472,11 +472,13 @@ watchEffect(() => {
 
 .settings-scale-section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
 
+  @media (width > 500px) {
+    grid-template-columns: 1fr 1fr;
 
-  .settings-section:not(:first-child) {
-    border-left: 1px solid var(--border-color);
+    .settings-section:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
   }
 }
 

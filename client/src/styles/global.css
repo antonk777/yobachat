@@ -16,7 +16,7 @@
   --error-color: #ff5555;
   --indicator-color: #666;
   --admin-color: #ff3c4c;
-  --moderator-color: #e2c000;
+  --moderator-color:#ffea75;
   --vip-color: #ffa5f3;
   --subscriber-color: #007bff;
 
@@ -43,7 +43,7 @@
   --font-size-small: .84rem;
 
   &.admin-page {
-    @media (width <= 400px) {
+    @media (width <= 560px) {
       --spacing: .6rem;
     }
   }

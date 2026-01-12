@@ -38,6 +38,8 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
   private retryTimeout: NodeJS.Timeout | null = null;
   private isStopping: boolean = false;
   private shouldReconnect: boolean = false;
+  private isConnecting: boolean = false;
+  private lastConnectionAttempt: number = 0;
 
   constructor(platformConfig: PlatformWithConfig<TwitchServiceConfig>) {
     super();
@@ -74,13 +76,30 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
    * Attempt to connect with retry logic
    */
   private async attemptConnection(): Promise<void> {
-    if (this.isStopping || !this.shouldReconnect) {
+    if (this.isStopping || !this.shouldReconnect || this.isConnecting) {
       return;
     }
+
+    // Prevent rapid reconnection loops - enforce minimum delay between attempts
+    const now = Date.now();
+    const timeSinceLastAttempt = now - this.lastConnectionAttempt;
+    const minDelayBetweenAttempts = 2000; // 2 seconds minimum
+
+    if (timeSinceLastAttempt < minDelayBetweenAttempts) {
+      const waitTime = minDelayBetweenAttempts - timeSinceLastAttempt;
+      console.log(`${this.logPrefix} Waiting ${waitTime}ms before next connection attempt...`);
+      setTimeout(() => this.attemptConnection(), waitTime);
+      return;
+    }
+
+    this.isConnecting = true;
+    this.lastConnectionAttempt = now;
 
     // Clean up existing client if any
     if (this.client) {
       try {
+        // Remove all event listeners before disconnecting
+        this.client.removeAllListeners();
         await this.client.disconnect();
       } catch (error) {
         // Ignore disconnect errors
@@ -96,11 +115,12 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
 
     try {
       await this.client.connect();
-      // Connection successful - reset retry count
-      this.retryCount = 0;
+      // Don't reset retry count here - wait for 'connected' event
+      // This ensures the connection is actually established
     } catch (error) {
       console.error(`${this.logPrefix} Error connecting to ${this.config.channelId}:`, error);
       this.setActive(false);
+      this.isConnecting = false;
       this.scheduleRetry();
     }
   }
@@ -169,12 +189,15 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     this.client.on('connected', () => {
       console.log(`${this.logPrefix} Connected to ${this.config.channelId}`);
       this.setActive(true);
-      this.retryCount = 0; // Reset retry count on successful connection
+      this.isConnecting = false;
+      // Reset retry count only after successful connection
+      this.retryCount = 0;
     });
 
     this.client.on('disconnected', (reason: string) => {
       console.log(`${this.logPrefix} Disconnected from ${this.config.channelId}${reason ? `: ${reason}` : ''}`);
       this.setActive(false);
+      this.isConnecting = false;
 
       // Only attempt reconnection if we're not stopping and should reconnect
       if (!this.isStopping && this.shouldReconnect) {
@@ -185,14 +208,18 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
 
     this.client.on('reconnect', () => {
       console.log(`${this.logPrefix} Reconnecting to ${this.config.channelId}...`);
+      this.isConnecting = false;
     });
+
+    // Note: tmi.js doesn't have an 'error' event, errors are handled through
+    // the 'disconnected' event or the connect() promise rejection
   }
 
   /**
    * Schedule a retry with exponential backoff
    */
   private scheduleRetry(): void {
-    if (this.isStopping || !this.shouldReconnect) {
+    if (this.isStopping || !this.shouldReconnect || this.isConnecting) {
       return;
     }
 
@@ -226,6 +253,7 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
   async stop(): Promise<void> {
     this.isStopping = true;
     this.shouldReconnect = false;
+    this.isConnecting = false;
 
     // Clear any pending retry
     if (this.retryTimeout) {
@@ -238,6 +266,7 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     }
 
     try {
+      this.client.removeAllListeners();
       await this.client.disconnect();
       this.client = null;
       this.setActive(false);

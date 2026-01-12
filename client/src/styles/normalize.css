@@ -30,6 +30,7 @@ button {
   appearance: none;
   cursor: pointer;
   text-align: left;
+  user-select: none;
 }
 
 textarea {

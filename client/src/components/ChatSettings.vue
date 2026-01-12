@@ -9,12 +9,18 @@ import { clamp, useDebounceFn } from '@vueuse/core';
 
 import FontSettings from '@/components/FontSettings.vue';
 
+enum ChatSettingsScreen {
+  General = 'general',
+  Font = 'font',
+  BadWords = 'bad-words',
+}
 
 const
   settingsStore = useSettingsStore(),
   globalStore = useUIStore();
 
 const
+  settingsScreen = ref<ChatSettingsScreen>(ChatSettingsScreen.General),
   localSettings = ref<ChatSettings | null>(null),
   newBadWord = ref('');
 
@@ -32,6 +38,19 @@ const
   kDefaultAdminScale = 100,
   kAdminScaleMin = 50,
   kAdminScaleMax = 150;
+
+const getScreenLabel = (screen: ChatSettingsScreen): string => {
+  switch (screen) {
+    case ChatSettingsScreen.General:
+      return 'General';
+    case ChatSettingsScreen.Font:
+      return 'Font';
+    case ChatSettingsScreen.BadWords:
+      return 'Bad Words';
+    default:
+      return '';
+  }
+};
 
 const handleClose = () => {
   globalStore.isSettingsOpen = false;
@@ -196,130 +215,147 @@ watchEffect(() => {
       </button>
     </div>
 
+    <div class="settings-modal-tabs">
+      <button
+        v-for="screen in Object.values(ChatSettingsScreen)"
+        :key="screen"
+        class="settings-tab"
+        :class="{ active: settingsScreen === screen }"
+        @click="settingsScreen = screen"
+      >
+        {{ getScreenLabel(screen) }}
+      </button>
+    </div>
+
     <div class="settings-modal-content">
-      <div class="settings-section settings-grid">
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showAvatars"
-            type="checkbox"
-          />
-          Show avatars
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showEmotes"
-            type="checkbox"
-          />
-          Show emotes
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showReplyTo"
-            type="checkbox"
-          />
-          Show reply quotes
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showBadges"
-            type="checkbox"
-          />
-          Show user badges
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showModeratorBadges"
-            type="checkbox"
-          />
-          Show moderator badge
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showEditedBadges"
-            type="checkbox"
-          />
-          Show a badge on edited messages
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showSubscriberBadges"
-            type="checkbox"
-          />
-          Show subscriber badges
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.showVipBadges"
-            type="checkbox"
-          />
-          Show VIP badges
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.filterLinks"
-            type="checkbox"
-          />
-          Filter links
-        </label>
-
-        <label class="settings-checkbox-item">
-          <input
-            v-model="localSettings.makeLinksClickable"
-            type="checkbox"
-          />
-          Make links clickable
-        </label>
-      </div>
-
-      <div class="settings-scale-section">
-        <div class="settings-section">
-          <h4 class="settings-section-title">Chat scale</h4>
-          <div class="numeric-control">
-            Scale
+      <div v-if="settingsScreen === ChatSettingsScreen.General" class="settings-screen">
+        <div class="settings-section settings-grid">
+          <label class="settings-checkbox-item">
             <input
-              type="number"
-              :min="kChatScaleMin"
-              :max="kChatScaleMax"
-              :step="1"
-              :value="(localSettings.chatScale ?? kDefaultChatScale / kChatScaleFactor) * kChatScaleFactor"
-              @input="handleChatScaleInput"
+              v-model="localSettings.showAvatars"
+              type="checkbox"
             />
-            %
-          </div>
+            Show avatars
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showEmotes"
+              type="checkbox"
+            />
+            Show emotes
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showReplyTo"
+              type="checkbox"
+            />
+            Show reply quotes
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showBadges"
+              type="checkbox"
+            />
+            Show user badges
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showModeratorBadges"
+              type="checkbox"
+            />
+            Show moderator badge
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showEditedBadges"
+              type="checkbox"
+            />
+            Show a badge on edited messages
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showSubscriberBadges"
+              type="checkbox"
+            />
+            Show subscriber badges
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showVipBadges"
+              type="checkbox"
+            />
+            Show VIP badges
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.filterLinks"
+              type="checkbox"
+            />
+            Filter links
+          </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.makeLinksClickable"
+              type="checkbox"
+            />
+            Make links clickable
+          </label>
         </div>
 
-        <div class="settings-section">
-          <h4 class="settings-section-title">Admin scale</h4>
-          <div class="numeric-control">
-            Scale
-            <input
-              type="number"
-              :min="kAdminScaleMin"
-              :max="kAdminScaleMax"
-              :step="1"
-              :value="(localSettings.adminScale ?? kDefaultAdminScale / kAdminScaleFactor) * kAdminScaleFactor"
-              @input="handleAdminScaleInput"
-            />
-            %
+        <div class="settings-scale-section">
+          <div class="settings-section">
+            <h4 class="settings-section-title">Chat scale</h4>
+            <div class="numeric-control">
+              Scale
+              <input
+                type="number"
+                :min="kChatScaleMin"
+                :max="kChatScaleMax"
+                :step="1"
+                :value="(localSettings.chatScale ?? kDefaultChatScale / kChatScaleFactor) * kChatScaleFactor"
+                @input="handleChatScaleInput"
+              />
+              %
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4 class="settings-section-title">Admin scale</h4>
+            <div class="numeric-control">
+              Scale
+              <input
+                type="number"
+                :min="kAdminScaleMin"
+                :max="kAdminScaleMax"
+                :step="1"
+                :value="(localSettings.adminScale ?? kDefaultAdminScale / kAdminScaleFactor) * kAdminScaleFactor"
+                @input="handleAdminScaleInput"
+              />
+              %
+            </div>
           </div>
         </div>
       </div>
 
-      <FontSettings
-        v-if="localSettings"
-        v-model="localSettings"
-        class="settings-section font-settings"
-      />
+      <div v-if="settingsScreen === ChatSettingsScreen.Font" class="settings-screen">
+        <FontSettings
+          v-if="localSettings"
+          v-model="localSettings"
+          class="settings-section font-settings"
+        />
+      </div>
 
-      <div class="settings-section bad-words-section">
+      <div v-if="settingsScreen === ChatSettingsScreen.BadWords" class="settings-screen">
+        <div class="settings-section bad-words-section">
         <h3>Bad Words Filter</h3>
 
         <label class="settings-checkbox-item">
@@ -361,6 +397,7 @@ watchEffect(() => {
           </div>
         </div>
       </div>
+      </div>
     </div>
 
     <div class="settings-section settings-actions">
@@ -383,7 +420,7 @@ watchEffect(() => {
   flex-direction: column;
 
   width: min(520px, calc(100vw - 2rem));
-  max-height: calc(100dvh - 2rem);
+  height: calc(100dvh - 2rem);
   padding: 0;
   margin: auto;
   overflow: hidden;
@@ -432,11 +469,45 @@ watchEffect(() => {
   }
 }
 
+.settings-modal-tabs {
+  display: flex;
+  gap: calc(var(--spacing) * .5);
+  padding: calc(var(--spacing) * .5) calc(var(--spacing) * .5) 0;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-color-dark);
+}
+
+.settings-tab {
+  padding: calc(var(--spacing) * .75) calc(var(--spacing) * .5);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  border-radius: .25rem .25rem 0 0;
+  font-size: .85rem;
+  font-weight: bolder;
+  transition:
+    color .2s ease-in-out,
+    background-color .2s ease-in-out;
+
+  &:hover {
+    color: var(--text-color);
+  }
+
+  &.active {
+    color: var(--text-color);
+    background-color: var(--bg-color-bright);
+  }
+}
+
 .settings-modal-content {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) var(--bg-color);
+}
+
+.settings-screen {
+  display: contents;
 }
 
 .settings-grid {
@@ -472,6 +543,8 @@ watchEffect(() => {
 
 .settings-scale-section {
   display: grid;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 
   @media (width > 500px) {
     grid-template-columns: 1fr 1fr;

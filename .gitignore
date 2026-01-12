@@ -33,3 +33,5 @@ server/storage/*.json
 
 server/server-config.json
 server/server-config.dev.json
+server/storage/deleted-messages.json
+server/storage/message-history.json

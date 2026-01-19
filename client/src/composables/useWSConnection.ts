@@ -281,6 +281,13 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
+  function restartServer(): void {
+    send({
+      type: kWSMessageType.adminRestartServer,
+      data: {}
+    });
+  }
+
   function updateChatSettings(settings: Partial<ChatSettings>): void {
     send({
       type: kWSMessageType.adminUpdateSettings,
@@ -309,6 +316,7 @@ export const useWSConnection = createGlobalState(() => {
     clearAllMessages,
     refreshBetterTTV,
     refreshWidget,
+    restartServer,
     updateChatSettings,
   };
 });

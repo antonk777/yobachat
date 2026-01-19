@@ -41,6 +41,7 @@ import { WebAPIService } from '@/services/webapi-service.js';
 import { AuthService } from '@/services/auth-service.js';
 
 import { kWSMessageType } from '@shared/shared-types.js';
+import pm2 from 'pm2';
 
 import {
   kHiddenBadgesFilter,
@@ -523,6 +524,10 @@ class ChatServer {
         this.broadcastWidgetRefresh();
         console.log(`${this.logPrefix} Admin triggered widget refresh`);
         break;
+
+      case kWSMessageType.adminRestartServer:
+        await this.handleAdminRestartServer(clientId);
+        break;
     }
   }
 
@@ -681,6 +686,47 @@ class ChatServer {
     } catch (error) {
       console.error(`${this.logPrefix} Failed to refresh BetterTTV emotes:`, error);
       this.sendServerMessage(clientId, 'Failed to refresh BetterTTV emotes');
+    }
+  }
+
+  /**
+   * Handle admin restart server command using PM2
+   */
+  private async handleAdminRestartServer(clientId: string): Promise<void> {
+    // Check if running under PM2
+    if (!process.env.pm_id) {
+      this.sendServerMessage(clientId, 'Server is not running under PM2');
+      console.error(`${this.logPrefix} Restart failed: not running under PM2`);
+      return;
+    }
+
+    try {
+      // Determine process name from PM2 environment or NODE_ENV
+      const processName = process.env.name || (process.env.NODE_ENV === 'production' ? 'yobachat-prod' : 'yobachat-dev');
+
+      // Connect to PM2 daemon
+      await new Promise<void>((resolve, reject) => {
+        pm2.connect((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+
+      // Send response before restart (restart will kill the process)
+      this.sendServerMessage(clientId, 'Restarting server...');
+      console.log(`${this.logPrefix} Admin triggered server restart`);
+
+      // Restart the process
+      await new Promise<void>((resolve, reject) => {
+        pm2.restart(processName, (err) => {
+          pm2.disconnect();
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    } catch (error) {
+      console.error(`${this.logPrefix} Failed to restart server:`, error);
+      this.sendServerMessage(clientId, `Failed to restart server: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

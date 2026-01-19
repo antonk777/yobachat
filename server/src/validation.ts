@@ -262,6 +262,11 @@ const AdminRefreshWidgetSchema = z.object({
   data: z.object({})
 });
 
+const AdminRestartServerSchema = z.object({
+  type: z.literal(kWSMessageType.adminRestartServer),
+  data: z.object({})
+});
+
 const AdminPlatformsStatusSchema = z.object({
   type: z.literal(kWSMessageType.adminPlatformsStatus),
   data: z.object({
@@ -289,6 +294,7 @@ export const WSMessageSchema = z.discriminatedUnion('type', [
   AdminClearAllMessagesSchema,
   AdminRefreshBetterTTVSchema,
   AdminRefreshWidgetSchema,
+  AdminRestartServerSchema,
   AdminPlatformsStatusSchema,
   AdminPlatformStatusUpdateSchema
 ]) as z.ZodType<WSMessage>;

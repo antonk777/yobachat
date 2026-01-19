@@ -163,6 +163,7 @@ export enum kWSMessageType {
   adminClearAllMessages = 'adminClearAllMessages',
   adminRefreshBetterTTV = 'adminRefreshBetterTTV',
   adminRefreshWidget = 'adminRefreshWidget',
+  adminRestartServer = 'adminRestartServer',
 
   // Admin responses (server -> client)
   adminServerStatus = 'adminServerStatus',
@@ -226,6 +227,11 @@ export interface WSAdminRefreshWidget {
   data: {};
 }
 
+export interface WSAdminRestartServer {
+  type: kWSMessageType.adminRestartServer;
+  data: {};
+}
+
 // Admin response interfaces
 export interface WSAdminPlatformsStatus {
   type: kWSMessageType.adminPlatformsStatus;
@@ -254,6 +260,7 @@ export type WSMessageTypeMap = {
   [kWSMessageType.adminClearAllMessages]: WSAdminClearAllMessages;
   [kWSMessageType.adminRefreshBetterTTV]: WSAdminRefreshBetterTTV;
   [kWSMessageType.adminRefreshWidget]: WSAdminRefreshWidget;
+  [kWSMessageType.adminRestartServer]: WSAdminRestartServer;
   [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
   [kWSMessageType.adminPlatformStatusUpdate]: WSAdminPlatformStatusUpdate;
 }
@@ -270,6 +277,7 @@ export type WSMessage =
   | WSAdminClearAllMessages
   | WSAdminRefreshBetterTTV
   | WSAdminRefreshWidget
+  | WSAdminRestartServer
   | WSAdminPlatformsStatus
   | WSAdminPlatformStatusUpdate;
 

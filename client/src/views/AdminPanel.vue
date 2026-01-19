@@ -585,13 +585,13 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
     opacity: .5;
     transition: opacity .2s;
 
-    .message-item:hover & {
-      display: block;
-
-      &:hover {
-        opacity: 1;
-      }
+    &:hover {
+      opacity: 1;
     }
+  }
+
+  &:hover .message-delete {
+    display: block;
   }
 }
 
@@ -696,10 +696,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
     flex: 1;
     font-weight: 500;
     white-space: nowrap;
-
-    .platforms-section:not(.expanded) & {
-      display: none;
-    }
   }
 
   .platform-status {
@@ -710,6 +706,10 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
       font-size: .85rem;
     }
   }
+}
+
+.platforms-section:not(.expanded) .platform-name {
+  display: none;
 }
 
 .empty-state {

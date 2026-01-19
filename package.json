@@ -7,6 +7,8 @@
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
 
     "--- Production ---": "",
+    "prod:update-main": "git pull origin main && npm run prod:build:all && npm run prod:pm2:restart",
+
     "prod:build:all": "npm run prod:build:server && npm run prod:build:client",
     "prod:build:server": "cd server && npm run prod:build",
     "prod:build:client": "cd client && npm run prod:build",

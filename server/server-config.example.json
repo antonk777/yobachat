@@ -19,7 +19,6 @@
     "pollInterval": 1000
   },
   "youtube": {
-    "apiKey": "YOUR_YOUTUBE_API_KEY",
     "channelId": "YOUR_YOUTUBE_CHANNEL_ID",
     "pollInterval": 9000
   },

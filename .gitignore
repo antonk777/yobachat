@@ -31,8 +31,10 @@ client/src/types/vue-global.d.ts
 # Storage files
 server/storage/*.json
 
+# Server configuration files
 server/server-config.json
-server/server-config.prod.json
-server/server-config.dev.json
-server/storage/deleted-messages.json
-server/storage/message-history.json
+server/server-config.*.json
+
+# Shared configuration files
+shared/shared-config.json
+shared/shared-config.*.json

@@ -37,7 +37,11 @@ module.exports = {
     {
       ...base,
       name: "yobachat-prod",
-      env: { NODE_ENV: "production" },
+      env: {
+        NODE_ENV: "production",
+        SHARED_CONFIG_PATH: path.resolve(__dirname, "shared", "shared-config.prod.json"),
+        SERVER_CONFIG_PATH: path.resolve(__dirname, "server", "server-config.prod.json")
+      },
       autorestart: true,
       error: path.join(logsDir, "server-error.log"),
       output: path.join(logsDir, "server-out.log")

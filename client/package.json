@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "prod:build": "vite build",
+    "prod:build": "SHARED_CONFIG_PATH=./shared/shared-config.prod.json vite build",
     "dev:build": "SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build",
     "dev:build:watch": "SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build --watch"
   },

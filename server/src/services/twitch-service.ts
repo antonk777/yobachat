@@ -10,7 +10,6 @@ import {
   kSubGifterBadgeMapping,
   kBitsBadgeMapping
 } from '@/constants/twitch.js';
-import { randomUUID } from 'node:crypto';
 
 
 // Twitch emote types
@@ -23,6 +22,16 @@ const kRetryConfig = {
   maxDelay: 60000, // 60 seconds
   backoffMultiplier: 2, // Double delay on each retry
 } as const;
+
+function clampRetryDelayMs(raw: number): number {
+  if (typeof raw !== 'number' || !Number.isFinite(raw)) {
+    return kRetryConfig.initialDelay;
+  }
+
+  return Math.round(
+    Math.max(kRetryConfig.initialDelay, Math.min(raw, kRetryConfig.maxDelay))
+  );
+}
 
 /**
  * Service for watching Twitch chat messages
@@ -86,7 +95,7 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     const minDelayBetweenAttempts = 2000; // 2 seconds minimum
 
     if (timeSinceLastAttempt < minDelayBetweenAttempts) {
-      const waitTime = minDelayBetweenAttempts - timeSinceLastAttempt;
+      const waitTime = clampRetryDelayMs(minDelayBetweenAttempts - timeSinceLastAttempt);
       console.log(`${this.logPrefix} Waiting ${waitTime}ms before next connection attempt...`);
       setTimeout(() => this.attemptConnection(), waitTime);
       return;
@@ -108,6 +117,9 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     }
 
     this.client = new tmi.Client({
+      connection: {
+        reconnect: false,
+      },
       channels: [this.config.channelId],
     });
 
@@ -206,11 +218,6 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
       }
     });
 
-    this.client.on('reconnect', () => {
-      console.log(`${this.logPrefix} Reconnecting to ${this.config.channelId}...`);
-      this.isConnecting = false;
-    });
-
     // Note: tmi.js doesn't have an 'error' event, errors are handled through
     // the 'disconnected' event or the connect() promise rejection
   }
@@ -236,10 +243,11 @@ export class TwitchService extends EventEmitter<PlatformServiceEvents> implement
     }
 
     // Calculate delay with exponential backoff
-    const delay = Math.min(
+    const rawDelay = Math.min(
       kRetryConfig.initialDelay * Math.pow(kRetryConfig.backoffMultiplier, this.retryCount),
       kRetryConfig.maxDelay
     );
+    const delay = clampRetryDelayMs(rawDelay);
 
     this.retryCount++;
     console.log(`${this.logPrefix} Retrying connection in ${delay}ms (attempt ${this.retryCount})...`);

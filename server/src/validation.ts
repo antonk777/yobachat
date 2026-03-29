@@ -404,7 +404,8 @@ export function validatePartialChatSettings(input: unknown): Partial<ChatSetting
  */
 
 const TwitchServiceConfigSchema = z.object({
-  channelId: z.string().min(1).max(100)
+  channelId: z.string().min(1).max(100),
+  webhookSecret: z.string().min(10).max(100)
 }) satisfies z.ZodType<TwitchServiceConfig>;
 
 const YouTubeServiceConfigSchema = z.object({

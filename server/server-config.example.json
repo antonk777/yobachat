@@ -23,7 +23,8 @@
     "pollInterval": 9000
   },
   "twitch": {
-    "channelId": "YOUR_TWITCH_CHANNEL_ID"
+    "channelId": "YOUR_TWITCH_CHANNEL_LOGIN",
+    "webhookSecret": "RANDOM_ASCII_10_TO_100_CHARS_FOR_EVENTSUB"
   },
   "vkvideo": {
     "channelId": "YOUR_VKVIDEO_CHANNEL_ID",

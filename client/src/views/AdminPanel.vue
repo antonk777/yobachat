@@ -24,15 +24,19 @@ const
   messagesStore = useMessagesStore(),
   uiStore = useUIStore();
 
+const needsTwitchOAuth = ref(false);
+
 // Check authentication on mount and redirect to login if not authenticated
 onMounted(async () => {
-  const isValid = await auth.verifyToken();
+  const result = await auth.verifyToken();
 
-  if (!isValid) {
+  if (!result.ok) {
     // Not authenticated or token invalid, redirect to login
     window.location.href = '/login';
     return;
   }
+
+  needsTwitchOAuth.value = result.needsTwitchOAuth ?? false;
 
   // Token is valid, now connect to WebSocket
   ws.connect();
@@ -150,7 +154,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
       <h1 class="admin-header-title">yobachat</h1>
 
       <div class="admin-header-actions">
-
         <div
           class="connection-status"
           :class="{ connected: wsConnected }"
@@ -166,6 +169,15 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
         </div>
 
         <button
+          v-if="needsTwitchOAuth"
+          class="btn admin-twitch-oauth-btn"
+          title="Reconnect with Twitch to enable chat"
+          @click="auth.login()"
+        >
+          No Twitch
+        </button>
+
+        <button
           class="btn btn-secondary"
           @click="uiStore.isSettingsOpen = true"
           :disabled="!wsConnected"
@@ -176,7 +188,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
         <div class="more-menu" ref="moreMenuRef">
           <button
-            type="button"
             class="btn btn-secondary more-menu-toggle"
             :disabled="!wsConnected"
             @click="toggleMoreMenu"
@@ -423,6 +434,15 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
   > * {
     pointer-events: auto;
+  }
+}
+
+.admin-twitch-oauth-btn {
+  color: var(--bg-color-dark);
+  background-color: var(--warning-color);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--warning-color) 88%, #fff);
   }
 }
 

@@ -4,7 +4,6 @@ import type {
   ChatMessage,
   ChatMessageDelete,
   ChatMessageUpdate,
-  ChatSettings,
   KickServiceConfig,
   GoodgameServiceConfig,
   Platform,
@@ -25,7 +24,7 @@ import type {
   WebhookHandler
 } from '@/types.js';
 
-import { TwitchService } from '@/services/twitch-service.js';
+import { TwitchEventSubService } from '@/services/twitch-service-es.js';
 import { YouTubeService } from '@/services/youtube-service.js';
 import { TelegramService } from '@/services/telegram-service.js';
 import { VKVideoService } from '@/services/vkvideo-service.js';
@@ -82,7 +81,9 @@ class ChatServer {
     this.authService = new AuthService(config);
     this.webhookService = new WebhookService(config.webhookPort);
     this.websocketService = new WebSocketService(config, this.authService);
-    this.webApiService = new WebAPIService(this.authService);
+    this.webApiService = new WebAPIService(this.authService, {
+      onTwitchOAuthSuccess: () => this.startTwitchEventSubAfterOAuth(),
+    });
 
     // Set up WebSocket event listeners
     this.websocketService
@@ -396,9 +397,31 @@ class ChatServer {
     }
 
     switch (platform.id) {
-      case 'twitch':
-        service = new TwitchService(platform as PlatformWithConfig<TwitchServiceConfig>);
+      case 'twitch': {
+        const twPlatform = platform as PlatformWithConfig<TwitchServiceConfig>;
+
+        const twCfg = twPlatform.config;
+
+        service = new TwitchEventSubService(
+          platformOnly,
+          {
+            channelId: twCfg.channelId,
+            clientId: this.config.admin.twitchOAuth.clientId,
+            clientSecret: this.config.admin.twitchOAuth.clientSecret,
+            getAccessToken: () => this.authService.getChatOAuthAccessToken(),
+            getUserId: () => this.authService.getChatOAuthUserId(),
+            getChatOAuthTokenInfo: () => this.authService.getChatOAuthTokenInfo(),
+            webhookSecret: twCfg.webhookSecret,
+          },
+          {
+            webhookUrl: `https://${this.config.sharedConfig.apiHost}${this.config.sharedConfig.basePath}${this.config.webhookPath}`,
+            registerHandler: (path, handler) => this.registerWebhookHandler(path, handler),
+            unregisterHandler: (path) => this.unregisterWebhookHandler(path),
+          },
+        );
+
         break;
+      }
       case 'youtube':
         service = new YouTubeService(platform as PlatformWithConfig<YouTubeServiceConfig>);
         break;
@@ -489,8 +512,31 @@ class ChatServer {
       return false;
     }
 
-    // Verify username is still in allowlist
     return this.authService.isUsernameAllowed(user.username);
+  }
+
+  /**
+   * Start Twitch EventSub after OAuth tokens are saved (or on demand if startup failed without tokens).
+   */
+  private async startTwitchEventSubAfterOAuth(): Promise<void> {
+    for (const p of this.platforms.values()) {
+      if (p.id !== 'twitch' || !p.service) {
+        continue;
+      }
+
+      if (p.service.isActive()) {
+        console.log(`${this.logPrefix} Twitch EventSub already active`);
+        return;
+      }
+
+      try {
+        await p.service.start();
+      } catch (err) {
+        console.error(`${this.logPrefix} Failed to start Twitch EventSub after OAuth:`, err);
+      }
+
+      return;
+    }
   }
 
   /**

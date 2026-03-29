@@ -15,6 +15,8 @@ export interface BetterTTVConfig {
 
 export interface TwitchServiceConfig {
   channelId: string;
+  /** 10–100 ASCII characters; passed to Helix and used for EventSub HMAC verification. */
+  webhookSecret: string;
 }
 
 export interface YouTubeServiceConfig {

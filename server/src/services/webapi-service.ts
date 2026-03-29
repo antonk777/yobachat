@@ -10,11 +10,17 @@ import { kServerConfig } from '@/config.js';
 /**
  * Service for handling web API requests (fonts, etc.)
  */
+export type WebAPIServiceOptions = {
+  /** After Twitch OAuth succeeds and chat tokens are persisted — e.g. start EventSub. */
+  onTwitchOAuthSuccess?: () => void | Promise<void>;
+};
+
 export class WebAPIService {
   private logPrefix = chalk.magenta('[WebAPI]');
   private app: Express;
   private server: HttpServer | null = null;
   private readonly authService: AuthService;
+  private readonly onTwitchOAuthSuccess?: () => void | Promise<void>;
 
   /**
    * Convert font style names to FontStyle
@@ -75,9 +81,10 @@ export class WebAPIService {
     }
   }
 
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, options?: WebAPIServiceOptions) {
     this.app = express();
     this.authService = authService;
+    this.onTwitchOAuthSuccess = options?.onTwitchOAuthSuccess;
 
     // Enable CORS for all routes
     this.app.use((req, res, next) => {
@@ -140,13 +147,21 @@ export class WebAPIService {
         return;
       }
 
+      if (this.authService.hasPersistedChatOAuthTokens()) {
+        try {
+          await this.onTwitchOAuthSuccess?.();
+        } catch (hookErr) {
+          console.error(`${this.logPrefix} onTwitchOAuthSuccess hook failed:`, hookErr);
+        }
+      }
+
       // Redirect to login page with token in hash (will handle redirect to admin)
       // Assumes reverse proxy routes both API and admin panel
       res.redirect(`${rootUrl}login#token=${encodeURIComponent(result.token)}`);
     });
 
-    // GET /auth/verify - Verify token validity
-    this.app.get('/auth/verify', (req, res) => {
+    // GET /auth/verify - Verify token validity (JWT + Twitch chat OAuth on disk / refresh)
+    this.app.get('/auth/verify', async (req, res) => {
       const authHeader = req.headers.authorization;
 
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -162,7 +177,13 @@ export class WebAPIService {
         return;
       }
 
-      res.json({ valid: true, username: user.username });
+      const twitchAccess = await this.authService.getChatOAuthAccessToken();
+
+      res.json({
+        valid: true,
+        username: user.username,
+        twitchChatOAuth: twitchAccess != null,
+      });
     });
 
     // Health check endpoint

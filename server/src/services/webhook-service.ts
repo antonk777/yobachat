@@ -1,10 +1,13 @@
-import express, { Express } from 'express';
+import express, { Express, type Request } from 'express';
 import { createServer, Server as HttpServer } from 'http';
 import chalk from 'chalk';
 
 import type { WebhookHandler } from '../types.js';
 
 const kMaxRequestSize = '1mb';
+
+/** Attached by express.json verify — needed for HMAC verification (e.g. Twitch EventSub). */
+export type RequestWithRawBody = Request & { rawBody?: Buffer };
 
 /**
  * Service for handling webhook requests (HTTP server behind nginx SSL termination)
@@ -20,8 +23,15 @@ export class WebhookService {
     this.port = port;
     this.app = express();
 
-    // Parse JSON bodies
-    this.app.use(express.json({ limit: kMaxRequestSize }));
+    // Parse JSON bodies; keep raw bytes for signature verification (Twitch EventSub, etc.)
+    this.app.use(
+      express.json({
+        limit: kMaxRequestSize,
+        verify: (req: Request, _res, buf: Buffer) => {
+          (req as RequestWithRawBody).rawBody = buf;
+        },
+      }),
+    );
 
     // Handle all POST requests - route to registered handlers
     this.app.post('*', (req, res) => {

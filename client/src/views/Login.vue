@@ -21,9 +21,9 @@ onMounted(async () => {
 
   if (hasToken) {
     // Verify token
-    const isValid = await auth.verifyToken();
+    const { ok } = await auth.verifyToken();
 
-    if (isValid) {
+    if (ok) {
       // Redirect to admin panel
       window.location.href = '/admin';
       return;

@@ -3,6 +3,12 @@ import { kSharedConfig } from '@/config';
 
 const kTokenStorageKey = 'yobachat_auth_token';
 
+export interface VerifyTokenResult {
+  ok: boolean;
+  /** True when JWT is valid but Twitch chat tokens are missing or unusable. */
+  needsTwitchOAuth?: boolean;
+}
+
 interface TokenPayload {
   username: string;
   iat: number;
@@ -82,11 +88,11 @@ export function useAuth() {
   }
 
   /**
-   * Verify token with server
+   * Verify token with server. Does not clear the session when Twitch chat OAuth is missing — use `needsTwitchOAuth`.
    */
-  async function verifyToken(): Promise<boolean> {
+  async function verifyToken(): Promise<VerifyTokenResult> {
     if (!token.value) {
-      return false;
+      return { ok: false };
     }
 
     try {
@@ -96,22 +102,29 @@ export function useAuth() {
         }
       });
 
-      if (!response.ok) {
+      if (response.status === 401) {
         logout();
-        return false;
+        return { ok: false };
       }
 
-      const data = await response.json() as { valid: boolean };
+      if (!response.ok) {
+        return { ok: false };
+      }
+
+      const data = await response.json() as { valid?: boolean; twitchChatOAuth?: boolean };
 
       if (!data.valid) {
         logout();
-        return false;
+        return { ok: false };
       }
 
-      return true;
+      return {
+        ok: true,
+        needsTwitchOAuth: data.twitchChatOAuth === false,
+      };
     } catch (error) {
       console.error('[Auth] Failed to verify token:', error);
-      return false;
+      return { ok: false };
     }
   }
 

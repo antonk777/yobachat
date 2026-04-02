@@ -122,9 +122,6 @@ interface ESChatMessageEvent {
   cheer?: { bits: number };
   color: string;
   reply?: ESChatReply;
-  subscriber: boolean;
-  moderator: boolean;
-  is_vip: boolean;
 }
 
 
@@ -610,6 +607,10 @@ export class TwitchEventSubService
     }
 
     const badgeNames = event.badges.map((b) => b.set_id);
+    const badgeSetIds = new Set(badgeNames);
+    const isModerator = badgeSetIds.has('moderator');
+    const isVip = badgeSetIds.has('vip');
+    const isSubscriber = badgeSetIds.has('subscriber');
 
     const chatMessage: ChatMessage = {
       id: messageId,
@@ -621,9 +622,9 @@ export class TwitchEventSubService
       color: event.color || undefined,
       badges: badgeNames,
       badgeImages: Object.keys(badgeImages).length > 0 ? badgeImages : undefined,
-      isSubscriber: event.subscriber,
-      isModerator: event.moderator,
-      isVip: event.is_vip,
+      isSubscriber,
+      isModerator,
+      isVip,
       emotesMap: Object.keys(emotesMap).length > 0 ? emotesMap : undefined,
       replyToId,
     };

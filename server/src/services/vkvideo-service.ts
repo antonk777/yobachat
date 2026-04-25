@@ -1,6 +1,7 @@
 import { Centrifuge } from 'centrifuge';
 import { EventEmitter } from 'node:events';
 import chalk from 'chalk';
+import WebSocket from 'ws';
 
 import type { ChatMessage, Platform, VKVideoServiceConfig } from '@shared/shared-types.js';
 import type { PlatformService, PlatformWithConfig, PlatformServiceEvents } from '@/types.js';
@@ -173,7 +174,11 @@ export class VKVideoService extends EventEmitter<PlatformServiceEvents> implemen
 
     try {
       const wsToken = await this.getWebSocketToken();
-      this.centrifuge = new Centrifuge(kWebSocketURL, { token: wsToken });
+      this.centrifuge = new Centrifuge(kWebSocketURL, {
+        token: wsToken,
+        // Node runtime does not always expose a global WebSocket constructor.
+        websocket: WebSocket,
+      });
 
       this.setupEventHandlers();
       this.centrifuge.connect();

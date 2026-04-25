@@ -31,6 +31,9 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
   private retryDelay: number = 15000; // Start at 15s, will increase up to 120s
   private liveChat: LiveChat | null = null; // youtubei.js LiveChat instance
   private currentVideoId: string | null = null;
+  private readonly defaultRetryDelayMs = 15000;
+  private readonly minRetryDelayMs = 1000;
+  private readonly maxRetryDelayMs = 120000;
 
   constructor(platformConfig: PlatformWithConfig<YouTubeServiceConfig>) {
     super();
@@ -141,9 +144,11 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
   /**
    * Start retrying to find a live stream periodically
    */
-  private startRetryingForLiveStream(): void {
-    // Reset retry delay when starting fresh
-    this.retryDelay = 15000; // Start at 15s
+  private startRetryingForLiveStream(resetBackoff: boolean = true): void {
+    // Reset retry delay only when starting fresh; keep backoff on repeated failures
+    if (resetBackoff) {
+      this.retryDelay = this.defaultRetryDelayMs;
+    }
 
     // Try immediately first
     this.tryInitializeLiveChat();
@@ -161,46 +166,31 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
       this.retryInterval = null;
     }
 
-    // Ensure retryDelay is a valid number with minimum value
-    if (typeof this.retryDelay !== 'number' || !Number.isFinite(this.retryDelay) || this.retryDelay <= 0 || isNaN(this.retryDelay)) {
-      this.retryDelay = 15000; // Reset to default if invalid
-    }
-
-    // Clamp the delay to ensure it's within valid range
-    let delay = Math.max(1000, Math.min(this.retryDelay, 120000));
-
-    // Final safety check - ensure delay is a valid finite number
-    if (typeof delay !== 'number' || !Number.isFinite(delay) || isNaN(delay) || delay <= 0) {
-      delay = 15000; // Fallback to default
-      this.retryDelay = 15000; // Reset retryDelay as well
-    }
-
-    // Explicitly convert to number and ensure it's an integer
-    const timeoutDelay = Number.parseInt(String(delay), 10);
-    if (!Number.isFinite(timeoutDelay) || timeoutDelay <= 0) {
-      console.error(`${this.logPrefix} Invalid timeout delay detected: ${delay}, using default 15000`);
-      this.retryDelay = 15000;
-      this.retryInterval = setTimeout(() => {
-        if (!this.isInitialized) {
-          this.tryInitializeLiveChat();
-          this.retryDelay = 15000;
-          this.scheduleNextRetry();
-        }
-      }, 15000);
-      return;
-    }
+    const delay = this.getSafeRetryDelay(this.retryDelay);
+    this.retryDelay = delay;
 
     this.retryInterval = setTimeout(() => {
       if (!this.isInitialized) {
         this.tryInitializeLiveChat();
         // Exponentially increase delay for next retry (capped at 120s)
         const newDelay = this.retryDelay * 2;
-        this.retryDelay = (typeof newDelay === 'number' && Number.isFinite(newDelay) && newDelay > 0)
-          ? Math.min(newDelay, 120000)
-          : 15000;
+        this.retryDelay = this.getSafeRetryDelay(newDelay);
         this.scheduleNextRetry();
       }
     }, delay);
+  }
+
+  /**
+   * Returns a safe timeout delay that is always a finite positive integer.
+   */
+  private getSafeRetryDelay(value: unknown): number {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    if (!Number.isFinite(numericValue) || numericValue <= 0) {
+      return this.defaultRetryDelayMs;
+    }
+
+    const clamped = Math.max(this.minRetryDelayMs, Math.min(numericValue, this.maxRetryDelayMs));
+    return Math.round(clamped);
   }
 
   /**
@@ -239,13 +229,13 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
         this.retryInterval = null;
       }
       // Reset retry delay for next time
-      this.retryDelay = 15000;
+      this.retryDelay = this.defaultRetryDelayMs;
 
       // Connect with youtubei.js (real-time)
       this.connectWithYoutubei(videoId).catch((error) => {
         console.error(`${this.logPrefix} Failed to connect with youtubei.js:`, error);
         // Reset and retry
-        this.resetAndRetry();
+        this.resetAndRetry(true);
       });
     } catch (error) {
       this.setActive(false);
@@ -304,7 +294,21 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
           this.liveChat.stop();
           this.liveChat = null;
         }
-        this.resetAndRetry();
+        this.resetAndRetry(true);
+      });
+
+      // Critical: prevent unhandled EventEmitter 'error' from crashing the process.
+      liveChat.on('error', (error: unknown) => {
+        console.error(`${this.logPrefix} Live chat runtime error:`, error);
+        if (this.liveChat) {
+          try {
+            this.liveChat.stop();
+          } catch {
+            // Ignore stop errors on broken chat instances.
+          }
+          this.liveChat = null;
+        }
+        this.resetAndRetry(true);
       });
 
       // Start the live chat
@@ -414,7 +418,7 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
   /**
    * Reset the service and start retrying for a new live stream
    */
-  private resetAndRetry(): void {
+  private resetAndRetry(increaseBackoff: boolean = false): void {
     this.isInitialized = false;
     this.currentVideoId = null;
 
@@ -432,10 +436,13 @@ export class YouTubeService extends EventEmitter<PlatformServiceEvents> implemen
       this.liveChat = null;
     }
 
-    // Reset retryDelay to ensure it's valid
-    this.retryDelay = 15000;
+    if (increaseBackoff) {
+      this.retryDelay = this.getSafeRetryDelay(this.retryDelay * 2);
+    } else {
+      this.retryDelay = this.defaultRetryDelayMs;
+    }
 
-    this.startRetryingForLiveStream();
+    this.startRetryingForLiveStream(false);
   }
 
   async stop(): Promise<void> {

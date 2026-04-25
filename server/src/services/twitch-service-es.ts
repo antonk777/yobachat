@@ -19,7 +19,7 @@
  *  - Pass `registerHandler` / `unregisterHandler` from `ChatServer`.
  */
 
-import { createHmac, timingSafeEqual, randomUUID } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import chalk from 'chalk';
 
@@ -122,6 +122,21 @@ interface ESChatMessageEvent {
   cheer?: { bits: number };
   color: string;
   reply?: ESChatReply;
+}
+
+interface EventSubSubscription {
+  id: string;
+  status: string;
+  type: string;
+  version: string;
+  condition?: {
+    broadcaster_user_id?: string;
+    user_id?: string;
+  };
+  transport?: {
+    method?: string;
+    callback?: string;
+  };
 }
 
 
@@ -265,7 +280,8 @@ export class TwitchEventSubService
     this.registerHandler = options.registerHandler;
     this.unregisterHandler = options.unregisterHandler;
 
-    this.webhookPath = `/webhook/twitch/eventsub/${randomUUID()}`;
+    const channelSlug = this.config.channelId.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+    this.webhookPath = `/webhook/twitch/eventsub/${channelSlug}`;
     const baseUrl = options.webhookUrl.replace(/\/webhook\/?$/, '') || '';
     this.fullCallbackUrl = `${baseUrl}${this.webhookPath}`;
   }
@@ -517,6 +533,19 @@ export class TwitchEventSubService
     }
 
     const accessToken = await this.ensureAppAccessToken();
+    const existingSubscription = await this.findReusableSubscription(
+      accessToken,
+      oauthUserId,
+      this.fullCallbackUrl,
+    );
+    if (existingSubscription) {
+      this.subscriptionId = existingSubscription.id;
+      console.log(
+        `${this.logPrefix} Reusing EventSub subscription ${existingSubscription.id} (${existingSubscription.status})`,
+      );
+      this.setActive(true);
+      return;
+    }
 
     const body = {
       type: 'channel.chat.message',
@@ -548,6 +577,21 @@ export class TwitchEventSubService
             `Required: OAuth account must have granted user:bot and user:read:chat (re-open /auth/twitch/login after upgrading scopes). ` +
             `Also the OAuth user must match the broadcaster, be a /mod in that channel, or the broadcaster must authorize channel:bot for this app.`,
         );
+      }
+      if (status === 429) {
+        const reusableAfter429 = await this.findReusableSubscription(
+          accessToken,
+          oauthUserId,
+          this.fullCallbackUrl,
+        );
+        if (reusableAfter429) {
+          this.subscriptionId = reusableAfter429.id;
+          console.warn(
+            `${this.logPrefix} EventSub returned 429, but found existing subscription ${reusableAfter429.id}; continuing.`,
+          );
+          this.setActive(true);
+          return;
+        }
       }
       throw new Error(`EventSub subscribe failed: HTTP ${status} ${responseBody}`);
     }
@@ -587,6 +631,40 @@ export class TwitchEventSubService
 
     console.log(`${this.logPrefix} Resolved "${this.config.channelId}" → user_id ${user.id}`);
     return user.id;
+  }
+
+  private async findReusableSubscription(
+    accessToken: string,
+    oauthUserId: string,
+    callbackUrl: string,
+  ): Promise<EventSubSubscription | null> {
+    const response = await helixGet<{ data?: EventSubSubscription[] }>(
+      '/eventsub/subscriptions?type=channel.chat.message',
+      this.config.clientId,
+      accessToken,
+    );
+
+    const subscriptions = response.data ?? [];
+    for (const subscription of subscriptions) {
+      const isSameCondition =
+        subscription.condition?.broadcaster_user_id === this.broadcasterId &&
+        subscription.condition?.user_id === oauthUserId;
+      const isWebhookMatch = subscription.transport?.callback === callbackUrl;
+      if (!isSameCondition || !isWebhookMatch) {
+        continue;
+      }
+
+      const status = subscription.status;
+      if (
+        status === 'enabled' ||
+        status === 'webhook_callback_verification_pending' ||
+        status === 'webhook_callback_verification_failed'
+      ) {
+        return subscription;
+      }
+    }
+
+    return null;
   }
 
   private handleChatMessage(event: ESChatMessageEvent): void {

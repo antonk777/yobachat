@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core';
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 
 import ChatMessage from '@/components/ChatMessage.vue';
 import ChatSettingsModal from '@/components/ChatSettings.vue';
@@ -13,6 +13,7 @@ import { useWSConnection } from '@/composables/useWSConnection';
 import { useFontSettings } from '@/composables/useFontSettings';
 import { useAuth } from '@/composables/useAuth';
 import { useDeluxeUserColor } from '@/composables/useDeluxeUserColor';
+import { kSharedConfig } from '@/config';
 
 
 const kDefaultLineHeight = 1.2;
@@ -25,6 +26,21 @@ const
   uiStore = useUIStore();
 
 const needsTwitchOAuth = ref(false);
+
+/**
+ * Admin content is hidden until `chatSettings` arrives over the WebSocket (`uiStore.isReady`).
+ * If WSS never connects, the page used to look "blank" (only --bg-color). We surface status explicitly.
+ * Delay showing the hard error so we do not flash "disconnected" before the first connect attempt.
+ */
+const canShowConnectionHelp = ref(false);
+
+const wsStatus = computed(() => ws.status.value);
+
+const wssUrlDisplay = computed(
+  () => `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`,
+);
+
+let connectionHelpTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Check authentication on mount and redirect to login if not authenticated
 onMounted(async () => {
@@ -40,6 +56,16 @@ onMounted(async () => {
 
   // Token is valid, now connect to WebSocket
   ws.connect();
+
+  connectionHelpTimer = setTimeout(() => {
+    canShowConnectionHelp.value = true;
+  }, 2500);
+});
+
+onUnmounted(() => {
+  if (connectionHelpTimer != null) {
+    clearTimeout(connectionHelpTimer);
+  }
 });
 
 const messagesContainer = useTemplateRef('messagesContainer');
@@ -149,7 +175,19 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 </script>
 
 <template>
-  <div class="admin-panel" v-if="uiStore.isReady">
+  <div v-if="!uiStore.isReady" class="admin-bootstrap">
+    <h1 class="admin-bootstrap-title">yobachat</h1>
+    <p v-if="wsStatus === 'CONNECTING'" class="admin-bootstrap-line">Connecting to chat server…</p>
+    <p v-else-if="canShowConnectionHelp && wsStatus === 'CLOSED'" class="admin-bootstrap-line admin-bootstrap-warn">
+      Cannot open a WebSocket to the chat server.
+      Expected URL: <code class="admin-bootstrap-code">{{ wssUrlDisplay }}</code>
+    </p>
+    <p v-else class="admin-bootstrap-line">Loading admin…</p>
+    <p v-if="canShowConnectionHelp && wsStatus === 'CLOSED'" class="admin-bootstrap-hint">
+      Check that the process is running, <code>consoleMode</code> is off in server config, and your reverse proxy forwards WSS (Upgrade) to the WebSocket port.
+    </p>
+  </div>
+  <div class="admin-panel" v-else>
     <div class="admin-header">
       <h1 class="admin-header-title">yobachat</h1>
 
@@ -373,6 +411,49 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 </template>
 
 <style scoped>
+.admin-bootstrap {
+  min-height: 100dvh;
+  padding: calc(var(--spacing) * 2);
+  background-color: var(--bg-color-dark);
+  color: var(--text-color);
+  box-sizing: border-box;
+}
+
+.admin-bootstrap-title {
+  margin: 0 0 var(--spacing);
+  font-family: 'Futura PT', var(--font-family);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.admin-bootstrap-line {
+  margin: 0 0 var(--spacing);
+  line-height: 1.5;
+  max-width: 40rem;
+}
+
+.admin-bootstrap-warn {
+  color: var(--warning-color);
+}
+
+.admin-bootstrap-code {
+  display: inline;
+  word-break: break-all;
+  font-size: 0.85em;
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+  background: var(--bg-color-bright);
+  color: var(--text-color);
+}
+
+.admin-bootstrap-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 40rem;
+}
+
 .admin-panel {
   display: flex;
   flex-direction: column;

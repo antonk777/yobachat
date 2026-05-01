@@ -75,15 +75,21 @@ jobs:
 
       - name: Health check
         env:
-          HEALTHCHECK_URL: http://127.0.0.1:3000/
+          HEALTHCHECK_URL: http://127.0.0.1:9011/ws/
         run: |
           set -euo pipefail
           for i in {1..30}; do
-            if curl -fsS "$HEALTHCHECK_URL" >/dev/null; then
+            HTTP_CODE="$(curl -sS -o /dev/null -w "%{http_code}" \
+              -H "Connection: Upgrade" \
+              -H "Upgrade: websocket" \
+              -H "Sec-WebSocket-Version: 13" \
+              -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
+              "$HEALTHCHECK_URL" || true)"
+            if [ "$HTTP_CODE" = "101" ]; then
               echo "Health check passed: $HEALTHCHECK_URL"
               exit 0
             fi
-            echo "Health check attempt $i/30 failed, retrying..."
+            echo "Health check attempt $i/30 failed (HTTP $HTTP_CODE), retrying..."
             sleep 2
           done
           echo "Health check failed: $HEALTHCHECK_URL"

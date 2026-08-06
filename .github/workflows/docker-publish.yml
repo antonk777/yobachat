@@ -1,5 +1,6 @@
 name: Publish Docker image
 
+# Builds and pushes ghcr.io/<owner>/yobachat on main pushes and manual runs.
 on:
   push:
     branches: [main, master]

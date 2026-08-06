@@ -5,8 +5,8 @@ import path, { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 
-import { SharedConfig } from '@shared/shared-types';
-import { pickSharedConfig } from '@shared/shared-urls';
+import { SharedConfig } from '../shared/shared-types';
+import { pickSharedConfig } from '../shared/shared-urls';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

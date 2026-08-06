@@ -12,33 +12,42 @@ Multi-platform chat overlay for OBS with a web admin panel. Runs locally over HT
 
 On the host you only need **Docker**. No Node, no git.
 
+1. Download Compose and the example config into an empty directory:
+
 ```bash
-mkdir -p yobachat/data && cd yobachat
-curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/docker-compose.yml
-curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/config.example.json
-cp config.example.json config.json
-# edit config.json — keep host/apiHost as localhost:9012; set adminPassword + platform credentials
+mkdir -p yobachat && cd yobachat
+curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/docker-compose.yml && curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/config.example.json && cp config.example.json config.json
+```
+
+2. Edit `config.json` — set `adminPassword` and your platform credentials. Keep `host` / `apiHost` as `localhost:9012`.
+
+3. Start:
+
+```bash
 docker compose up -d
 ```
 
-Images are published by GitHub Actions on push to `main` (no PAT on your machine). After the first successful run, set the GHCR package to **Public** if needed so pulls need no login.
+Images are published by GitHub Actions on push to `main` (no PAT). After the first successful run, set the GHCR package to **Public** if needed so pulls need no login.
 
 Open:
 
 - Widget (OBS): http://localhost:9012/widget.html
 - Admin: http://localhost:9012/admin.html
 
-Update to the latest image:
+### Update
+
+From the same directory (keeps your `config.json` and `./data`):
 
 ```bash
-docker compose pull && docker compose up -d
-# or, if you have the repo/scripts: ./scripts/docker-sync.sh
+# optional: refresh Compose if it changed upstream
+curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/docker-compose.yml && docker compose pull && docker compose up -d
 ```
 
-Logs: `docker compose logs -f`  
-Stop: `docker compose down`
+That pulls the latest `ghcr.io/antonk777/yobachat:latest` image and recreates the container. Your config and stored data are untouched.
 
-Persistent data is in `./data` (mounted to `server/storage`). Image: `ghcr.io/antonk777/yobachat:latest` (override with `YOBACHAT_IMAGE`).
+Logs: `docker compose logs -f`  
+Stop: `docker compose down`  
+Data: `./data` → `server/storage`. Image: `ghcr.io/antonk777/yobachat:latest`.
 
 ## Local Docker build
 
@@ -79,8 +88,8 @@ npm run dev            # build + watch + proxy on :9012
 | `npm run build` | Build server + client |
 | `npm run start` | Run built server (serves `client/dist` when present) |
 | `npm run docker:up` | Local: build image and start Compose |
-| `docker compose pull && docker compose up -d` | Production: pull and run (Docker only) |
-| `./scripts/docker-sync.sh` | Same as production update |
+| `docker compose up -d` | Production: run (after curl compose + edit config.json) |
+| `./scripts/docker-sync.sh` | Pull latest image and recreate |
 | `npm run docker:down` | Stop stack |
 | `npm run docker:logs` | Follow container logs |
 

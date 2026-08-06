@@ -141,9 +141,11 @@ export class GoodgameService extends EventEmitter<PlatformServiceEvents> impleme
     if (this.ws) {
       try {
         this.ws.removeAllListeners();
+        // ws emits an unhandled 'error' if closed while CONNECTING; swallow it
+        this.ws.on('error', () => {});
 
         if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
-          this.ws.close();
+          this.ws.terminate();
         }
       } catch (error) {
         // Ignore errors during cleanup
@@ -166,8 +168,11 @@ export class GoodgameService extends EventEmitter<PlatformServiceEvents> impleme
     if (this.ws) {
       try {
         this.ws.removeAllListeners();
+        // ws emits an unhandled 'error' if closed while CONNECTING; swallow it
+        this.ws.on('error', () => {});
+
         if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
-          this.ws.close();
+          this.ws.terminate();
         }
       } catch (error) {
         // Ignore errors

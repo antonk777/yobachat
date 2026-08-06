@@ -3,7 +3,8 @@ import { createServer, Server as HttpServer } from 'http';
 import chalk from 'chalk';
 
 import type { FontFamily, FontStyle, FontWeight } from '@shared/shared-types.js';
-import type { AuthService } from './auth-service.js';
+import { kLocalAdminUsername, type AuthService } from './auth-service.js';
+import { getClientOrigin } from '@shared/shared-urls.js';
 import { kServerConfig } from '@/config.js';
 
 
@@ -116,6 +117,28 @@ export class WebAPIService {
       }
     });
 
+    // GET /auth/local - Issue admin JWT without Twitch (only when secure: false)
+    this.app.get('/auth/local', (req, res) => {
+      const result = this.authService.issueLocalAdminToken();
+
+      if (!result) {
+        res.status(403).json({
+          error: 'Local admin login is only available when sharedConfig.secure is false',
+        });
+        return;
+      }
+
+      const wantsRedirect = req.query.redirect === '1' || req.query.redirect === 'true';
+
+      if (wantsRedirect) {
+        const rootUrl = `${getClientOrigin(kServerConfig.sharedConfig)}${kServerConfig.sharedConfig.basePath}`;
+        res.redirect(`${rootUrl}login#token=${encodeURIComponent(result.token)}`);
+        return;
+      }
+
+      res.json({ token: result.token, username: result.username });
+    });
+
     // GET /auth/twitch/login - Redirect to Twitch OAuth
     this.app.get('/auth/twitch/login', (req, res) => {
       const state = this.authService.generateState();
@@ -140,7 +163,7 @@ export class WebAPIService {
 
       const result = await this.authService.handleCallback(String(code), String(state));
 
-      const rootUrl = `https://${kServerConfig.sharedConfig.host}${kServerConfig.sharedConfig.basePath}`;
+      const rootUrl = `${getClientOrigin(kServerConfig.sharedConfig)}${kServerConfig.sharedConfig.basePath}`;
 
       if (!result) {
         res.redirect(`${rootUrl}login?error=${encodeURIComponent('Authentication failed')}`);
@@ -174,6 +197,16 @@ export class WebAPIService {
 
       if (!user) {
         res.status(401).json({ error: 'Invalid token', valid: false });
+        return;
+      }
+
+      // Local-mode admin JWT does not use Twitch chat OAuth (IRC path does not need it).
+      if (this.authService.isLocalMode() && user.username === kLocalAdminUsername) {
+        res.json({
+          valid: true,
+          username: user.username,
+          twitchChatOAuth: true,
+        });
         return;
       }
 

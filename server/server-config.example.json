@@ -1,85 +1,83 @@
 {
   "consoleMode": false,
-  "enableConsoleOutput": false,
-  "apiPort": 9010,
-  "wsPort": 9011,
-  "webhookPort": 9012,
+  "enableConsoleOutput": true,
+  "apiPort": 9012,
+  "wsPort": 9013,
+  "webhookPort": 9014,
   "webhookPath": "webhook/",
-  "admin": {
-    "allowedTwitchUsernames": ["username1", "username2"],
-    "twitchOAuth": {
-      "clientId": "your_twitch_client_id",
-      "clientSecret": "your_twitch_client_secret"
-    }
-  },
   "telegram": {
-    "mode": "webhook",
-    "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
-    "chatId": -1337,
+    "chatId": -1000000000000,
+    "botToken": "REPLACE_WITH_TELEGRAM_BOT_TOKEN",
+    "mode": "polling",
     "pollInterval": 1000
   },
   "youtube": {
-    "channelId": "YOUR_YOUTUBE_CHANNEL_ID",
-    "pollInterval": 9000
+    "channelId": "REPLACE_WITH_YOUTUBE_CHANNEL_ID"
   },
   "twitch": {
-    "channelId": "YOUR_TWITCH_CHANNEL_LOGIN",
-    "webhookSecret": "RANDOM_ASCII_10_TO_100_CHARS_FOR_EVENTSUB"
+    "channelId": "REPLACE_WITH_TWITCH_CHANNEL_LOGIN",
+    "webhookSecret": "REPLACE_WITH_10_PLUS_CHAR_SECRET"
   },
   "vkvideo": {
-    "channelId": "YOUR_VKVIDEO_CHANNEL_ID",
-    "clientId": "YOUR_VKVIDEO_CLIENT_ID",
-    "clientSecret": "YOUR_VKVIDEO_CLIENT_SECRET"
+    "channelId": "REPLACE_WITH_VKVIDEO_CHANNEL_ID",
+    "clientId": "REPLACE_WITH_VKVIDEO_CLIENT_ID",
+    "clientSecret": "REPLACE_WITH_VKVIDEO_CLIENT_SECRET"
   },
   "kick": {
-    "channel": "YOUR_KICK_CHANNEL_ID"
+    "channel": "REPLACE_WITH_KICK_CHANNEL"
   },
   "goodgame": {
-    "channelId": "YOUR_GOODGAME_CHANNEL_ID"
+    "channelId": "0"
   },
   "betterttv": {
-    "channelId": "YOUR_CHANNEL_ID",
     "includeGlobal": true,
     "includeChannel": true,
+    "channelId": "REPLACE_WITH_TWITCH_CHANNEL_LOGIN",
     "color": "#d50014"
+  },
+  "admin": {
+    "allowedTwitchUsernames": ["REPLACE_WITH_YOUR_TWITCH_USERNAME"],
+    "twitchOAuth": {
+      "clientId": "REPLACE_WITH_TWITCH_APP_CLIENT_ID",
+      "clientSecret": "REPLACE_WITH_TWITCH_APP_CLIENT_SECRET"
+    }
   },
   "platforms": [
     {
-      "id": "telegram",
-      "name": "Telegram",
-      "abbr": "TG",
-      "color": "#00FFFF"
+      "id": "twitch",
+      "name": "Twitch",
+      "color": "#9146ff",
+      "abbr": "TW"
     },
     {
       "id": "youtube",
       "name": "YouTube",
-      "abbr": "YT",
-      "color": "#FF0000"
+      "color": "#ff0000",
+      "abbr": "YT"
     },
     {
-      "id": "twitch",
-      "name": "Twitch",
-      "abbr": "TW",
-      "color": "#FF00FF"
+      "id": "telegram",
+      "name": "Telegram",
+      "color": "#0088cc",
+      "abbr": "TG"
     },
     {
       "id": "vkvideo",
       "name": "VK Video",
-      "abbr": "VK",
-      "color": "#0077FF"
+      "color": "#0077ff",
+      "abbr": "VK"
     },
     {
       "id": "kick",
       "name": "Kick",
-      "abbr": "KI",
-      "color": "#53FC18"
+      "color": "#53fc18",
+      "abbr": "KK"
     },
     {
       "id": "goodgame",
-      "name": "Goodgame",
-      "abbr": "GG",
-      "color": "#75ADFC"
+      "name": "GoodGame",
+      "color": "#3a98c9",
+      "abbr": "GG"
     }
   ]
 }
-

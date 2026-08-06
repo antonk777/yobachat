@@ -53,8 +53,6 @@ jobs:
         run: |
           cd /var/www/yobachat
           npm ci
-          npm --prefix server ci
-          npm --prefix client ci
 
       - name: Build app in deploy path
         run: |
@@ -64,7 +62,7 @@ jobs:
       - name: Prune to production dependencies
         run: |
           cd /var/www/yobachat
-          npm --prefix server prune --omit=dev
+          npm prune --omit=dev
 
       - name: Restart PM2 app
         run: |

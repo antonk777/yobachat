@@ -71,6 +71,7 @@ function loadSharedConfig(configPath?: string): SharedConfig {
       apiHost: rawConfig.apiHost,
       basePath: rawConfig.basePath,
       wsPath: rawConfig.wsPath,
+      secure: typeof rawConfig.secure === 'boolean' ? rawConfig.secure : undefined,
     };
   } catch (error) {
     if (error instanceof Error) {

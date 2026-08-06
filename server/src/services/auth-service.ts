@@ -7,9 +7,13 @@ import chalk from 'chalk';
 
 import type { AdminConfig, AuthenticatedUser, ServerConfig } from '@/types.js';
 import type { SharedConfig } from '@shared/shared-types.js';
+import { getApiOrigin, isSecureSharedConfig, joinSharedPath } from '@shared/shared-urls.js';
 
 const kTokenExpiration = 365 * 24 * 60 * 60; // 365 days in seconds
 const kStateExpiration = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+/** Synthetic admin identity when `sharedConfig.secure === false` (local HTTP only). */
+export const kLocalAdminUsername = 'local';
 
 /** Stored next to other server data; used for EventSub `channel.chat.message` (refresh_token rotation). */
 const kChatOAuthFilePath = join(process.cwd(), 'storage', 'twitch-chat-oauth.json');
@@ -80,6 +84,24 @@ export class AuthService {
     setInterval(() => this.cleanupExpiredStates(), 5 * 60 * 1000);
   }
 
+  /** True when shared config opts into insecure local HTTP (`secure: false`). */
+  isLocalMode(): boolean {
+    return !isSecureSharedConfig(this.sharedConfig);
+  }
+
+  /**
+   * Issue a JWT for local admin access. Only available when `secure: false`.
+   */
+  issueLocalAdminToken(): { token: string; username: string } | null {
+    if (!this.isLocalMode()) {
+      return null;
+    }
+
+    const username = kLocalAdminUsername;
+    console.log(`${this.logPrefix} Issuing local admin token (secure: false)`);
+    return { token: this.generateToken(username), username };
+  }
+
   /**
    * Generate a Twitch OAuth login URL
    */
@@ -99,7 +121,7 @@ export class AuthService {
    * Get the OAuth callback URL
    */
   private getCallbackUrl(): string {
-    return `https://${this.sharedConfig.apiHost}${this.sharedConfig.basePath}auth/twitch/callback`;
+    return `${getApiOrigin(this.sharedConfig)}${joinSharedPath(this.sharedConfig, 'auth/twitch/callback')}`;
   }
 
   /**
@@ -419,6 +441,11 @@ export class AuthService {
    */
   isUsernameAllowed(username: string): boolean {
     const normalizedUsername = username.toLowerCase();
+
+    if (this.isLocalMode() && normalizedUsername === kLocalAdminUsername) {
+      return true;
+    }
+
     return this.config.allowedTwitchUsernames.some(
       allowed => allowed.toLowerCase() === normalizedUsername
     );

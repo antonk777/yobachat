@@ -20,16 +20,28 @@ onMounted(async () => {
   const hasToken = auth.handleCallback();
 
   if (hasToken) {
-    // Verify token
     const { ok } = await auth.verifyToken();
 
     if (ok) {
-      // Redirect to admin panel
       window.location.href = '/admin';
       return;
-    } else {
-      error.value = 'Authentication failed. Please try again.';
     }
+
+    error.value = 'Authentication failed. Please try again.';
+    isLoading.value = false;
+    return;
+  }
+
+  // Local HTTP mode: auto-issue admin JWT and enter admin
+  if (auth.isLocalMode) {
+    const { ok } = await auth.ensureAuthenticated();
+
+    if (ok) {
+      window.location.href = '/admin';
+      return;
+    }
+
+    error.value = 'Local admin login failed. Is the server running with secure: false?';
   }
 
   isLoading.value = false;
@@ -38,19 +50,52 @@ onMounted(async () => {
 function handleLogin() {
   auth.login();
 }
+
+async function handleLocalLogin() {
+  isLoading.value = true;
+  error.value = null;
+
+  const { ok } = await auth.ensureAuthenticated();
+
+  if (ok) {
+    window.location.href = '/admin';
+    return;
+  }
+
+  error.value = 'Local admin login failed.';
+  isLoading.value = false;
+}
 </script>
 
 <template>
   <div class="login-screen">
     <div class="login-content">
       <h1 class="login-title">yobachat</h1>
-      <p class="login-description">Please authenticate with Twitch to access the admin panel</p>
+      <p class="login-description">
+        <template v-if="auth.isLocalMode">
+          Local mode — admin access does not require Twitch OAuth
+        </template>
+        <template v-else>
+          Please authenticate with Twitch to access the admin panel
+        </template>
+      </p>
 
       <div v-if="error" class="login-error">
         {{ error }}
       </div>
 
       <button
+        v-if="auth.isLocalMode"
+        class="btn login-button"
+        :class="isLoading ? 'btn-secondary' : 'btn-primary'"
+        @click="handleLocalLogin"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Loading...' : 'Continue as local admin' }}
+      </button>
+
+      <button
+        v-else
         class="btn login-button"
         :class="isLoading ? 'btn-secondary' : 'btn-primary'"
         @click="handleLogin"
@@ -111,4 +156,3 @@ function handleLogin() {
   background-color: var(--bg-color-dark);
 }
 </style>
-

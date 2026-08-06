@@ -29,6 +29,7 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
   public logPrefix = chalk.blue('[WebSocket]');
 
   private app: uWS.TemplatedApp | null = null;
+  private listenSocket: uWS.us_listen_socket | null = null;
   private clients: Map<string, uWS.WebSocket<WebSocketUserData>> = new Map();
   private authenticatedUsers: Map<string, AuthenticatedUser> = new Map();
   private config: ServerConfig;
@@ -63,6 +64,7 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
     return new Promise((resolve, reject) => {
       this.app!.listen(this.config.wsPort, (listenSocket) => {
         if (listenSocket) {
+          this.listenSocket = listenSocket;
           console.log(`${this.logPrefix} WebSocket server listening on port ${this.config.wsPort}`);
           resolve();
         } else {
@@ -90,6 +92,17 @@ export class WebSocketService extends EventEmitter<WebSocketEvents> {
     });
 
     this.clients.clear();
+
+    // Release the listening port so the server can be restarted (e.g. dev watch reload)
+    if (this.listenSocket) {
+      try {
+        uWS.us_listen_socket_close(this.listenSocket);
+      } catch (error) {
+        // Ignore errors during shutdown
+      }
+      this.listenSocket = null;
+    }
+
     this.app = null;
   }
 

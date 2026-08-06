@@ -1,6 +1,7 @@
 {
-  "host": "yourdomain.com",
-  "apiHost": "api.yourdomain.com",
+  "host": "localhost:3900",
+  "apiHost": "localhost:3900",
   "basePath": "/",
-  "wsPath": "/ws/"
+  "wsPath": "ws/",
+  "secure": false
 }

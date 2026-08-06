@@ -9,6 +9,7 @@ import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
 import { useAuth } from '@/composables/useAuth';
 
+import { getWsUrl } from '@shared/shared-urls';
 import { kSharedConfig } from '@/config';
 
 type WSStatus = 'CONNECTING' | 'OPEN' | 'CLOSED';
@@ -33,14 +34,9 @@ export const useWSConnection = createGlobalState(() => {
 
   // --- Build URL with token ---
   function buildWsUrl(): string {
-    let url = `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`;
     const token = auth.token.value;
-
-    if (token) {
-      url += `?token=${encodeURIComponent(token)}`;
-    }
-
-    return url;
+    const query = token ? `token=${encodeURIComponent(token)}` : '';
+    return getWsUrl(kSharedConfig, query);
   }
 
   function clearReconnectTimer(): void {

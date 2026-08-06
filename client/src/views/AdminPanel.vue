@@ -13,6 +13,7 @@ import { useWSConnection } from '@/composables/useWSConnection';
 import { useFontSettings } from '@/composables/useFontSettings';
 import { useAuth } from '@/composables/useAuth';
 import { useDeluxeUserColor } from '@/composables/useDeluxeUserColor';
+import { getWsUrl } from '@shared/shared-urls';
 import { kSharedConfig } from '@/config';
 
 
@@ -36,15 +37,13 @@ const canShowConnectionHelp = ref(false);
 
 const wsStatus = computed(() => ws.status.value);
 
-const wssUrlDisplay = computed(
-  () => `wss://${kSharedConfig.apiHost}${kSharedConfig.basePath}${kSharedConfig.wsPath}`,
-);
+const wssUrlDisplay = computed(() => getWsUrl(kSharedConfig));
 
 let connectionHelpTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Check authentication on mount and redirect to login if not authenticated
 onMounted(async () => {
-  const result = await auth.verifyToken();
+  const result = await auth.ensureAuthenticated();
 
   if (!result.ok) {
     // Not authenticated or token invalid, redirect to login

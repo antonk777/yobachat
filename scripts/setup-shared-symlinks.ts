@@ -1,5 +1,5 @@
 import symlinkDir from 'symlink-dir';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { access } from 'fs/promises';
 
@@ -7,17 +7,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '..');
 
-async function setupSymlinks(): Promise<void> {
+export async function setupSharedSymlinks(): Promise<void> {
   const sharedPath = join(rootDir, 'shared');
   const clientSharedPath = join(rootDir, 'client', 'shared');
   const serverSharedPath = join(rootDir, 'server', 'shared');
 
-  // Check if shared directory exists
   try {
     await access(sharedPath);
-  } catch (error) {
-    console.error(`✗ Shared directory not found: ${sharedPath}`);
-    process.exit(1);
+  } catch {
+    throw new Error(`Shared directory not found: ${sharedPath}`);
   }
 
   console.log('Setting up shared directory symlinks...');
@@ -33,13 +31,20 @@ async function setupSymlinks(): Promise<void> {
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'code' in error && error.code === 'EEXIST') {
       console.log('⚠ Symlinks may already exist, skipping...');
-    } else {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('✗ Failed to create symlinks:', errorMessage);
-      process.exit(1);
+      return;
     }
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to create symlinks: ${errorMessage}`);
   }
 }
 
-setupSymlinks();
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 
+if (isMain) {
+  setupSharedSymlinks().catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('✗ Failed to create symlinks:', message);
+    process.exit(1);
+  });
+}

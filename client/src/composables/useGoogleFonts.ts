@@ -2,6 +2,7 @@ import { ref, onMounted } from 'vue';
 
 import type { FontFamily, FontOption } from '@shared/shared-types';
 
+import { getApiOrigin, joinSharedPath } from '@shared/shared-urls';
 import { kSharedConfig } from '@/config';
 
 const
@@ -18,7 +19,7 @@ async function fetchGoogleFonts(): Promise<void> {
   error.value = null;
 
   try {
-    const apiUrl = `https://${kSharedConfig.apiHost}${kSharedConfig.basePath}fonts`;
+    const apiUrl = `${getApiOrigin(kSharedConfig)}${joinSharedPath(kSharedConfig, 'fonts')}`;
 
     const response = await fetch(apiUrl);
 

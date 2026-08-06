@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+import { getApiOrigin, isSecureSharedConfig, joinSharedPath } from '@shared/shared-urls';
 import { kSharedConfig } from '@/config';
 
 const kTokenStorageKey = 'yobachat_auth_token';
@@ -20,6 +21,7 @@ interface TokenPayload {
  */
 export function useAuth() {
   const token = ref<string | null>(localStorage.getItem(kTokenStorageKey));
+  const isLocalMode = !isSecureSharedConfig(kSharedConfig);
 
   /**
    * Decode JWT token (without verification - server verifies)
@@ -83,8 +85,59 @@ export function useAuth() {
    * Initiate login by redirecting to Twitch OAuth
    */
   function login(): void {
-    const loginUrl = `https://${kSharedConfig.apiHost}${kSharedConfig.basePath}auth/twitch/login`;
+    const loginUrl = `${getApiOrigin(kSharedConfig)}${joinSharedPath(kSharedConfig, 'auth/twitch/login')}`;
     window.location.href = loginUrl;
+  }
+
+  /**
+   * Local HTTP mode (`secure: false`): mint an admin JWT without Twitch OAuth.
+   */
+  async function loginLocal(): Promise<boolean> {
+    if (!isLocalMode) {
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${getApiOrigin(kSharedConfig)}${joinSharedPath(kSharedConfig, 'auth/local')}`);
+
+      if (!response.ok) {
+        console.error('[Auth] Local admin login failed:', response.status);
+        return false;
+      }
+
+      const data = await response.json() as { token?: string };
+
+      if (!data.token) {
+        return false;
+      }
+
+      setToken(data.token);
+      return true;
+    } catch (error) {
+      console.error('[Auth] Local admin login error:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Ensure we have a valid session. In local mode, auto-issues a local admin token if needed.
+   */
+  async function ensureAuthenticated(): Promise<VerifyTokenResult> {
+    const existing = await verifyToken();
+
+    if (existing.ok) {
+      return existing;
+    }
+
+    if (isLocalMode) {
+      const issued = await loginLocal();
+
+      if (issued) {
+        return verifyToken();
+      }
+    }
+
+    return { ok: false };
   }
 
   /**
@@ -96,7 +149,7 @@ export function useAuth() {
     }
 
     try {
-      const response = await fetch(`https://${kSharedConfig.apiHost}${kSharedConfig.basePath}auth/verify`, {
+      const response = await fetch(`${getApiOrigin(kSharedConfig)}${joinSharedPath(kSharedConfig, 'auth/verify')}`, {
         headers: {
           'Authorization': `Bearer ${token.value}`
         }
@@ -187,9 +240,12 @@ export function useAuth() {
 
   return {
     isAuthenticated,
+    isLocalMode,
     username,
     token: computed(() => token.value),
     login,
+    loginLocal,
+    ensureAuthenticated,
     logout,
     verifyToken,
     handleOAuthError,
@@ -197,4 +253,3 @@ export function useAuth() {
     setToken
   };
 }
-

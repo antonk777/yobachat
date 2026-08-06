@@ -53,6 +53,8 @@ export interface SharedConfig {
   basePath: string;
   /**Subpath for WebSocket server used for public access*/
   wsPath: string;
+  /**Use HTTPS/WSS when true or omitted; set false for local HTTP development */
+  secure?: boolean;
 }
 
 export interface Platform {

@@ -29,8 +29,8 @@ Multi-platform chat overlay for OBS with a web admin panel. The server aggregate
 ## Install
 
 ```bash
-npm run install:all
-node scripts/setup-shared-symlinks.ts   # creates client/shared and server/shared symlinks
+npm install
+npm run dev:setup   # copies *.dev.json configs + creates client/shared and server/shared symlinks
 ```
 
 ## Configuration
@@ -38,8 +38,10 @@ node scripts/setup-shared-symlinks.ts   # creates client/shared and server/share
 Configuration is JSON-driven. Copy the examples and fill in your values (never commit secrets):
 
 ```bash
-cp server/server-config.example.json server/server-config.json
-cp shared/shared-config.example.json shared/shared-config.json
+npm run dev:setup
+# or manually:
+cp server/server-config.example.json server/server-config.dev.json
+cp shared/shared-config.example.json shared/shared-config.dev.json
 ```
 
 - `shared/shared-config*.json`
@@ -62,19 +64,29 @@ Development scripts already point at `server/server-config.dev.json` and `shared
 
 ### Development
 
-```bash
-npm run dev:build:all    # esbuild server + Vite build with dev shared config
-npm run dev:start        # starts server with dev configs (SERVER_CONFIG_PATH/SHARED_CONFIG_PATH can override)
-```
-
-The client build lands in `client/dist`. Serve it with any static server so OBS can reach it, e.g.:
+On Windows (and other platforms), use the local dev workflow:
 
 ```bash
-cd client
-npx serve dist -l 3000
+npm install
+npm run dev:setup          # create shared-config.dev.json + server-config.dev.json
+# edit server/server-config.dev.json with your platform credentials
+npm run dev:local          # build, start server, and run the local dev proxy
 ```
 
-Then point OBS Browser Source to `http(s)://<host>/<basePath>widget.html`. The admin console is at `admin.html`.
+`dev:local` serves the built client and proxies API/WebSocket traffic through `http://localhost:3900` (see `shared/shared-config.dev.json`). Open:
+
+- Widget: `http://localhost:3900/widget.html`
+- Admin: `http://localhost:3900/admin.html`
+
+If that port is taken, change `host` and `apiHost` in `shared/shared-config.dev.json`, rebuild the client (`npm run dev:build:client`), then restart.
+
+For OBS, point a Browser Source at the widget URL above.
+
+For admin login locally, add this Twitch OAuth redirect URL in your Twitch developer app:
+
+`http://localhost:3900/auth/twitch/callback`
+
+`dev:local` runs setup, builds, server, and proxy in a single Node process (`scripts/dev-local.ts`). It watches for changes: the client rebuilds via `vite build --watch` (refresh the browser to pick up changes), and the server rebuilds via `esbuild --watch` and is automatically restarted in-process when its bundle changes.
 
 ### Production
 

@@ -1,3 +1,6 @@
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import chalk from 'chalk';
 
 import type {
@@ -50,8 +53,9 @@ import {
   validatePartialChatSettings
 } from '@/validation.js';
 import { kBatchDelayMS } from '@shared/shared-constants';
+import { getApiOrigin, joinSharedPath } from '@shared/shared-urls.js';
 
-class ChatServer {
+export class ChatServer {
   public logPrefix = chalk.yellow('[ChatServer]');
 
   private websocketService: WebSocketService;
@@ -90,7 +94,7 @@ class ChatServer {
       .on('error', this._handleWSError);
   }
 
-  async start(): Promise<void> {
+  async start(options?: { registerSignalHandlers?: boolean }): Promise<void> {
     // Initialize BetterTTV service with config (already validated when loading from JSON)
     this.betterttvService = new BetterTTVService(this.config.betterttv);
 
@@ -123,7 +127,10 @@ class ChatServer {
 
     this.initializePlatforms(this.config.platforms);
     await this.startAll();
-    this.setupGracefulShutdown();
+
+    if (options?.registerSignalHandlers !== false) {
+      this.setupGracefulShutdown();
+    }
   }
 
   /**
@@ -417,7 +424,7 @@ class ChatServer {
 
         if (telegramMode !== 'polling') {
           // Construct webhook URL from server config (API host + webhook path)
-          telegramOptions.webhookUrl = `https://${this.config.sharedConfig.apiHost}${this.config.sharedConfig.basePath}${this.config.webhookPath}`;
+          telegramOptions.webhookUrl = `${getApiOrigin(this.config.sharedConfig)}${joinSharedPath(this.config.sharedConfig, this.config.webhookPath)}`;
           telegramOptions.registerHandler = (path, handler) => this.registerWebhookHandler(path, handler);
           telegramOptions.unregisterHandler = (path) => this.unregisterWebhookHandler(path);
         }
@@ -802,7 +809,7 @@ class ChatServer {
   /**
    * Gracefully shutdown the server
    */
-  public async shutdown(): Promise<void> {
+  public async shutdown(exitProcess = true): Promise<void> {
     console.log(`${this.logPrefix} Shutting down...`);
 
     // Flush any pending message batches
@@ -828,17 +835,26 @@ class ChatServer {
 
     console.log(`${this.logPrefix} shutdown finished`);
 
-    process.exit(0);
+    if (exitProcess) {
+      process.exit(0);
+    }
   }
 }
 
-// Initialize and start the server
-const chatServer = new ChatServer(kServerConfig);
+export async function startChatServer(options?: { registerSignalHandlers?: boolean }): Promise<ChatServer> {
+  const chatServer = new ChatServer(kServerConfig);
+  await chatServer.start(options);
+  return chatServer;
+}
 
-chatServer.start().catch(error => {
-  console.error(`${chatServer.logPrefix} Error starting server:`, error);
-  process.exit(1);
-});
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+
+if (isMain) {
+  startChatServer().catch(error => {
+    console.error(`${chalk.yellow('[ChatServer]')} Error starting server:`, error);
+    process.exit(1);
+  });
+}
 
 // Send ready event to PM2
 // process.send?.('ready');

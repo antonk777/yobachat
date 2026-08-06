@@ -1,0 +1,31 @@
+import type { SharedConfig } from './shared-types';
+
+export function isSecureSharedConfig(config: SharedConfig): boolean {
+  return config.secure !== false;
+}
+
+export function getClientOrigin(config: SharedConfig): string {
+  const protocol = isSecureSharedConfig(config) ? 'https' : 'http';
+  return `${protocol}://${config.host}`;
+}
+
+export function getApiOrigin(config: SharedConfig): string {
+  const protocol = isSecureSharedConfig(config) ? 'https' : 'http';
+  return `${protocol}://${config.apiHost}`;
+}
+
+export function getWsUrl(config: SharedConfig, query = ''): string {
+  const protocol = isSecureSharedConfig(config) ? 'wss' : 'ws';
+  const base = `${protocol}://${config.apiHost}${config.basePath}${config.wsPath}`;
+  return query ? `${base}${query.startsWith('?') ? query : `?${query}`}` : base;
+}
+
+export function joinSharedPath(config: SharedConfig, ...segments: string[]): string {
+  const base = config.basePath.endsWith('/') ? config.basePath : `${config.basePath}/`;
+  const path = segments
+    .map(segment => segment.replace(/^\/+|\/+$/g, ''))
+    .filter(Boolean)
+    .join('/');
+
+  return `${base}${path}`;
+}

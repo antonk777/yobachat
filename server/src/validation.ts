@@ -452,7 +452,8 @@ const SharedConfigSchema = z.object({
   host: z.string().min(1).max(100),
   apiHost: z.string().min(1).max(100),
   basePath: z.string().min(1).max(100),
-  wsPath: z.string().min(1).max(100)
+  wsPath: z.string().min(1).max(100),
+  secure: z.boolean().optional()
 }) satisfies z.ZodType<SharedConfig>;
 
 // Schema for server config JSON file

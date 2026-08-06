@@ -1,0 +1,5 @@
+# Local / CI image build override. Not needed on a production host that only pulls.
+services:
+  yobachat:
+    build: .
+    image: ${YOBACHAT_IMAGE:-yobachat:local}

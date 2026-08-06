@@ -15,7 +15,7 @@ interface TokenPayload {
 }
 
 /**
- * Local admin auth (JWT from /auth/local — no Twitch OAuth).
+ * Password-based admin auth (JWT from POST /auth/login).
  */
 export function useAuth() {
   const token = ref<string | null>(localStorage.getItem(kTokenStorageKey));
@@ -64,12 +64,15 @@ export function useAuth() {
     localStorage.removeItem(kTokenStorageKey);
   }
 
-  async function loginLocal(): Promise<boolean> {
+  async function loginWithPassword(password: string): Promise<boolean> {
     try {
-      const response = await fetch(`${getApiOrigin(kSharedConfig)}${joinSharedPath(kSharedConfig, 'auth/local')}`);
+      const response = await fetch(`${getApiOrigin(kSharedConfig)}${joinSharedPath(kSharedConfig, 'auth/login')}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
 
       if (!response.ok) {
-        console.error('[Auth] Local admin login failed:', response.status);
         return false;
       }
 
@@ -82,7 +85,7 @@ export function useAuth() {
       setToken(data.token);
       return true;
     } catch (error) {
-      console.error('[Auth] Local admin login error:', error);
+      console.error('[Auth] Login error:', error);
       return false;
     }
   }
@@ -122,23 +125,11 @@ export function useAuth() {
     }
   }
 
-  async function ensureAuthenticated(): Promise<VerifyTokenResult> {
-    const existing = await verifyToken();
-
-    if (existing.ok) {
-      return existing;
-    }
-
-    const issued = await loginLocal();
-    return issued ? verifyToken() : { ok: false };
-  }
-
   return {
     isAuthenticated,
     username,
     token: computed(() => token.value),
-    loginLocal,
-    ensureAuthenticated,
+    loginWithPassword,
     logout,
     verifyToken,
     setToken

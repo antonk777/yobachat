@@ -39,9 +39,9 @@ const wssUrlDisplay = computed(() => getWsUrl(kSharedConfig));
 
 let connectionHelpTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Auto local-admin auth, then connect WebSocket
+// Verify existing session, then connect WebSocket
 onMounted(async () => {
-  const result = await auth.ensureAuthenticated();
+  const result = await auth.verifyToken();
 
   if (!result.ok) {
     window.location.href = '/login';

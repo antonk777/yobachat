@@ -22,9 +22,8 @@ RUN cp config.example.json config.json \
 FROM node:22-bookworm-slim AS runtime
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends nginx ca-certificates \
-  && rm -rf /var/lib/apt/lists/* \
-  && rm -f /etc/nginx/sites-enabled/default
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -33,19 +32,18 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/server/dist ./server/dist
 COPY --from=build /app/client/dist ./client/dist
 COPY --from=build /app/shared ./shared
-COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh \
-  && mkdir -p /app/server/storage \
-  && chown -R www-data:www-data /var/lib/nginx /var/log/nginx
+  && mkdir -p /app/server/storage
 
 ENV NODE_ENV=production
 ENV CONFIG_PATH=/app/config.json
+ENV CLIENT_DIST_PATH=/app/client/dist
 
-EXPOSE 3900
+EXPOSE 9012
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=5 \
-  CMD node -e "fetch('http://127.0.0.1:3900/widget.html').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+  CMD node -e "fetch('http://127.0.0.1:9012/widget.html').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 ENTRYPOINT ["/entrypoint.sh"]

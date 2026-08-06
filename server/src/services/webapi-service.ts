@@ -1,20 +1,51 @@
 import express, { Express } from 'express';
 import { createServer, Server as HttpServer } from 'http';
+import { existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import chalk from 'chalk';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import type { FontFamily, FontStyle, FontWeight } from '@shared/shared-types.js';
 import type { AuthService } from './auth-service.js';
 import { kServerConfig } from '@/config.js';
 
 
+function resolveClientDist(): string | null {
+  const fromEnv = process.env.CLIENT_DIST_PATH;
+  if (fromEnv) {
+    const resolved = resolve(fromEnv);
+    if (existsSync(resolved)) {
+      return resolved;
+    }
+  }
+
+  const candidates = [
+    join(process.cwd(), 'client', 'dist'),
+    join(process.cwd(), '..', 'client', 'dist'),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+function withLeadingSlash(path: string): string {
+  return path.startsWith('/') ? path : `/${path}`;
+}
+
 /**
- * Service for handling web API requests (fonts, local admin auth)
+ * HTTP API + optional static client + proxies for WS/webhook (replaces nginx).
  */
 export class WebAPIService {
   private logPrefix = chalk.magenta('[WebAPI]');
   private app: Express;
   private server: HttpServer | null = null;
   private readonly authService: AuthService;
+  private wsUpgradeHandler: ((req: any, socket: any, head: any) => void) | null = null;
 
   private styleNameToFontStyle(style: string): FontStyle {
     const normalized = style.toLowerCase();
@@ -79,9 +110,30 @@ export class WebAPIService {
       next();
     });
 
+    const wsPath = withLeadingSlash(kServerConfig.sharedConfig.wsPath);
+    const webhookPath = withLeadingSlash(kServerConfig.webhookPath);
+
+    const wsProxy = createProxyMiddleware({
+      target: `http://127.0.0.1:${kServerConfig.wsPort}`,
+      changeOrigin: true,
+      ws: true,
+      pathFilter: (pathname) => pathname === wsPath || pathname.startsWith(wsPath.endsWith('/') ? wsPath : `${wsPath}/`),
+    });
+
+    const webhookProxy = createProxyMiddleware({
+      target: `http://127.0.0.1:${kServerConfig.webhookPort}`,
+      changeOrigin: true,
+      pathFilter: (pathname) => pathname === webhookPath || pathname.startsWith(webhookPath.endsWith('/') ? webhookPath : `${webhookPath}/`),
+    });
+
+    // Proxies first so webhook bodies are not consumed by express.json
+    this.app.use(wsProxy);
+    this.app.use(webhookProxy);
+    this.wsUpgradeHandler = (wsProxy as { upgrade?: (req: any, socket: any, head: any) => void }).upgrade ?? null;
+
     this.app.use(express.json());
 
-    this.app.get('/fonts', async (req, res) => {
+    this.app.get('/fonts', async (_req, res) => {
       try {
         const fonts = await this.fetchGoogleFonts();
         res.json(fonts);
@@ -94,21 +146,18 @@ export class WebAPIService {
       }
     });
 
-    // GET /auth/local — issue admin JWT (requires secure: false)
-    this.app.get('/auth/local', (_req, res) => {
-      const result = this.authService.issueLocalAdminToken();
+    this.app.post('/auth/login', (req, res) => {
+      const password = typeof req.body?.password === 'string' ? req.body.password : '';
+      const result = this.authService.loginWithPassword(password);
 
       if (!result) {
-        res.status(403).json({
-          error: 'Local admin login requires sharedConfig.secure: false',
-        });
+        res.status(401).json({ error: 'Invalid password' });
         return;
       }
 
       res.json({ token: result.token, username: result.username });
     });
 
-    // GET /auth/verify
     this.app.get('/auth/verify', (req, res) => {
       const authHeader = req.headers.authorization;
 
@@ -131,7 +180,20 @@ export class WebAPIService {
       });
     });
 
-    this.app.use((_, res) => {
+    const clientDist = resolveClientDist();
+
+    if (clientDist) {
+      console.log(`${this.logPrefix} Serving static client from ${clientDist}`);
+      this.app.use(express.static(clientDist));
+    } else {
+      console.log(`${this.logPrefix} No client dist found — API-only mode`);
+    }
+
+    this.app.use((_req, res) => {
+      if (clientDist) {
+        res.status(404).send('Not found');
+        return;
+      }
       res.status(404).json({ error: 'Not found' });
     });
   }
@@ -141,8 +203,12 @@ export class WebAPIService {
       try {
         this.server = createServer(this.app);
 
+        if (this.wsUpgradeHandler) {
+          this.server.on('upgrade', this.wsUpgradeHandler);
+        }
+
         this.server.listen(kServerConfig.apiPort, () => {
-          console.log(`${this.logPrefix} Web API server listening on port ${kServerConfig.apiPort}`);
+          console.log(`${this.logPrefix} HTTP server listening on port ${kServerConfig.apiPort}`);
           resolve();
         });
 
@@ -162,7 +228,7 @@ export class WebAPIService {
       if (this.server) {
         this.server.close(() => {
           this.server = null;
-          console.log(`${this.logPrefix} Web API server stopped`);
+          console.log(`${this.logPrefix} HTTP server stopped`);
           resolve();
         });
       } else {

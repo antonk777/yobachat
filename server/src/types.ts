@@ -23,6 +23,8 @@ export type ServerConfigFile = {
   wsPort: number;
   webhookPort: number;
   webhookPath: string;
+  /** Password required for admin panel login */
+  adminPassword: string;
   telegram: TelegramServiceConfig;
   youtube: YouTubeServiceConfig;
   twitch: TwitchServiceConfig;

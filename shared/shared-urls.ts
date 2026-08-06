@@ -1,9 +1,5 @@
 import type { SharedConfig } from './shared-types';
 
-export function isSecureSharedConfig(config: SharedConfig): boolean {
-  return config.secure !== false;
-}
-
 /** Pull the public/shared fields from a unified app config object. */
 export function pickSharedConfig(raw: unknown): SharedConfig {
   if (
@@ -24,23 +20,19 @@ export function pickSharedConfig(raw: unknown): SharedConfig {
     apiHost: config.apiHost,
     basePath: config.basePath,
     wsPath: config.wsPath,
-    secure: typeof config.secure === 'boolean' ? config.secure : undefined,
   };
 }
 
 export function getClientOrigin(config: SharedConfig): string {
-  const protocol = isSecureSharedConfig(config) ? 'https' : 'http';
-  return `${protocol}://${config.host}`;
+  return `http://${config.host}`;
 }
 
 export function getApiOrigin(config: SharedConfig): string {
-  const protocol = isSecureSharedConfig(config) ? 'https' : 'http';
-  return `${protocol}://${config.apiHost}`;
+  return `http://${config.apiHost}`;
 }
 
 export function getWsUrl(config: SharedConfig, query = ''): string {
-  const protocol = isSecureSharedConfig(config) ? 'wss' : 'ws';
-  const base = `${protocol}://${config.apiHost}${config.basePath}${config.wsPath}`;
+  const base = `ws://${config.apiHost}${config.basePath}${config.wsPath}`;
   return query ? `${base}${query.startsWith('?') ? query : `?${query}`}` : base;
 }
 

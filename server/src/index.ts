@@ -99,11 +99,8 @@ export class ChatServer {
       this.messageHistory.init()
     ]);
 
-    // Start webhook server (must be before platform initialization)
+    // Start internal listeners before the public HTTP gateway (static + proxies)
     await this.webhookService.start();
-
-    // Start web API server
-    await this.webApiService.start();
 
     if (this.config.consoleMode) {
       console.log(`${this.logPrefix} Running in console-only mode`);
@@ -112,10 +109,11 @@ export class ChatServer {
         console.log(`${this.logPrefix} Running in console-output mode`);
       }
 
-      // Start WebSocket server early so admin can render
-      // even while platform services are still connecting.
       await this.websocketService.start();
     }
+
+    // Public HTTP: API + static client + WS/webhook proxies
+    await this.webApiService.start();
 
     this.initializePlatforms(this.config.platforms);
     await this.startAll();

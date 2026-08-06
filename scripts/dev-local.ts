@@ -25,6 +25,7 @@ const kServerExternals = [
   'express',
   'youtubei.js',
   'jsonwebtoken',
+  'http-proxy-middleware',
 ];
 
 interface ServerConfigPorts {
@@ -36,7 +37,6 @@ interface SharedConfigPaths {
   host: string;
   basePath: string;
   wsPath: string;
-  secure?: boolean;
 }
 
 interface DevProxyHandle {
@@ -174,11 +174,10 @@ function startDevProxy(): Promise<DevProxyHandle> {
     });
 
     server.listen(devPort, () => {
-      const protocol = sharedConfig.secure === false ? 'http' : 'https';
       console.log(`[DevLocal] Serving client from ${staticDir}`);
       console.log(`[DevLocal] Proxying API ${apiTarget} and WS ${wsTarget}${wsProxyPath}`);
-      console.log(`[DevLocal] Widget: ${protocol}://localhost:${devPort}/widget.html`);
-      console.log(`[DevLocal] Admin: ${protocol}://localhost:${devPort}/admin.html`);
+      console.log(`[DevLocal] Widget: http://localhost:${devPort}/widget.html`);
+      console.log(`[DevLocal] Admin: http://localhost:${devPort}/admin.html`);
 
       resolvePromise({
         port: devPort,

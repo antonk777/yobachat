@@ -3,56 +3,71 @@ import { onMounted, ref } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
 const auth = useAuth();
+const password = ref('');
 const error = ref<string | null>(null);
 const isLoading = ref(true);
 
 onMounted(async () => {
-  const { ok } = await auth.ensureAuthenticated();
+  const { ok } = await auth.verifyToken();
 
   if (ok) {
     window.location.href = '/admin';
     return;
   }
 
-  error.value = 'Local admin login failed. Is the server running with secure: false?';
   isLoading.value = false;
 });
 
-async function handleLocalLogin() {
+async function handleLogin() {
+  if (!password.value) {
+    error.value = 'Enter the admin password';
+    return;
+  }
+
   isLoading.value = true;
   error.value = null;
 
-  const { ok } = await auth.ensureAuthenticated();
+  const ok = await auth.loginWithPassword(password.value);
 
   if (ok) {
     window.location.href = '/admin';
     return;
   }
 
-  error.value = 'Local admin login failed.';
+  error.value = 'Invalid password';
   isLoading.value = false;
 }
 </script>
 
 <template>
   <div class="login-screen">
-    <div class="login-content">
+    <form class="login-content" @submit.prevent="handleLogin">
       <h1 class="login-title">yobachat</h1>
-      <p class="login-description">Local admin — no Twitch login required</p>
+      <p class="login-description">Enter the admin password from your config</p>
 
       <div v-if="error" class="login-error">
         {{ error }}
       </div>
 
+      <input
+        v-model="password"
+        class="login-input"
+        type="password"
+        name="password"
+        autocomplete="current-password"
+        placeholder="Admin password"
+        :disabled="isLoading"
+      >
+
       <button
         class="btn login-button"
         :class="isLoading ? 'btn-secondary' : 'btn-primary'"
-        @click="handleLocalLogin"
+        type="submit"
         :disabled="isLoading"
       >
-        {{ isLoading ? 'Loading...' : 'Enter admin' }}
+        {{ isLoading ? 'Loading...' : 'Log in' }}
       </button>
-    </div>
+    </form>
   </div>
 </template>
 
@@ -67,9 +82,13 @@ async function handleLocalLogin() {
 }
 
 .login-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   text-align: center;
   padding: 2rem;
   max-width: 400px;
+  width: 100%;
 }
 
 .login-title {
@@ -90,6 +109,20 @@ async function handleLocalLogin() {
   color: white;
   border-radius: 0.25rem;
   font-size: 0.9rem;
+}
+
+.login-input {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.login-input:disabled {
+  opacity: 0.7;
 }
 
 .login-button {

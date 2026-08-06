@@ -432,8 +432,9 @@ const SharedConfigSchema = z.object({
   apiHost: z.string().min(1).max(100),
   basePath: z.string().min(1).max(100),
   wsPath: z.string().min(1).max(100),
-  secure: z.boolean().optional()
-}) satisfies z.ZodType<SharedConfig>;
+  // Ignored if present (legacy)
+  secure: z.unknown().optional(),
+});
 
 // Schema for the unified app config JSON file (shared + server fields)
 export const AppConfigSchema = SharedConfigSchema.extend({
@@ -443,6 +444,7 @@ export const AppConfigSchema = SharedConfigSchema.extend({
   webhookPath: z.string().min(1).max(100),
   consoleMode: z.boolean().optional(),
   enableConsoleOutput: z.boolean().optional(),
+  adminPassword: z.string().min(4).max(200),
   telegram: TelegramServiceConfigSchema,
   youtube: YouTubeServiceConfigSchema,
   twitch: TwitchServiceConfigSchema,

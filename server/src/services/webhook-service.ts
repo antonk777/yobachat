@@ -10,7 +10,7 @@ const kMaxRequestSize = '1mb';
 export type RequestWithRawBody = Request & { rawBody?: Buffer };
 
 /**
- * Service for handling webhook requests (HTTP server behind nginx SSL termination)
+ * Service for handling webhook requests
  */
 export class WebhookService {
   private logPrefix = chalk.cyan('[WebhookService]');
@@ -63,7 +63,7 @@ export class WebhookService {
         this.server = createServer(this.app);
 
         this.server.listen(this.port, () => {
-          console.log(`${this.logPrefix} HTTP webhook server listening on port ${this.port} (nginx handles SSL)`);
+          console.log(`${this.logPrefix} HTTP webhook server listening on port ${this.port}`);
           resolve();
         });
 

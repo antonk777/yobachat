@@ -7,49 +7,16 @@ const error = ref<string | null>(null);
 const isLoading = ref(true);
 
 onMounted(async () => {
-  // Check for OAuth error in URL
-  const oauthError = auth.handleOAuthError();
+  const { ok } = await auth.ensureAuthenticated();
 
-  if (oauthError) {
-    error.value = oauthError;
-    isLoading.value = false;
+  if (ok) {
+    window.location.href = '/admin';
     return;
   }
 
-  // Handle OAuth callback (token in hash)
-  const hasToken = auth.handleCallback();
-
-  if (hasToken) {
-    const { ok } = await auth.verifyToken();
-
-    if (ok) {
-      window.location.href = '/admin';
-      return;
-    }
-
-    error.value = 'Authentication failed. Please try again.';
-    isLoading.value = false;
-    return;
-  }
-
-  // Local HTTP mode: auto-issue admin JWT and enter admin
-  if (auth.isLocalMode) {
-    const { ok } = await auth.ensureAuthenticated();
-
-    if (ok) {
-      window.location.href = '/admin';
-      return;
-    }
-
-    error.value = 'Local admin login failed. Is the server running with secure: false?';
-  }
-
+  error.value = 'Local admin login failed. Is the server running with secure: false?';
   isLoading.value = false;
 });
-
-function handleLogin() {
-  auth.login();
-}
 
 async function handleLocalLogin() {
   isLoading.value = true;
@@ -71,37 +38,19 @@ async function handleLocalLogin() {
   <div class="login-screen">
     <div class="login-content">
       <h1 class="login-title">yobachat</h1>
-      <p class="login-description">
-        <template v-if="auth.isLocalMode">
-          Local mode — admin access does not require Twitch OAuth
-        </template>
-        <template v-else>
-          Please authenticate with Twitch to access the admin panel
-        </template>
-      </p>
+      <p class="login-description">Local admin — no Twitch login required</p>
 
       <div v-if="error" class="login-error">
         {{ error }}
       </div>
 
       <button
-        v-if="auth.isLocalMode"
         class="btn login-button"
         :class="isLoading ? 'btn-secondary' : 'btn-primary'"
         @click="handleLocalLogin"
         :disabled="isLoading"
       >
-        {{ isLoading ? 'Loading...' : 'Continue as local admin' }}
-      </button>
-
-      <button
-        v-else
-        class="btn login-button"
-        :class="isLoading ? 'btn-secondary' : 'btn-primary'"
-        @click="handleLogin"
-        :disabled="isLoading"
-      >
-        {{ isLoading ? 'Loading...' : 'Login with Twitch' }}
+        {{ isLoading ? 'Loading...' : 'Enter admin' }}
       </button>
     </div>
   </div>

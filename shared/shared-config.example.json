@@ -1,7 +1,0 @@
-{
-  "host": "localhost:3900",
-  "apiHost": "localhost:3900",
-  "basePath": "/",
-  "wsPath": "ws/",
-  "secure": false
-}

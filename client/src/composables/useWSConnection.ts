@@ -263,13 +263,6 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
-  function refreshBetterTTV(): void {
-    send({
-      type: kWSMessageType.adminRefreshBetterTTV,
-      data: {}
-    });
-  }
-
   function refreshWidget(): void {
     send({
       type: kWSMessageType.adminRefreshWidget,
@@ -310,7 +303,6 @@ export const useWSConnection = createGlobalState(() => {
     deleteMessage,
     updateBadWords,
     clearAllMessages,
-    refreshBetterTTV,
     refreshWidget,
     restartServer,
     updateChatSettings,

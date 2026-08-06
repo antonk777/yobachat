@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import chalk from 'chalk';
 
-import type { ChatMessage, ChatSettings, Platform, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, GoodgameServiceConfig, BetterTTVConfig, SharedConfig } from '@shared/shared-types.js';
+import type { ChatMessage, ChatSettings, Platform, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, GoodgameServiceConfig, SharedConfig } from '@shared/shared-types.js';
 import { kWSMessageType } from '@shared/shared-types.js';
-import type { ServerConfigFile, AdminConfig } from '@/types';
+import type { AppConfigFile, ServerConfigFile } from '@/types';
 
 
 const kLogPrefix = chalk.cyan('[Validation]');
@@ -252,11 +252,6 @@ const AdminClearAllMessagesSchema = z.object({
   data: z.object({})
 });
 
-const AdminRefreshBetterTTVSchema = z.object({
-  type: z.literal(kWSMessageType.adminRefreshBetterTTV),
-  data: z.object({})
-});
-
 const AdminRefreshWidgetSchema = z.object({
   type: z.literal(kWSMessageType.adminRefreshWidget),
   data: z.object({})
@@ -292,7 +287,6 @@ export const WSMessageSchema = z.discriminatedUnion('type', [
   AdminDeleteMessageSchema,
   AdminUpdateSettingsSchema,
   AdminClearAllMessagesSchema,
-  AdminRefreshBetterTTVSchema,
   AdminRefreshWidgetSchema,
   AdminRestartServerSchema,
   AdminPlatformsStatusSchema,
@@ -433,21 +427,6 @@ const GoodgameServiceConfigSchema = z.object({
   channelId: z.string().min(1).max(100)
 }) satisfies z.ZodType<GoodgameServiceConfig>;
 
-const BetterTTVConfigSchema = z.object({
-  includeGlobal: z.boolean().optional(),
-  includeChannel: z.boolean().optional(),
-  channelId: z.string().min(1).max(100),
-  color: z.string().regex(/^#[A-Fa-f0-9]{6}$/)
-}) satisfies z.ZodType<BetterTTVConfig>;
-
-const AdminConfigSchema = z.object({
-  allowedTwitchUsernames: z.array(z.string().min(1).max(100)).min(1),
-  twitchOAuth: z.object({
-    clientId: z.string().min(1).max(200),
-    clientSecret: z.string().min(1).max(200)
-  })
-});
-
 const SharedConfigSchema = z.object({
   host: z.string().min(1).max(100),
   apiHost: z.string().min(1).max(100),
@@ -456,8 +435,8 @@ const SharedConfigSchema = z.object({
   secure: z.boolean().optional()
 }) satisfies z.ZodType<SharedConfig>;
 
-// Schema for server config JSON file
-export const ServerConfigSchema = z.object({
+// Schema for the unified app config JSON file (shared + server fields)
+export const AppConfigSchema = SharedConfigSchema.extend({
   apiPort: z.number().int().positive(),
   wsPort: z.number().int().positive(),
   webhookPort: z.number().int().positive(),
@@ -470,8 +449,9 @@ export const ServerConfigSchema = z.object({
   vkvideo: VKVideoServiceConfigSchema,
   kick: KickServiceConfigSchema,
   goodgame: GoodgameServiceConfigSchema,
-  betterttv: BetterTTVConfigSchema,
-  admin: AdminConfigSchema,
+  // Ignored if present (legacy BetterTTV / Twitch OAuth admin blocks)
+  betterttv: z.unknown().optional(),
+  admin: z.unknown().optional(),
   platforms: z.array(
       z.object({
       id: PlatformTypeSchema,
@@ -482,18 +462,28 @@ export const ServerConfigSchema = z.object({
   )
 });
 
+/** @deprecated Use AppConfigSchema */
+export const ServerConfigSchema = AppConfigSchema;
+
 /**
- * Validate server config file
+ * Validate unified app config file
  * Throws ZodError if validation fails
  */
-export function validateServerConfigFile(config: unknown): ServerConfigFile {
+export function validateAppConfigFile(config: unknown): AppConfigFile {
   try {
-    return ServerConfigSchema.parse(config) as ServerConfigFile;
+    return AppConfigSchema.parse(config) as AppConfigFile;
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error(`${kLogPrefix} ServerConfig validation failed:`, error.issues);
+      console.error(`${kLogPrefix} AppConfig validation failed:`, error.issues);
     }
 
     throw error;
   }
+}
+
+/**
+ * @deprecated Use validateAppConfigFile
+ */
+export function validateServerConfigFile(config: unknown): ServerConfigFile {
+  return validateAppConfigFile(config);
 }

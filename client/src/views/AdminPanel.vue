@@ -26,8 +26,6 @@ const
   messagesStore = useMessagesStore(),
   uiStore = useUIStore();
 
-const needsTwitchOAuth = ref(false);
-
 /**
  * Admin content is hidden until `chatSettings` arrives over the WebSocket (`uiStore.isReady`).
  * If WSS never connects, the page used to look "blank" (only --bg-color). We surface status explicitly.
@@ -41,19 +39,15 @@ const wssUrlDisplay = computed(() => getWsUrl(kSharedConfig));
 
 let connectionHelpTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Check authentication on mount and redirect to login if not authenticated
+// Auto local-admin auth, then connect WebSocket
 onMounted(async () => {
   const result = await auth.ensureAuthenticated();
 
   if (!result.ok) {
-    // Not authenticated or token invalid, redirect to login
     window.location.href = '/login';
     return;
   }
 
-  needsTwitchOAuth.value = result.needsTwitchOAuth ?? false;
-
-  // Token is valid, now connect to WebSocket
   ws.connect();
 
   connectionHelpTimer = setTimeout(() => {
@@ -97,15 +91,6 @@ function toggleMoreMenu() {
 
 function closeMoreMenu() {
   isMoreMenuOpen.value = false;
-}
-
-function handleRefreshBetterTTV() {
-  if (!wsConnected.value) {
-    return;
-  }
-
-  ws.refreshBetterTTV();
-  closeMoreMenu();
 }
 
 function handleRefreshWidget() {
@@ -206,15 +191,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
         </div>
 
         <button
-          v-if="needsTwitchOAuth"
-          class="btn admin-twitch-oauth-btn"
-          title="Reconnect with Twitch to enable chat"
-          @click="auth.login()"
-        >
-          No Twitch
-        </button>
-
-        <button
           class="btn btn-secondary"
           @click="uiStore.isSettingsOpen = true"
           :disabled="!wsConnected"
@@ -259,18 +235,9 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
             <button
               type="button"
               class="more-menu-item"
-              @click="handleRefreshBetterTTV"
-              :disabled="!wsConnected"
-              title="Reload BetterTTV emotes on the server"
-            >
-              Refresh BetterTTV
-            </button>
-            <button
-              type="button"
-              class="more-menu-item"
               @click="handleRestartServer"
               :disabled="!wsConnected"
-              title="Restart the server using PM2"
+              title="Restart the server process"
             >
               Restart Server
             </button>
@@ -514,15 +481,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
   > * {
     pointer-events: auto;
-  }
-}
-
-.admin-twitch-oauth-btn {
-  color: var(--bg-color-dark);
-  background-color: var(--warning-color);
-
-  &:hover {
-    background-color: color-mix(in srgb, var(--warning-color) 88%, #fff);
   }
 }
 

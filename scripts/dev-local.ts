@@ -25,7 +25,6 @@ const kServerExternals = [
   'express',
   'youtubei.js',
   'jsonwebtoken',
-  'pm2',
 ];
 
 interface ServerConfigPorts {
@@ -128,12 +127,12 @@ function closeHttpServer(server: HttpServer): Promise<void> {
 }
 
 function startDevProxy(): Promise<DevProxyHandle> {
-  const sharedConfigPath = resolve(rootDir, 'shared', 'shared-config.dev.json');
-  const serverConfigPath = resolve(serverDir, 'server-config.dev.json');
+  const configPath = resolve(rootDir, 'config.json');
   const staticDir = resolve(clientDir, 'dist');
 
-  const sharedConfig = loadJson<SharedConfigPaths>(sharedConfigPath);
-  const serverConfig = loadJson<ServerConfigPorts>(serverConfigPath);
+  const appConfig = loadJson<SharedConfigPaths & ServerConfigPorts>(configPath);
+  const sharedConfig = appConfig;
+  const serverConfig = appConfig;
 
   const devPort = Number.parseInt(process.env.DEV_PROXY_PORT ?? sharedConfig.host.split(':').pop() ?? '3000', 10);
   const apiTarget = `http://127.0.0.1:${serverConfig.apiPort}`;
@@ -166,7 +165,7 @@ function startDevProxy(): Promise<DevProxyHandle> {
     server.on('error', (error: NodeJS.ErrnoException) => {
       if (error.code === 'EADDRINUSE') {
         reject(new Error(
-          `[DevLocal] Port ${devPort} is already in use. Change host/apiHost in shared/shared-config.dev.json or set DEV_PROXY_PORT.`,
+          `[DevLocal] Port ${devPort} is already in use. Change host/apiHost in config.json or set DEV_PROXY_PORT.`,
         ));
         return;
       }
@@ -203,8 +202,7 @@ async function waitForFile(path: string, timeoutMs = 60000): Promise<void> {
 
 function configureServerEnv(): void {
   process.env.NODE_ENV = 'development';
-  process.env.SERVER_CONFIG_PATH = resolve(serverDir, 'server-config.dev.json');
-  process.env.SHARED_CONFIG_PATH = resolve(rootDir, 'shared', 'shared-config.dev.json');
+  process.env.CONFIG_PATH = resolve(rootDir, 'config.json');
   // Run with the server dir as cwd so storage/ and oauth files match the prod layout.
   process.chdir(serverDir);
 }

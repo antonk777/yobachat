@@ -6,47 +6,28 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 
 import { SharedConfig } from '@shared/shared-types';
+import { pickSharedConfig } from '@shared/shared-urls';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const kDefaultSharedConfigPath = './shared/shared-config.json';
+const kDefaultConfigPath = '../config.json';
 
 const kIsDevelopment = process.env.NODE_ENV === 'development';
 
 /**
- * Load shared configuration from JSON file
- * Configure via environment variable: SHARED_CONFIG_PATH
+ * Load public/shared fields from the unified config JSON file.
+ * Configure via environment variable: CONFIG_PATH
  */
 function loadSharedConfig(): SharedConfig {
-  const configPath = process.env.SHARED_CONFIG_PATH ?? kDefaultSharedConfigPath;
-
-  if (!configPath) {
-    throw new Error(
-      'Shared config path is required. Set SHARED_CONFIG_PATH environment variable.\n' +
-      `Example: SHARED_CONFIG_PATH=${kDefaultSharedConfigPath} npm run build`
-    );
-  }
+  const configPath = process.env.CONFIG_PATH || kDefaultConfigPath;
 
   try {
     const resolvedPath = resolve(configPath);
     const fileContent = readFileSync(resolvedPath, 'utf-8');
-    const config = JSON.parse(fileContent);
-
-    // Validate required fields
-    if (
-      typeof config !== 'object' ||
-      typeof config.host !== 'string' ||
-      typeof config.apiHost !== 'string' ||
-      typeof config.basePath !== 'string' ||
-      typeof config.wsPath !== 'string'
-    ) {
-      throw new Error('Invalid shared-config.json: missing or invalid required fields');
-    }
-
-    return config;
+    return pickSharedConfig(JSON.parse(fileContent));
   } catch (error) {
     if (error instanceof Error) {
-      console.error(`[ViteConfig] Failed to load shared config from ${configPath}: ${error.message}`);
+      console.error(`[ViteConfig] Failed to load config from ${configPath}: ${error.message}`);
 
       if ('code' in error && error.code === 'ENOENT') {
         console.error(`[ViteConfig] File not found: ${resolve(configPath)}`);

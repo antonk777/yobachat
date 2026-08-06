@@ -22,7 +22,6 @@ export const decodeWSMessage = (message: string) => {
       case kWSMessageType.adminDeleteMessage:
       case kWSMessageType.adminUpdateSettings:
       case kWSMessageType.adminClearAllMessages:
-      case kWSMessageType.adminRefreshBetterTTV:
       case kWSMessageType.adminRefreshWidget:
       case kWSMessageType.adminRestartServer:
       case kWSMessageType.adminPlatformsStatus:

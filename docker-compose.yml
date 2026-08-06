@@ -1,0 +1,11 @@
+services:
+  yobachat:
+    build: .
+    image: yobachat:local
+    ports:
+      - "3900:3900"
+    volumes:
+      # Fill from config.example.json — keep host/apiHost as localhost:3900 and secure: false
+      - ./config.json:/app/config.json:ro
+      - ./data:/app/server/storage
+    restart: unless-stopped

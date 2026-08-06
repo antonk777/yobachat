@@ -1,7 +1,7 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
 
-import type { PlatformWithConfig, ServerConfig } from "@/types.js"
+import type { PlatformWithConfig, ServerConfig, ServerConfigFile } from "@/types.js"
 
 import type {
   TelegramServiceConfig,
@@ -10,19 +10,14 @@ import type {
   VKVideoServiceConfig,
   KickServiceConfig,
   GoodgameServiceConfig,
-  BetterTTVConfig,
-  SharedConfig
 } from "@shared/shared-types.js"
 
-import { validateServerConfigFile } from '@/validation.js';
+import { pickSharedConfig } from '@shared/shared-urls.js';
+import { validateAppConfigFile } from '@/validation.js';
 
 
-/**
- * Parse command-line arguments for config file paths
- */
 interface ConfigArgs {
-  sharedConfig?: string;
-  serverConfig?: string;
+  config?: string;
 }
 
 export const kIsDev: boolean = process.env.NODE_ENV === 'development';
@@ -32,11 +27,8 @@ function parseArgs(): ConfigArgs {
   const argv = process.argv.slice(2);
 
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--shared-config' && i + 1 < argv.length) {
-      args.sharedConfig = resolve(argv[i + 1]);
-      i++;
-    } else if (argv[i] === '--server-config' && i + 1 < argv.length) {
-      args.serverConfig = resolve(argv[i + 1]);
+    if (argv[i] === '--config' && i + 1 < argv.length) {
+      args.config = resolve(argv[i + 1]);
       i++;
     }
   }
@@ -44,67 +36,44 @@ function parseArgs(): ConfigArgs {
   return args;
 }
 
-/**
- * Load shared configuration from JSON file
- */
-function loadSharedConfig(configPath?: string): SharedConfig {
-  const envPath = process.env.SHARED_CONFIG_PATH;
-  const configFilePath = configPath || (envPath ? resolve(envPath) : undefined) || join(process.cwd(), 'shared', 'shared-config.json');
-
-  try {
-    const fileContent = readFileSync(configFilePath, 'utf-8');
-    const rawConfig = JSON.parse(fileContent);
-
-    // Validate required fields
-    if (
-      typeof rawConfig !== 'object' ||
-      typeof rawConfig.host !== 'string' ||
-      typeof rawConfig.apiHost !== 'string' ||
-      typeof rawConfig.basePath !== 'string' ||
-      typeof rawConfig.wsPath !== 'string'
-    ) {
-      throw new Error('Invalid shared-config.json: missing or invalid required fields');
-    }
-
-    return {
-      host: rawConfig.host,
-      apiHost: rawConfig.apiHost,
-      basePath: rawConfig.basePath,
-      wsPath: rawConfig.wsPath,
-      secure: typeof rawConfig.secure === 'boolean' ? rawConfig.secure : undefined,
-    };
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(`[SharedConfig] Failed to load config from ${configFilePath}: ${error.message}`);
-      if (error instanceof SyntaxError) {
-        console.error(`[SharedConfig] Invalid JSON format in ${configFilePath}`);
-      }
-    }
-    throw error;
+function resolveConfigPath(explicit?: string): string {
+  if (explicit) {
+    return resolve(explicit);
   }
+
+  if (process.env.CONFIG_PATH) {
+    return resolve(process.env.CONFIG_PATH);
+  }
+
+  const candidates = [
+    join(process.cwd(), 'config.json'),
+    join(process.cwd(), '..', 'config.json'),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return candidates[0];
 }
 
 /**
- * Load and validate server configuration from JSON file
+ * Load and validate the unified app config from a single JSON file
  */
-function loadServerConfig(serverConfigPath?: string, sharedConfigPath?: string): ServerConfig {
-  const envServerPath = process.env.SERVER_CONFIG_PATH;
-  const
-    sharedConfig = loadSharedConfig(sharedConfigPath),
-    configPath = serverConfigPath || (envServerPath ? resolve(envServerPath) : undefined) || join(process.cwd(), 'server-config.json');
+function loadAppConfig(configPath?: string): ServerConfig {
+  const filePath = resolveConfigPath(configPath);
 
   try {
-    const fileContent = readFileSync(configPath, 'utf-8');
+    const fileContent = readFileSync(filePath, 'utf-8');
     const rawConfig = JSON.parse(fileContent);
+    const validatedConfig = validateAppConfigFile(rawConfig);
+    const sharedConfig = pickSharedConfig(validatedConfig);
 
-    // Validate the entire config file structure
-    const validatedConfig = validateServerConfigFile(rawConfig);
-
-    // Get console mode settings from JSON
     const consoleMode = validatedConfig.consoleMode ?? false;
     const enableConsoleOutput = validatedConfig.enableConsoleOutput ?? false;
 
-    // Map platforms array to include their configs
     const platforms: PlatformWithConfig[] = validatedConfig.platforms.map(platform => {
       let config:
         TelegramServiceConfig |
@@ -143,50 +112,44 @@ function loadServerConfig(serverConfigPath?: string, sharedConfigPath?: string):
       } as PlatformWithConfig;
     });
 
-    // Combine base server config with file config
+    const serverFields: ServerConfigFile = validatedConfig;
+
     return {
       consoleMode,
       enableConsoleOutput,
-      apiPort: validatedConfig.apiPort,
-      wsPort: validatedConfig.wsPort,
-      webhookPort: validatedConfig.webhookPort,
-      webhookPath: validatedConfig.webhookPath,
+      apiPort: serverFields.apiPort,
+      wsPort: serverFields.wsPort,
+      webhookPort: serverFields.webhookPort,
+      webhookPath: serverFields.webhookPath,
       sharedConfig,
-      telegram: validatedConfig.telegram,
-      youtube: validatedConfig.youtube,
-      twitch: validatedConfig.twitch,
-      vkvideo: validatedConfig.vkvideo,
-      kick: validatedConfig.kick,
-      goodgame: validatedConfig.goodgame,
-      betterttv: validatedConfig.betterttv,
-      admin: validatedConfig.admin,
+      telegram: serverFields.telegram,
+      youtube: serverFields.youtube,
+      twitch: serverFields.twitch,
+      vkvideo: serverFields.vkvideo,
+      kick: serverFields.kick,
+      goodgame: serverFields.goodgame,
       platforms
     };
   } catch (error) {
     if (error instanceof Error) {
-      console.error(`[Config] Failed to load config from ${configPath}: ${error.message}`);
+      console.error(`[Config] Failed to load config from ${filePath}: ${error.message}`);
       if (error instanceof SyntaxError) {
-        console.error(`[Config] Invalid JSON format in ${configPath}`);
+        console.error(`[Config] Invalid JSON format in ${filePath}`);
       }
     }
     throw error;
   }
 }
 
-/**
- * Hidden badges filter
- */
 export const kHiddenBadgesFilter: string[] = [
   'moderator',
   'subscriber',
   'vip'
 ]
 
-// Parse command-line arguments
 const configArgs = parseArgs();
 
-// Load and validate configs from JSON file
-export const kServerConfig: ServerConfig = loadServerConfig(configArgs.serverConfig, configArgs.sharedConfig);
+export const kServerConfig: ServerConfig = loadAppConfig(configArgs.config);
 
 export const kConsoleMode: boolean = kServerConfig.consoleMode ?? false;
 export const kEnableConsoleOutput: boolean = kServerConfig.enableConsoleOutput ?? false;
@@ -196,5 +159,4 @@ export const kTwitchConfig: TwitchServiceConfig = kServerConfig.twitch;
 export const kVKVideoConfig: VKVideoServiceConfig = kServerConfig.vkvideo;
 export const kKickConfig: KickServiceConfig = kServerConfig.kick;
 export const kGoodgameConfig: GoodgameServiceConfig = kServerConfig.goodgame;
-export const kBetterTTVConfig: BetterTTVConfig = kServerConfig.betterttv;
 export const kPlatformsConfig: PlatformWithConfig[] = kServerConfig.platforms;

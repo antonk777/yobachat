@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { Request, Response } from 'express';
 
-import type { BetterTTVConfig, ChatMessage, ChatMessageDelete, Platform, PlatformType, TelegramServiceConfig, TwitchServiceConfig, VKVideoServiceConfig, YouTubeServiceConfig, KickServiceConfig, GoodgameServiceConfig, SharedConfig } from '@shared/shared-types.js';
+import type { ChatMessage, ChatMessageDelete, Platform, PlatformType, TelegramServiceConfig, TwitchServiceConfig, VKVideoServiceConfig, YouTubeServiceConfig, KickServiceConfig, GoodgameServiceConfig, SharedConfig } from '@shared/shared-types.js';
 
 // Base interface for all service events
 export interface PlatformServiceEvents {
@@ -13,19 +13,8 @@ export interface PlatformServiceEvents {
 // Interfaces
 
 /**
- * Admin authentication configuration
- */
-export interface AdminConfig {
-  allowedTwitchUsernames: string[];
-  twitchOAuth: {
-    clientId: string;
-    clientSecret: string;
-  };
-}
-
-/**
- * Type representing the validated JSON structure from server-config.json
- * (platforms don't have config yet - that's added during loading)
+ * Type representing the validated JSON structure from the unified config file
+ * (platforms don't have nested service config yet - that's added during loading)
  */
 export type ServerConfigFile = {
   consoleMode?: boolean;
@@ -40,10 +29,11 @@ export type ServerConfigFile = {
   vkvideo: VKVideoServiceConfig;
   kick: KickServiceConfig;
   goodgame: GoodgameServiceConfig;
-  betterttv: BetterTTVConfig;
-  admin: AdminConfig;
   platforms: Platform[];
 };
+
+/** Unified on-disk config = public/shared fields + server fields */
+export type AppConfigFile = SharedConfig & ServerConfigFile;
 
 export type ServerConfig = ServerConfigFile & {
   sharedConfig: SharedConfig;

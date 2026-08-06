@@ -36,14 +36,12 @@ import { GoodgameService } from '@/services/goodgame-service.js';
 import { SettingsService } from '@/services/settings-service.js';
 import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
 import { MessageHistoryService } from '@/services/message-history-service.js';
-import { BetterTTVService } from '@/services/betterttv-service.js';
 import { WebhookService } from '@/services/webhook-service.js';
 import { WebSocketService } from '@/services/websocket-service.js';
 import { WebAPIService } from '@/services/webapi-service.js';
 import { AuthService } from '@/services/auth-service.js';
 
 import { kWSMessageType } from '@shared/shared-types.js';
-import pm2 from 'pm2';
 
 import {
   kHiddenBadgesFilter,
@@ -66,7 +64,6 @@ export class ChatServer {
   private settings = new SettingsService();
   private deletedMessages = new DeletedMessagesService();
   private messageHistory = new MessageHistoryService();
-  private betterttvService: BetterTTVService | null = null;
   private webhookService: WebhookService;
   private webApiService: WebAPIService;
   private readonly authService: AuthService;
@@ -95,17 +92,12 @@ export class ChatServer {
   }
 
   async start(options?: { registerSignalHandlers?: boolean }): Promise<void> {
-    // Initialize BetterTTV service with config (already validated when loading from JSON)
-    this.betterttvService = new BetterTTVService(this.config.betterttv);
-
     // Initialize services (load from disk)
     await Promise.all([
       this.settings.init(),
       this.deletedMessages.init(),
       this.messageHistory.init()
     ]);
-
-    await this.betterttvService.update();
 
     // Start webhook server (must be before platform initialization)
     await this.webhookService.start();
@@ -343,20 +335,11 @@ export class ChatServer {
   }
 
   /**
-   * Apply filters, BetterTTV emotes, and dispatch the message to the appropriate sinks
+   * Apply filters and dispatch the message to the appropriate sinks
    */
   private handleIncomingMessage(platform: PlatformWithConfig, message: ChatMessage): void {
     try {
-      // Validate and sanitize the incoming message (always use fast validation)
-      // const validatedMessage = validateChatMessage(message);
-      // if (!validatedMessage) {
-      //   console.warn(`${this.logPrefix} Invalid message received from ${platform.name}, skipping`);
-      //   return;
-      // }
-
-      let processedMessage = this.processMessage(message);
-
-      processedMessage = this.enrichWithBetterTTV(processedMessage);
+      const processedMessage = this.processMessage(message);
 
       if (this.config.consoleMode || this.config.enableConsoleOutput) {
         this.outputToConsole(processedMessage, platform);
@@ -367,21 +350,6 @@ export class ChatServer {
       }
     } catch (error) {
       console.error(`${this.logPrefix} Failed to handle message for ${platform.name}:`, error);
-    }
-  }
-
-  /**
-   * Merge BetterTTV and custom emotes into the message if configured
-   */
-  private enrichWithBetterTTV(message: ChatMessage): ChatMessage {
-    if (!this.betterttvService) {
-      return message;
-    }
-    try {
-      return this.betterttvService.enhanceMessage(message);
-    } catch (error) {
-      console.warn(`${this.logPrefix} Failed to enrich BetterTTV emotes:`, error);
-      return message;
     }
   }
 
@@ -522,10 +490,6 @@ export class ChatServer {
       case kWSMessageType.adminClearAllMessages:
         this.broadcastClearAllMessages();
         console.log(`${this.logPrefix} Admin cleared all messages`);
-        break;
-
-      case kWSMessageType.adminRefreshBetterTTV:
-        this.updateBetterTTVEmotes(clientId);
         break;
 
       case kWSMessageType.adminRefreshWidget:
@@ -682,60 +646,17 @@ export class ChatServer {
     }
   }
 
-  private async updateBetterTTVEmotes(clientId: string): Promise<void> {
-    if (!this.betterttvService) {
-      this.sendServerMessage(clientId, 'BetterTTV service not initialized');
-      return;
-    }
-
-    try {
-      await this.betterttvService.update();
-      this.sendServerMessage(clientId, 'BetterTTV emotes refreshed');
-    } catch (error) {
-      console.error(`${this.logPrefix} Failed to refresh BetterTTV emotes:`, error);
-      this.sendServerMessage(clientId, 'Failed to refresh BetterTTV emotes');
-    }
-  }
-
   /**
-   * Handle admin restart server command using PM2
+   * Handle admin restart: exit so the process manager (Docker) restarts the container.
    */
   private async handleAdminRestartServer(clientId: string): Promise<void> {
-    // Check if running under PM2
-    if (!process.env.pm_id) {
-      this.sendServerMessage(clientId, 'Server is not running under PM2');
-      console.error(`${this.logPrefix} Restart failed: not running under PM2`);
-      return;
-    }
+    this.sendServerMessage(clientId, 'Restarting server...');
+    console.log(`${this.logPrefix} Admin triggered server restart — exiting process`);
 
-    try {
-      // Determine process name from PM2 environment or NODE_ENV
-      const processName = process.env.name || (process.env.NODE_ENV === 'production' ? 'yobachat-prod' : 'yobachat-dev');
-
-      // Connect to PM2 daemon
-      await new Promise<void>((resolve, reject) => {
-        pm2.connect((err) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
-
-      // Send response before restart (restart will kill the process)
-      this.sendServerMessage(clientId, 'Restarting server...');
-      console.log(`${this.logPrefix} Admin triggered server restart`);
-
-      // Restart the process
-      await new Promise<void>((resolve, reject) => {
-        pm2.restart(processName, (err) => {
-          pm2.disconnect();
-          if (err) reject(err);
-          else resolve();
-        });
-      });
-    } catch (error) {
-      console.error(`${this.logPrefix} Failed to restart server:`, error);
-      this.sendServerMessage(clientId, `Failed to restart server: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    // Allow the WS message to flush, then exit. Docker `restart: unless-stopped` brings us back.
+    setTimeout(() => {
+      void this.shutdown(true);
+    }, 250);
   }
 
 
@@ -855,6 +776,3 @@ if (isMain) {
     process.exit(1);
   });
 }
-
-// Send ready event to PM2
-// process.send?.('ready');

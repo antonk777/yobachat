@@ -6,13 +6,6 @@ export type WidgetType = 'user' | 'admin';
 
 // Interfaces
 
-export interface BetterTTVConfig {
-  includeGlobal?: boolean;
-  includeChannel?: boolean;
-  channelId: string;
-  color: string;
-}
-
 export interface TwitchServiceConfig {
   channelId: string;
   /** 10–100 ASCII characters; passed to Helix and used for EventSub HMAC verification. */
@@ -165,7 +158,6 @@ export enum kWSMessageType {
   adminDeleteMessage = 'adminDeleteMessage',
   adminUpdateSettings = 'adminUpdateSettings',
   adminClearAllMessages = 'adminClearAllMessages',
-  adminRefreshBetterTTV = 'adminRefreshBetterTTV',
   adminRefreshWidget = 'adminRefreshWidget',
   adminRestartServer = 'adminRestartServer',
 
@@ -221,11 +213,6 @@ export interface WSAdminClearAllMessages {
   data: {};
 }
 
-export interface WSAdminRefreshBetterTTV {
-  type: kWSMessageType.adminRefreshBetterTTV;
-  data: {};
-}
-
 export interface WSAdminRefreshWidget {
   type: kWSMessageType.adminRefreshWidget;
   data: {};
@@ -262,7 +249,6 @@ export type WSMessageTypeMap = {
   [kWSMessageType.adminDeleteMessage]: WSAdminDeleteMessage;
   [kWSMessageType.adminUpdateSettings]: WSAdminUpdateSettings;
   [kWSMessageType.adminClearAllMessages]: WSAdminClearAllMessages;
-  [kWSMessageType.adminRefreshBetterTTV]: WSAdminRefreshBetterTTV;
   [kWSMessageType.adminRefreshWidget]: WSAdminRefreshWidget;
   [kWSMessageType.adminRestartServer]: WSAdminRestartServer;
   [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
@@ -279,7 +265,6 @@ export type WSMessage =
   | WSAdminDeleteMessage
   | WSAdminUpdateSettings
   | WSAdminClearAllMessages
-  | WSAdminRefreshBetterTTV
   | WSAdminRefreshWidget
   | WSAdminRestartServer
   | WSAdminPlatformsStatus

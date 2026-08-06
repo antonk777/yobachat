@@ -5,8 +5,6 @@ dist/
 .env
 .env.local
 *.local
-*.conf
-*.dev*
 
 zsetup/
 
@@ -30,14 +28,9 @@ client/src/types/vue-global.d.ts
 
 # Storage files
 server/storage/*.json
+/data/
 
-# Server configuration files
-server/server-config.json
-server/server-config.*.json
-
-# Shared configuration files
-shared/shared-config.json
-shared/shared-config.*.json
-
+# App configuration (secrets) — keep config.example.json tracked
+/config.json
 
 server/docs/

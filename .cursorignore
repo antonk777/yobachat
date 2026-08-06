@@ -1,4 +1,2 @@
-# Server configuration file (contains sensitive credentials)
-server/server-config.json
-server/server-config.prod.json
-server/server-config.dev.json
+﻿# App configuration (contains credentials)
+config.json

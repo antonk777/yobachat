@@ -4,35 +4,16 @@
   "type": "module",
   "description": "OBS chat widget for Twitch, YouTube, and Telegram",
   "scripts": {
-    "install:all": "npm install",
-
-    "--- Production ---": "",
-    "prod:update-main": "git pull origin main && npm run prod:build:all && npm run prod:pm2:restart",
-
-    "prod:build:all": "npm run prod:build:server && npm run prod:build:client",
-    "prod:build:server": "npm run clean:server && cd server && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js --external:jsonwebtoken --external:pm2",
-    "prod:build:client": "cd client && cross-env SHARED_CONFIG_PATH=./shared/shared-config.prod.json vite build",
-
-    "prod:pm2:start": "pm2 start ecosystem.config.cjs --only yobachat-prod",
-    "prod:pm2:stop": "pm2 stop yobachat-prod",
-    "prod:pm2:restart": "pm2 restart yobachat-prod --update-env",
-    "prod:pm2:delete": "pm2 delete yobachat-prod",
-    "prod:pm2:logs": "pm2 logs yobachat-prod --lines 100",
-
-    "--- Development ---": "",
-    "dev:setup": "tsx scripts/setup-dev-config.ts && tsx scripts/setup-shared-symlinks.ts",
-    "setup:dev": "npm run dev:setup",
-
-    "clean:server": "rimraf server/dist",
-
-    "dev:build:all": "npm run dev:build:server && npm run dev:build:client",
-    "dev:build:server": "npm run clean:server && cd server && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js --external:jsonwebtoken --external:pm2",
-    "dev:build:server:watch": "npm run clean:server && cd server && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js --external:jsonwebtoken --external:pm2 --watch",
-    "dev:build:client": "cd client && cross-env SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build",
-    "dev:build:client:watch": "cd client && cross-env SHARED_CONFIG_PATH=./shared/shared-config.dev.json NODE_ENV=development vite build --watch",
-
-    "dev:start:server": "cd server && cross-env NODE_ENV=development SERVER_CONFIG_PATH=./server-config.dev.json SHARED_CONFIG_PATH=./shared/shared-config.dev.json node dist/index.js",
-    "dev:local": "tsx scripts/dev-local.ts"
+    "setup": "tsx scripts/setup-dev-config.ts && tsx scripts/setup-shared-symlinks.ts",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "rimraf server/dist && cd server && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --sourcemap --external:uWebSockets.js --external:tmi.js --external:node-telegram-bot-api --external:ws --external:express --external:youtubei.js --external:jsonwebtoken",
+    "build:client": "cd client && cross-env CONFIG_PATH=../config.json vite build",
+    "dev": "tsx scripts/dev-local.ts",
+    "start": "cd server && cross-env NODE_ENV=production CONFIG_PATH=../config.json node dist/index.js",
+    "docker:build": "docker build -t yobachat .",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
   "keywords": [
     "obs",
@@ -53,7 +34,6 @@
     "node-telegram-bot-api": "^0.66.0",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
-    "pm2": "^6.0.14",
     "reflect-metadata": "^0.2.2",
     "tmi.js": "^1.8.5",
     "tsyringe": "^4.10.0",
@@ -76,7 +56,6 @@
     "cross-env": "^7.0.3",
     "esbuild": "^0.27.0",
     "http-proxy-middleware": "^3.0.5",
-    "pm2-ecosystem": "^6.0.13",
     "rimraf": "^6.1.2",
     "symlink-dir": "^7.0.1",
     "tsx": "^4.7.0",

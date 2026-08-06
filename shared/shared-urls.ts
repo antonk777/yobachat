@@ -4,6 +4,30 @@ export function isSecureSharedConfig(config: SharedConfig): boolean {
   return config.secure !== false;
 }
 
+/** Pull the public/shared fields from a unified app config object. */
+export function pickSharedConfig(raw: unknown): SharedConfig {
+  if (
+    typeof raw !== 'object' ||
+    raw === null ||
+    typeof (raw as SharedConfig).host !== 'string' ||
+    typeof (raw as SharedConfig).apiHost !== 'string' ||
+    typeof (raw as SharedConfig).basePath !== 'string' ||
+    typeof (raw as SharedConfig).wsPath !== 'string'
+  ) {
+    throw new Error('Invalid config: missing or invalid host/apiHost/basePath/wsPath');
+  }
+
+  const config = raw as SharedConfig;
+
+  return {
+    host: config.host,
+    apiHost: config.apiHost,
+    basePath: config.basePath,
+    wsPath: config.wsPath,
+    secure: typeof config.secure === 'boolean' ? config.secure : undefined,
+  };
+}
+
 export function getClientOrigin(config: SharedConfig): string {
   const protocol = isSecureSharedConfig(config) ? 'https' : 'http';
   return `${protocol}://${config.host}`;

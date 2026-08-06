@@ -14,14 +14,14 @@ On the host you only need **Docker**. No Node, no git.
 
 ```bash
 mkdir -p yobachat/data && cd yobachat
-curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/local-docker/docker-compose.yml
-curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/local-docker/config.example.json
+curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/docker-compose.yml
+curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/config.example.json
 cp config.example.json config.json
 # edit config.json — keep host/apiHost as localhost:9012; set adminPassword + platform credentials
 docker compose up -d
 ```
 
-Images are published by GitHub Actions on push (no PAT on your machine). The package is set **public**, so pulls need no login.
+Images are published by GitHub Actions on push to `main` (no PAT on your machine). After the first successful run, set the GHCR package to **Public** if needed so pulls need no login.
 
 Open:
 

@@ -25,4 +25,4 @@ docker compose pull
 log "Starting / recreating stack..."
 docker compose up -d --remove-orphans
 
-log "Done. Widget: http://localhost:9012/widget.html  Admin: http://localhost:9012/admin.html"
+log "Done. Widget: http://localhost:7777/widget.html  Admin: http://localhost:7777/admin.html"

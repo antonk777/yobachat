@@ -19,7 +19,7 @@ mkdir -p yobachat && cd yobachat
 curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/docker-compose.yml && curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/config.example.json && cp config.example.json config.json
 ```
 
-2. Edit `config.json` — set `adminPassword` and your platform credentials. Keep `host` / `apiHost` as `localhost:9012`.
+2. Edit `config.json` — set `adminPassword` and your platform credentials. Keep `host` / `apiHost` as `localhost:7777`.
 
 3. Start:
 
@@ -31,8 +31,8 @@ Images are published by GitHub Actions on push to `main` (no PAT). After the fir
 
 Open:
 
-- Widget (OBS): http://localhost:9012/widget.html
-- Admin: http://localhost:9012/admin.html
+- Widget (OBS): http://localhost:7777/widget.html
+- Admin: http://localhost:7777/admin.html
 
 ### Update
 
@@ -63,9 +63,9 @@ Single file: `config.json` (from `config.example.json`). Never commit secrets.
 
 Important for local use:
 
-- `host` / `apiHost`: `localhost:9012`
+- `host` / `apiHost`: `localhost:7777` (Docker published port)
 - `adminPassword`: password for the admin panel login
-- `apiPort`: `9012` (HTTP for Docker / `npm start`)
+- `apiPort`: `9012` (HTTP inside the container / for `npm start`)
 - `wsPort` / `webhookPort`: internal only (`9013` / `9014`)
 
 Set `CONFIG_PATH` to override the config file path. Set `CLIENT_DIST_PATH` if the built client is not next to the server.
@@ -76,7 +76,7 @@ Set `CONFIG_PATH` to override the config file path. Set `CLIENT_DIST_PATH` if th
 npm install
 npm run setup          # creates config.json + shared symlinks
 # edit config.json
-npm run dev            # build + watch + proxy on :9012
+npm run dev            # build + watch; open host from config (Docker: :7777, local often :9012)
 ```
 
 ## Scripts

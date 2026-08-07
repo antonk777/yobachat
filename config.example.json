@@ -1,6 +1,6 @@
 {
-  "host": "localhost:9012",
-  "apiHost": "localhost:9012",
+  "host": "localhost:7777",
+  "apiHost": "localhost:7777",
   "basePath": "/",
   "wsPath": "ws/",
   "consoleMode": false,

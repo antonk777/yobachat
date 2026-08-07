@@ -44,7 +44,7 @@ onMounted(async () => {
   const result = await auth.verifyToken();
 
   if (!result.ok) {
-    window.location.href = '/login';
+    window.location.href = '/login.html';
     return;
   }
 
@@ -141,7 +141,7 @@ function openStatusHistory() {
 
 function handleLogout() {
   auth.logout();
-  window.location.href = '/login';
+  window.location.href = '/login.html';
 }
 
 onClickOutside(moreMenuRef, () => {

@@ -184,6 +184,15 @@ export class WebAPIService {
 
     if (clientDist) {
       console.log(`${this.logPrefix} Serving static client from ${clientDist}`);
+
+      const sendHtml = (file: string) => (_req: express.Request, res: express.Response) => {
+        res.sendFile(join(clientDist, file));
+      };
+
+      this.app.get(['/login', '/login/'], sendHtml('login.html'));
+      this.app.get(['/admin', '/admin/'], sendHtml('admin.html'));
+      this.app.get(['/widget', '/widget/'], sendHtml('widget.html'));
+
       this.app.use(express.static(clientDist));
     } else {
       console.log(`${this.logPrefix} No client dist found — API-only mode`);

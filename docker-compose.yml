@@ -5,9 +5,9 @@ services:
   yobachat:
     image: ${YOBACHAT_IMAGE:-ghcr.io/antonk777/yobachat:latest}
     ports:
-      - "9012:9012"
+      - "7777:9012"
     volumes:
-      # Copy config.example.json → config.json and edit; keep host/apiHost as localhost:9012
+      # Copy config.example.json → config.json and edit; keep host/apiHost as localhost:7777
       - ./config.json:/app/config.json:ro
       - ./data:/app/server/storage
     restart: unless-stopped

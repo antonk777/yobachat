@@ -68,16 +68,9 @@ export default defineConfig({
         entryFileNames: (chunkInfo) => {
           const name = chunkInfo.name;
 
-          if (name === 'admin') {
-            return 'admin/[name].js';
-          }
-
-          if (name === 'widget') {
-            return 'widget/[name].js';
-          }
-
-          if (name === 'login') {
-            return 'login/[name].js';
+          // Keep under assets/ so folders don't shadow /login, /admin, /widget routes
+          if (name === 'admin' || name === 'widget' || name === 'login') {
+            return `assets/${name}/[name].js`;
           }
 
           return 'assets/[name].js';
@@ -106,15 +99,15 @@ export default defineConfig({
           );
 
           if (belongsToAdmin) {
-            return 'admin/[name]-[hash].js';
+            return 'assets/admin/[name]-[hash].js';
           }
 
           if (belongsToWidget) {
-            return 'widget/[name]-[hash].js';
+            return 'assets/widget/[name]-[hash].js';
           }
 
           if (belongsToLogin) {
-            return 'login/[name]-[hash].js';
+            return 'assets/login/[name]-[hash].js';
           }
 
           return 'assets/[name]-[hash].js';
@@ -144,15 +137,15 @@ export default defineConfig({
             );
 
             if (belongsToAdminCss) {
-              return 'admin/[name]-[hash][extname]';
+              return 'assets/admin/[name]-[hash][extname]';
             }
 
             if (belongsToWidgetCss) {
-              return 'widget/[name]-[hash][extname]';
+              return 'assets/widget/[name]-[hash][extname]';
             }
 
             if (belongsToLoginCss) {
-              return 'login/[name]-[hash][extname]';
+              return 'assets/login/[name]-[hash][extname]';
             }
 
             return 'assets/[name]-[hash][extname]'; // e.g., index or shared

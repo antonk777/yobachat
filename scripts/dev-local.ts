@@ -154,6 +154,14 @@ function startDevProxy(): Promise<DevProxyHandle> {
 
   const app = express();
 
+  const sendHtml = (file: string) => (_req: express.Request, res: express.Response) => {
+    res.sendFile(join(staticDir, file));
+  };
+
+  app.get(['/login', '/login/'], sendHtml('login.html'));
+  app.get(['/admin', '/admin/'], sendHtml('admin.html'));
+  app.get(['/widget', '/widget/'], sendHtml('widget.html'));
+
   app.use(wsProxy);
   app.use(apiProxy);
   app.use(express.static(staticDir));

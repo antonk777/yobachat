@@ -11,7 +11,7 @@ onMounted(async () => {
   const { ok } = await auth.verifyToken();
 
   if (ok) {
-    window.location.href = '/admin';
+    window.location.href = '/admin.html';
     return;
   }
 
@@ -30,7 +30,7 @@ async function handleLogin() {
   const ok = await auth.loginWithPassword(password.value);
 
   if (ok) {
-    window.location.href = '/admin';
+    window.location.href = '/admin.html';
     return;
   }
 

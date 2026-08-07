@@ -1,0 +1,13 @@
+# Production: pull a pre-built image (Docker only on the host — no Node/git).
+# Local build: docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+
+services:
+  yobachat:
+    image: ${YOBACHAT_IMAGE:-ghcr.io/antonk777/yobachat:latest}
+    ports:
+      - "7777:9012"
+    volumes:
+      # Copy config.example.json → config.json and edit; keep host/apiHost as localhost:7777
+      - ./config.json:/app/config.json:ro
+      - ./data:/app/server/storage
+    restart: unless-stopped

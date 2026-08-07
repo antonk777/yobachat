@@ -1,12 +1,10 @@
-node_modules
+**/node_modules
 .git
 .github
 .cursor
 .vscode
 .idea
-dist
-server/dist
-client/dist
+**/dist
 client/.vite
 logs
 data

@@ -51,6 +51,7 @@ export default defineConfig({
   ],
   mode: kIsDevelopment ? 'development' : 'production',
   build: {
+    target: 'es2022',
     sourcemap: kIsDevelopment ? 'inline' : false,
     minify: kIsDevelopment ? false : 'esbuild',
     cssCodeSplit: kIsDevelopment ? true : false,

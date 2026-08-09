@@ -192,6 +192,7 @@ export class WebAPIService {
       this.app.get(['/login', '/login/'], sendHtml('login.html'));
       this.app.get(['/admin', '/admin/'], sendHtml('admin.html'));
       this.app.get(['/widget', '/widget/'], sendHtml('widget.html'));
+      this.app.get(['/tg-video', '/tg-video/'], sendHtml('tg-video.html'));
 
       this.app.use(express.static(clientDist));
     } else {

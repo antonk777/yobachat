@@ -12,6 +12,8 @@ import type {
   Platform,
   PlatformWithStatus,
   TelegramServiceConfig,
+  TelegramVideoItem,
+  TelegramVideoMeta,
   TwitchServiceConfig,
   VKVideoServiceConfig,
   WSAdminDeleteMessage,
@@ -36,6 +38,7 @@ import { GoodgameService } from '@/services/goodgame-service.js';
 import { SettingsService } from '@/services/settings-service.js';
 import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
 import { MessageHistoryService } from '@/services/message-history-service.js';
+import { TelegramVideoQueueService } from '@/services/telegram-video-queue-service.js';
 import { getStorageDir } from '@/storage-path.js';
 import { WebhookService } from '@/services/webhook-service.js';
 import { WebSocketService } from '@/services/websocket-service.js';
@@ -65,6 +68,7 @@ export class ChatServer {
   private settings = new SettingsService();
   private deletedMessages = new DeletedMessagesService();
   private messageHistory = new MessageHistoryService();
+  private tgVideoQueue = new TelegramVideoQueueService();
   private webhookService: WebhookService;
   private webApiService: WebAPIService;
   private readonly authService: AuthService;
@@ -99,7 +103,8 @@ export class ChatServer {
     await Promise.all([
       this.settings.init(),
       this.deletedMessages.init(),
-      this.messageHistory.init()
+      this.messageHistory.init(),
+      this.tgVideoQueue.init(),
     ]);
 
     // Start internal listeners before the public HTTP gateway (static + proxies)
@@ -432,6 +437,12 @@ export class ChatServer {
       this.broadcastPlatformStatusUpdate(platformOnly, active);
     });
 
+    if (platform.id === 'telegram') {
+      service.on('videoReceived', (video) => {
+        this.handleTelegramVideoReceived(video);
+      });
+    }
+
     this.platforms.set(platform.name, { ...platform, service });
   }
 
@@ -454,6 +465,7 @@ export class ChatServer {
     // Only send admin data to authenticated users
     if (this.isClientAuthenticated(clientId)) {
       this.sendPlatformsStatus(clientId);
+      this.sendTgVideoPending(clientId);
     }
   }
 
@@ -496,6 +508,14 @@ export class ChatServer {
       case kWSMessageType.adminRefreshWidget:
         this.broadcastWidgetRefresh();
         console.log(`${this.logPrefix} Admin triggered widget refresh`);
+        break;
+
+      case kWSMessageType.adminTgVideoApprove:
+        this.handleAdminTgVideoApprove(clientId, message.data.id);
+        break;
+
+      case kWSMessageType.adminTgVideoReject:
+        this.handleAdminTgVideoReject(clientId, message.data.id);
         break;
     }
   }
@@ -659,6 +679,164 @@ export class ChatServer {
     }, this.isClientAuthenticated.bind(this));
   }
 
+  private sendTgVideoPending(clientId: string): void {
+    if (!this.isClientAuthenticated(clientId)) {
+      return;
+    }
+
+    this.websocketService.send(clientId, kWSMessageType.tgVideoPendingUpdated, {
+      pending: this.tgVideoQueue.getPending(),
+    });
+  }
+
+  private broadcastTgVideoPending(): void {
+    if (this.config.consoleMode || !this.websocketService) {
+      return;
+    }
+
+    this.websocketService.broadcast(
+      kWSMessageType.tgVideoPendingUpdated,
+      { pending: this.tgVideoQueue.getPending() },
+      this.isClientAuthenticated.bind(this)
+    );
+  }
+
+  private handleTelegramVideoReceived(video: Omit<TelegramVideoItem, 'id' | 'pendingDate'>): void {
+    const item = this.tgVideoQueue.enqueue(video);
+
+    if (!item) {
+      return;
+    }
+
+    console.log(`${this.logPrefix} Telegram video queued (${this.tgVideoQueue.getPending().length} pending)`);
+    this.broadcastTgVideoPending();
+    this.attachTgVideoMetaToChatMessage(item, 'pending');
+  }
+
+  private attachTgVideoMetaToChatMessage(
+    item: TelegramVideoItem,
+    status: TelegramVideoMeta['status'],
+    options?: { bumpTimestamp?: boolean }
+  ): void {
+    const tgVideo: TelegramVideoMeta = {
+      type: item.type,
+      fileId: item.fileId,
+      fileUrl: item.fileUrl,
+      status,
+      queueId: item.id,
+    };
+
+    const batchIndex = this.messageBatch.findIndex(m => m.id === item.chatMessageId);
+
+    if (batchIndex !== -1) {
+      const batchMessage = this.messageBatch[batchIndex];
+      this.messageBatch[batchIndex] = {
+        ...batchMessage,
+        timestamp: options?.bumpTimestamp ? Date.now() : batchMessage.timestamp,
+        metadata: {
+          ...batchMessage.metadata,
+          tgVideo,
+        },
+      };
+      return;
+    }
+
+    const existing = this.messageHistory.getById(item.chatMessageId);
+
+    if (!existing) {
+      return;
+    }
+
+    const updated: ChatMessage = {
+      ...existing,
+      timestamp: options?.bumpTimestamp ? Date.now() : existing.timestamp,
+      metadata: {
+        ...existing.metadata,
+        tgVideo,
+      },
+    };
+
+    this.messageHistory.upsert(updated);
+
+    if (!this.config.consoleMode && this.websocketService) {
+      this.websocketService.broadcast(kWSMessageType.messageUpdate, {
+        messages: [updated],
+      });
+    }
+  }
+
+  private clearTgVideoMetaFromChatMessage(chatMessageId: string): void {
+    const batchIndex = this.messageBatch.findIndex(m => m.id === chatMessageId);
+
+    if (batchIndex !== -1) {
+      const batchMessage = this.messageBatch[batchIndex];
+      const { tgVideo: _removed, ...restMeta } = (batchMessage.metadata ?? {}) as Record<string, unknown>;
+      this.messageBatch[batchIndex] = {
+        ...batchMessage,
+        metadata: restMeta,
+      };
+      return;
+    }
+
+    const existing = this.messageHistory.getById(chatMessageId);
+
+    if (!existing) {
+      return;
+    }
+
+    const { tgVideo: _removed, ...restMeta } = (existing.metadata ?? {}) as Record<string, unknown>;
+    const updated: ChatMessage = {
+      ...existing,
+      metadata: restMeta,
+    };
+
+    this.messageHistory.upsert(updated);
+
+    if (!this.config.consoleMode && this.websocketService) {
+      this.websocketService.broadcast(kWSMessageType.messageUpdate, {
+        messages: [updated],
+      });
+    }
+  }
+
+  private handleAdminTgVideoApprove(clientId: string, id: number): void {
+    if (!this.isClientAuthenticated(clientId)) {
+      return;
+    }
+
+    const approved = this.tgVideoQueue.approve(id);
+
+    if (!approved) {
+      this.sendServerMessage(clientId, 'Video not found in pending queue');
+      return;
+    }
+
+    this.broadcastTgVideoPending();
+
+    if (!this.config.consoleMode && this.websocketService) {
+      this.websocketService.broadcast(kWSMessageType.tgVideoApproved, approved);
+    }
+
+    this.attachTgVideoMetaToChatMessage(approved, 'approved', { bumpTimestamp: true });
+    console.log(`${this.logPrefix} Admin approved Telegram video ${id}`);
+  }
+
+  private handleAdminTgVideoReject(clientId: string, id: number): void {
+    if (!this.isClientAuthenticated(clientId)) {
+      return;
+    }
+
+    const rejected = this.tgVideoQueue.reject(id);
+
+    if (!rejected) {
+      this.sendServerMessage(clientId, 'Video not found in pending queue');
+      return;
+    }
+
+    this.broadcastTgVideoPending();
+    this.clearTgVideoMetaFromChatMessage(rejected.chatMessageId);
+    console.log(`${this.logPrefix} Admin rejected Telegram video ${id}`);
+  }
 
   /**
    * Set up graceful shutdown handlers

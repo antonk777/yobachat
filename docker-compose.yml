@@ -3,7 +3,7 @@
 #
 # Persistent host files (survive image pull / container recreate):
 #   ./config.json  — secrets & platform credentials
-#   ./storage/     — settings, message history, deleted messages
+#   ./storage/     — settings, message history, deleted messages, telegram video queue
 
 services:
   yobachat:

@@ -5,6 +5,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch 
 import ChatMessage from '@/components/ChatMessage.vue';
 import ChatSettingsModal from '@/components/ChatSettings.vue';
 import StatusHistoryModal from '@/components/StatusHistoryModal.vue';
+import TelegramVideoQueue from '@/components/TelegramVideoQueue.vue';
 
 import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
@@ -63,6 +64,7 @@ onUnmounted(() => {
 
 const messagesContainer = useTemplateRef('messagesContainer');
 const moreMenuRef = ref<HTMLElement | null>(null);
+const navMenuRef = ref<HTMLElement | null>(null);
 
 // Apply font settings for admin panel
 useFontSettings(() => settingsStore.settings, 'admin');
@@ -73,6 +75,7 @@ useDeluxeUserColor();
 const adminLineHeight = computed(() => (settingsStore.settings?.adminLineHeight ?? kDefaultLineHeight).toString());
 
 const isMoreMenuOpen = ref(false);
+const isNavMenuOpen = ref(false);
 const platformsExpanded = ref(false);
 
 const wsConnected = computed(() => ws.connected.value);
@@ -86,11 +89,21 @@ function toggleMoreMenu() {
     return;
   }
 
+  isNavMenuOpen.value = false;
   isMoreMenuOpen.value = !isMoreMenuOpen.value;
 }
 
 function closeMoreMenu() {
   isMoreMenuOpen.value = false;
+}
+
+function toggleNavMenu() {
+  isMoreMenuOpen.value = false;
+  isNavMenuOpen.value = !isNavMenuOpen.value;
+}
+
+function closeNavMenu() {
+  isNavMenuOpen.value = false;
 }
 
 function handleRefreshWidget() {
@@ -137,6 +150,10 @@ onClickOutside(moreMenuRef, () => {
   closeMoreMenu();
 });
 
+onClickOutside(navMenuRef, () => {
+  closeNavMenu();
+});
+
 // Auto-scroll to bottom when new messages arrive
 watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () => {
   await nextTick();
@@ -162,7 +179,43 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
   </div>
   <div class="admin-panel" v-else>
     <div class="admin-header">
-      <h1 class="admin-header-title">yobachat</h1>
+      <div class="admin-header-brand">
+        <div class="nav-menu" ref="navMenuRef">
+          <button
+            class="btn nav-menu-toggle"
+            type="button"
+            :aria-expanded="isNavMenuOpen"
+            title="Open navigation"
+            @click="toggleNavMenu"
+            @keydown.escape="closeNavMenu"
+          >
+            ☰
+          </button>
+
+          <nav v-if="isNavMenuOpen" class="nav-menu-dropdown" aria-label="Widgets">
+            <a
+              class="nav-menu-item"
+              href="/widget.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="closeNavMenu"
+            >
+              Chat widget
+            </a>
+            <a
+              class="nav-menu-item"
+              href="/tg-video.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="closeNavMenu"
+            >
+              Telegram video
+            </a>
+          </nav>
+        </div>
+
+        <h1 class="admin-header-title">yobachat</h1>
+      </div>
 
       <div class="admin-header-actions">
         <div
@@ -306,6 +359,8 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
       </div>
     </div>
 
+      <TelegramVideoQueue />
+
     <div
       class="admin-section platforms-section"
       :class="{ expanded: platformsExpanded }"
@@ -418,6 +473,59 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
   border-bottom: 1px solid var(--border-color);
 }
 
+.admin-header-brand {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * .75);
+  flex: none;
+  min-width: max-content;
+}
+
+.nav-menu {
+  position: relative;
+  flex: none;
+}
+
+.nav-menu-toggle {
+  font-size: 1.15rem;
+  line-height: 1;
+  background-color: transparent;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
+  }
+}
+
+.nav-menu-dropdown {
+  position: absolute;
+  top: calc(100% + .5rem);
+  left: 0;
+  z-index: 6;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 12rem;
+  padding: .35rem 0;
+  border: 1px solid var(--border-color);
+
+  border-radius: .35rem;
+  background-color: var(--bg-color);
+  box-shadow: 0 10px 30px hsla(0 0% 0% / .35);
+}
+
+.nav-menu-item {
+  display: block;
+  padding: .55rem .9rem;
+  color: var(--text-color);
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
+  }
+}
+
 @keyframes gradient-shift {
   0%, 100% {
     background-position: 0% 50%;
@@ -428,13 +536,15 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 }
 
 .admin-header-title {
-  align-content: center;
-  height: 100%;
+  flex: none;
+  margin: 0;
+  padding-block: .15em;
+  padding-inline: .06em;
   font-family: 'Futura PT', var(--font-family);
   font-size: .75rem;
   font-weight: 700;
-  text-align: center;
-  text-box: trim-both ex alphabetic;
+  line-height: 1.2;
+  white-space: nowrap;
 
   background: linear-gradient(135deg, #4a9eff 0%, #995eff 50%, #ff74b9 100%);
   -webkit-background-clip: text;

@@ -309,6 +309,42 @@ watchEffect(() => {
             />
             Make links clickable
           </label>
+
+          <label class="settings-checkbox-item">
+            <input
+              v-model="localSettings.showApprovedTgVideosInChat"
+              type="checkbox"
+            />
+            Show Telegram videos in chat
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h4 class="settings-section-title">OBS Telegram video widget</h4>
+          <p class="settings-hint">
+            Hide overlay after both conditions are met (chat videos never auto-hide).
+          </p>
+          <div class="numeric-control">
+            Min loops
+            <input
+              type="number"
+              min="1"
+              max="100"
+              step="1"
+              v-model.number="localSettings.tgVideoWidgetMinLoops"
+            />
+          </div>
+          <div class="numeric-control">
+            Min duration
+            <input
+              type="number"
+              min="1"
+              max="600"
+              step="1"
+              v-model.number="localSettings.tgVideoWidgetMinDurationSec"
+            />
+            sec
+          </div>
         </div>
 
         <div class="settings-scale-section">
@@ -539,6 +575,16 @@ watchEffect(() => {
 .settings-section-title {
   margin-bottom: calc(var(--spacing) * .75);
   font-weight: 500;
+}
+
+.settings-hint {
+  margin: 0 0 calc(var(--spacing) * .75);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.settings-section .numeric-control {
+  margin-bottom: calc(var(--spacing) * .5);
 }
 
 .settings-scale-section {

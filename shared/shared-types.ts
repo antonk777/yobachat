@@ -135,6 +135,12 @@ export interface ChatSettings {
   filterBadWords: boolean;
   filterLinks: boolean;
   makeLinksClickable: boolean;
+  /** When true: Admin shows pending/approved TG videos in message bodies; OBS chat shows approved videos */
+  showApprovedTgVideosInChat: boolean;
+  /** OBS /tg-video.html: hide after at least this many completed loops (and min duration) */
+  tgVideoWidgetMinLoops: number;
+  /** OBS /tg-video.html: hide after at least this many seconds (and min loops) */
+  tgVideoWidgetMinDurationSec: number;
   badWords: string[];
   userFont: FontOption | null;
   adminFont: FontOption | null;
@@ -145,6 +151,33 @@ export interface ChatSettings {
   adminScale: number;
 }
 
+export type TelegramVideoMediaType = 'video' | 'gif';
+
+export type TelegramVideoStatus = 'pending' | 'approved';
+
+/** Attached to ChatMessage.metadata.tgVideo */
+export interface TelegramVideoMeta {
+  type: TelegramVideoMediaType;
+  fileId: string;
+  fileUrl: string;
+  status: TelegramVideoStatus;
+  /** Queue id used for approve/reject */
+  queueId: number;
+}
+
+export interface TelegramVideoItem {
+  id: number;
+  fileId: string;
+  type: TelegramVideoMediaType;
+  caption: string;
+  date: string;
+  filePath: string;
+  fileUrl: string;
+  chatMessageId: string;
+  pendingDate?: string;
+  thumbnail?: string | null;
+}
+
 export enum kWSMessageType {
   messageUpdate = 'messageUpdate',
   messageUpdateDeletedIds = 'messageUpdateDeletedIds',
@@ -152,11 +185,17 @@ export enum kWSMessageType {
   chatSettings = 'chatSettings',
   widgetRefresh = 'widgetRefresh',
 
+  // Telegram video (server -> client)
+  tgVideoPendingUpdated = 'tgVideoPendingUpdated',
+  tgVideoApproved = 'tgVideoApproved',
+
   // Admin commands (client -> server)
   adminDeleteMessage = 'adminDeleteMessage',
   adminUpdateSettings = 'adminUpdateSettings',
   adminClearAllMessages = 'adminClearAllMessages',
   adminRefreshWidget = 'adminRefreshWidget',
+  adminTgVideoApprove = 'adminTgVideoApprove',
+  adminTgVideoReject = 'adminTgVideoReject',
 
   // Admin responses (server -> client)
   adminServerStatus = 'adminServerStatus',
@@ -215,6 +254,26 @@ export interface WSAdminRefreshWidget {
   data: {};
 }
 
+export interface WSTgVideoPendingUpdated {
+  type: kWSMessageType.tgVideoPendingUpdated;
+  data: { pending: TelegramVideoItem[] };
+}
+
+export interface WSTgVideoApproved {
+  type: kWSMessageType.tgVideoApproved;
+  data: TelegramVideoItem;
+}
+
+export interface WSAdminTgVideoApprove {
+  type: kWSMessageType.adminTgVideoApprove;
+  data: { id: number };
+}
+
+export interface WSAdminTgVideoReject {
+  type: kWSMessageType.adminTgVideoReject;
+  data: { id: number };
+}
+
 // Admin response interfaces
 export interface WSAdminPlatformsStatus {
   type: kWSMessageType.adminPlatformsStatus;
@@ -236,12 +295,16 @@ export type WSMessageTypeMap = {
   [kWSMessageType.messageClearAll]: WSMessageClearAll;
   [kWSMessageType.chatSettings]: WSMessageChatSettings;
   [kWSMessageType.widgetRefresh]: WSWidgetRefresh;
+  [kWSMessageType.tgVideoPendingUpdated]: WSTgVideoPendingUpdated;
+  [kWSMessageType.tgVideoApproved]: WSTgVideoApproved;
 
   // Admin commands (client -> server)
   [kWSMessageType.adminDeleteMessage]: WSAdminDeleteMessage;
   [kWSMessageType.adminUpdateSettings]: WSAdminUpdateSettings;
   [kWSMessageType.adminClearAllMessages]: WSAdminClearAllMessages;
   [kWSMessageType.adminRefreshWidget]: WSAdminRefreshWidget;
+  [kWSMessageType.adminTgVideoApprove]: WSAdminTgVideoApprove;
+  [kWSMessageType.adminTgVideoReject]: WSAdminTgVideoReject;
   [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
   [kWSMessageType.adminPlatformStatusUpdate]: WSAdminPlatformStatusUpdate;
 }
@@ -253,10 +316,14 @@ export type WSMessage =
   | WSMessageClearAll
   | WSMessageChatSettings
   | WSWidgetRefresh
+  | WSTgVideoPendingUpdated
+  | WSTgVideoApproved
   | WSAdminDeleteMessage
   | WSAdminUpdateSettings
   | WSAdminClearAllMessages
   | WSAdminRefreshWidget
+  | WSAdminTgVideoApprove
+  | WSAdminTgVideoReject
   | WSAdminPlatformsStatus
   | WSAdminPlatformStatusUpdate;
 

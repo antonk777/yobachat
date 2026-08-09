@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
-import type { ChatMessageClient, ChatSettings } from '@shared/shared-types.js';
+import type { ChatMessageClient, ChatSettings, TelegramVideoMeta } from '@shared/shared-types.js';
+import { useWSConnection } from '@/composables/useWSConnection';
+import TelegramVideoLightbox, {
+  type TelegramVideoLightboxSource,
+} from '@/components/TelegramVideoLightbox.vue';
 
 const props = withDefaults(defineProps<{
   message: ChatMessageClient;
-    settings: ChatSettings;
-    isQuote?: boolean;
-    isInAdmin?: boolean;
-  }>(),
+  settings: ChatSettings;
+  isQuote?: boolean;
+  isInAdmin?: boolean;
+}>(),
   {
     isQuote: false,
     isInAdmin: false
   }
 );
+
+const ws = useWSConnection();
+const lightboxVideo = ref<TelegramVideoLightboxSource | null>(null);
 
 const hasPlatformIcon = computed(() => {
   const platformId = props.message.platform.id;
@@ -25,6 +32,87 @@ const isDeluxe = computed(() => {
 })
 
 const replyTo = computed(() => props.message.replyTo);
+
+const tgVideo = computed((): TelegramVideoMeta | null => {
+  const meta = props.message.metadata?.tgVideo;
+
+  if (!meta || typeof meta !== 'object') {
+    return null;
+  }
+
+  const video = meta as TelegramVideoMeta;
+
+  if (!video.fileUrl || !video.status) {
+    return null;
+  }
+
+  return video;
+});
+
+const showTgVideo = computed(() => {
+  if (!props.settings.showApprovedTgVideosInChat || !tgVideo.value || props.isQuote) {
+    return false;
+  }
+
+  if (props.isInAdmin) {
+    return tgVideo.value.status === 'pending' || tgVideo.value.status === 'approved';
+  }
+
+  // OBS chat widget: approved only
+  return tgVideo.value.status === 'approved';
+});
+
+const showTgVideoModeration = computed(() => {
+  return props.isInAdmin && showTgVideo.value && tgVideo.value?.status === 'pending';
+});
+
+function openLightbox(): void {
+  const video = tgVideo.value;
+
+  if (!video) {
+    return;
+  }
+
+  lightboxVideo.value = {
+    fileUrl: video.fileUrl,
+    queueId: video.queueId,
+  };
+}
+
+function closeLightbox(): void {
+  lightboxVideo.value = null;
+}
+
+function approveVideo(queueId?: number): void {
+  const id = queueId ?? tgVideo.value?.queueId;
+
+  if (id == null) {
+    return;
+  }
+
+  ws.approveTgVideo(id);
+  closeLightbox();
+}
+
+function rejectVideo(): void {
+  const id = tgVideo.value?.queueId;
+
+  if (id == null) {
+    return;
+  }
+
+  if (!confirm('Reject this video? It will not be shown again.')) {
+    return;
+  }
+
+  ws.rejectTgVideo(id);
+  closeLightbox();
+}
+
+function onLightboxReject(queueId: number): void {
+  ws.rejectTgVideo(queueId);
+  closeLightbox();
+}
 </script>
 
 <template>
@@ -55,11 +143,6 @@ const replyTo = computed(() => props.message.replyTo);
         :class="`icon-${message.platform.id}`"
         :aria-label="message.platform.abbr"
       />
-
-      <!-- <div
-        v-if="settings.showModeratorBadges && message.isAdmin && !isQuote"
-        class="admin-badge"
-      /> -->
 
       <div
         v-if="settings.showModeratorBadges && message.isModerator && !isQuote"
@@ -98,7 +181,40 @@ const replyTo = computed(() => props.message.replyTo);
       />
     </div>
 
-    <div class="message-content">
+    <div v-if="showTgVideo && tgVideo" class="message-content message-content--video">
+      <button
+        type="button"
+        class="tg-chat-video-btn"
+        title="Open fullscreen preview"
+        @click.stop="openLightbox"
+      >
+        <video
+          class="tg-chat-video"
+          :src="tgVideo.fileUrl"
+          autoplay
+          muted
+          playsinline
+          loop
+        />
+      </button>
+      <div v-if="showTgVideoModeration" class="tg-video-actions">
+        <button type="button" class="tg-video-approve" @click.stop="approveVideo()">
+          Approve
+        </button>
+        <button type="button" class="tg-video-reject" @click.stop="rejectVideo">
+          Reject
+        </button>
+      </div>
+
+      <TelegramVideoLightbox
+        :video="lightboxVideo"
+        :show-moderation="showTgVideoModeration"
+        @close="closeLightbox"
+        @approve="approveVideo"
+        @reject="onLightboxReject"
+      />
+    </div>
+    <div v-else class="message-content">
       <template v-for="(segment, index) in message.segments" :key="index">
         <a
           v-if="segment.type === 'link' && props.isInAdmin && settings.makeLinksClickable"
@@ -337,6 +453,58 @@ const replyTo = computed(() => props.message.replyTo);
   &:hover {
     color: var(--text-color);
   }
+}
+
+.message-content--video {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.35);
+  margin-top: calc(var(--spacing) * 0.15);
+}
+
+.tg-chat-video-btn {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.tg-chat-video {
+  display: block;
+  max-width: min(100%, 320px);
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.tg-video-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.tg-video-approve,
+.tg-video-reject {
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #fff;
+}
+
+.tg-video-approve {
+  background: #28a745;
+}
+
+.tg-video-reject {
+  background: #dc3545;
 }
 </style>
 

@@ -62,6 +62,7 @@ export default defineConfig({
         widget: resolve(__dirname, 'widget.html'),
         admin: resolve(__dirname, 'admin.html'),
         login: resolve(__dirname, 'login.html'),
+        'tg-video': resolve(__dirname, 'tg-video.html'),
       },
       output: {
         // Top-level entries: send each app's entry to its own folder, everything
@@ -70,7 +71,7 @@ export default defineConfig({
           const name = chunkInfo.name;
 
           // Keep under assets/ so folders don't shadow /login, /admin, /widget routes
-          if (name === 'admin' || name === 'widget' || name === 'login') {
+          if (name === 'admin' || name === 'widget' || name === 'login' || name === 'tg-video') {
             return `assets/${name}/[name].js`;
           }
 
@@ -99,6 +100,11 @@ export default defineConfig({
             id.includes('login.html')
           );
 
+          const belongsToTgVideo = moduleIds.some(id =>
+            id.includes('tg-video') ||
+            id.includes('TelegramVideoWidget')
+          );
+
           if (belongsToAdmin) {
             return 'assets/admin/[name]-[hash].js';
           }
@@ -109,6 +115,10 @@ export default defineConfig({
 
           if (belongsToLogin) {
             return 'assets/login/[name]-[hash].js';
+          }
+
+          if (belongsToTgVideo) {
+            return 'assets/tg-video/[name]-[hash].js';
           }
 
           return 'assets/[name]-[hash].js';
@@ -137,6 +147,10 @@ export default defineConfig({
               name.includes('login')
             );
 
+            const belongsToTgVideoCss = identifiers.some(name =>
+              name.includes('tg-video')
+            );
+
             if (belongsToAdminCss) {
               return 'assets/admin/[name]-[hash][extname]';
             }
@@ -147,6 +161,10 @@ export default defineConfig({
 
             if (belongsToLoginCss) {
               return 'assets/login/[name]-[hash][extname]';
+            }
+
+            if (belongsToTgVideoCss) {
+              return 'assets/tg-video/[name]-[hash][extname]';
             }
 
             return 'assets/[name]-[hash][extname]'; // e.g., index or shared

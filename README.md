@@ -7,6 +7,8 @@ Multi-platform chat overlay for OBS with a web admin panel. Runs locally over HT
 - Platforms: Twitch, YouTube Live, Telegram, VK Video, Kick, GoodGame
 - WebSocket overlay + admin console
 - Local admin via password (`adminPassword` in config)
+- Telegram video OBS overlay with Admin moderation (`/tg-video.html`)
+- Optional inline Telegram videos in chat (Chat Settings → “Show Telegram videos in chat”)
 
 ## Production (Docker only)
 
@@ -32,7 +34,10 @@ Images are published by GitHub Actions on push to `main` (no PAT). After the fir
 Open:
 
 - Widget (OBS): http://localhost:7777/widget.html
+- Telegram video widget (OBS): http://localhost:7777/tg-video.html
 - Admin: http://localhost:7777/admin.html
+
+Approve/reject Telegram videos in Admin (queue section, or in-chat when “Show Telegram videos in chat” is enabled). Pending queue is stored under `./storage/telegram-videos.json`.
 
 ### Update
 
@@ -50,7 +55,7 @@ Stop: `docker compose down`
 Persistent data on the host:
 
 - `./config.json` — credentials (bind-mounted read-only)
-- `./storage/` — settings, message history, deleted messages (`STORAGE_PATH=/storage` in the container)
+- `./storage/` — settings, message history, deleted messages, telegram video queue (`STORAGE_PATH=/storage` in the container)
 
 Image: `ghcr.io/antonk777/yobachat:latest`.
 

@@ -19,10 +19,14 @@ export const decodeWSMessage = (message: string) => {
       case kWSMessageType.messageClearAll:
       case kWSMessageType.chatSettings:
       case kWSMessageType.widgetRefresh:
+      case kWSMessageType.tgVideoPendingUpdated:
+      case kWSMessageType.tgVideoApproved:
       case kWSMessageType.adminDeleteMessage:
       case kWSMessageType.adminUpdateSettings:
       case kWSMessageType.adminClearAllMessages:
       case kWSMessageType.adminRefreshWidget:
+      case kWSMessageType.adminTgVideoApprove:
+      case kWSMessageType.adminTgVideoReject:
       case kWSMessageType.adminPlatformsStatus:
       case kWSMessageType.adminPlatformStatusUpdate:
         return messageParsed;

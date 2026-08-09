@@ -21,12 +21,15 @@ docker compose up -d
 Persistent on the host (survives `docker compose pull` / recreate):
 
 - `./config.json` — credentials
-- `./storage/` — settings, message history, deleted messages (mounted at `/storage`)
+- `./storage/` — settings, message history, deleted messages, telegram video queue (mounted at `/storage`)
 
 Open:
 
 - Widget (OBS): http://localhost:7777/widget.html
+- Telegram video widget (OBS): http://localhost:7777/tg-video.html
 - Admin: http://localhost:7777/admin.html
+
+Approve/reject Telegram videos in Admin (queue, or in-chat when “Show Telegram videos in chat” is enabled).
 
 ## Update
 

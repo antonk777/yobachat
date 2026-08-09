@@ -3,7 +3,13 @@ import { EventEmitter } from 'node:events';
 import { randomUUID } from 'node:crypto';
 import chalk from 'chalk';
 
-import type { ChatMessage, Platform, TelegramServiceConfig } from '@shared/shared-types.js';
+import type {
+  ChatMessage,
+  Platform,
+  TelegramServiceConfig,
+  TelegramVideoItem,
+  TelegramVideoMediaType,
+} from '@shared/shared-types.js';
 import type { PlatformService, PlatformWithConfig, PlatformServiceEvents, WebhookHandler } from '@/types.js';
 
 type TelegramServiceOptions = {
@@ -11,6 +17,8 @@ type TelegramServiceOptions = {
   registerHandler?: (path: string, handler: WebhookHandler) => void;
   unregisterHandler?: (path: string) => void;
 }
+
+type ExtractedTelegramVideo = Omit<TelegramVideoItem, 'id' | 'pendingDate'>;
 
 /**
  * Service for watching Telegram group messages
@@ -184,37 +192,12 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
     if (!this.bot) return;
 
     this.bot.on('message', (msg) => {
-      // Only process messages from the configured chat
-      if (String(msg.chat.id) !== String(this.config.chatId)) {
-        return;
-      }
-
-      // Skip if we've already processed this message
-      if (this.messageIds.has(msg.message_id)) {
-        return;
-      }
-
-      this.messageIds.add(msg.message_id);
-
-      const chatMessage = this.processMessage(msg);
-
-      if (chatMessage) {
-        this.emitMessage(chatMessage);
-      }
+      void this.handleIncomingTelegramMessage(msg, false);
     });
 
     // Handle edited messages (covers all types of edits: text, caption, media, etc.)
     this.bot.on('edited_message', (msg) => {
-      // Only process messages from the configured chat
-      if (String(msg.chat.id) !== String(this.config.chatId)) {
-        return;
-      }
-
-      const chatMessage = this.processMessage(msg, true);
-
-      if (chatMessage) {
-        this.emitMessage(chatMessage);
-      }
+      void this.handleIncomingTelegramMessage(msg, true);
     });
 
     // Only register webhook_error handler in webhook mode
@@ -223,6 +206,123 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
         console.error(`${this.logPrefix} Webhook error:`, error);
       });
     }
+  }
+
+  private async handleIncomingTelegramMessage(msg: Message, isEdit: boolean): Promise<void> {
+    // Only process messages from the configured chat
+    if (String(msg.chat.id) !== String(this.config.chatId)) {
+      return;
+    }
+
+    // Skip if we've already processed this message (edits still allowed)
+    if (!isEdit) {
+      if (this.messageIds.has(msg.message_id)) {
+        return;
+      }
+
+      this.messageIds.add(msg.message_id);
+    }
+
+    const chatMessage = this.processMessage(msg, isEdit);
+
+    if (chatMessage) {
+      this.emitMessage(chatMessage);
+    }
+
+    if (!isEdit) {
+      try {
+        const media = await this.extractMedia(msg);
+
+        if (media) {
+          this.emit('videoReceived', media);
+        }
+      } catch (error) {
+        console.error(`${this.logPrefix} Error extracting media:`, error);
+      }
+    }
+  }
+
+  private async extractMedia(msg: Message): Promise<ExtractedTelegramVideo | null> {
+    if (!this.bot) {
+      return null;
+    }
+
+    const chatMessageId = `telegram-${msg.message_id}`;
+    const caption = msg.caption || '';
+    const date = new Date(msg.date * 1000).toISOString();
+    const token = this.config.botToken;
+
+    const buildUrl = (filePath: string) =>
+      `https://api.telegram.org/file/bot${token}/${filePath}`;
+
+    if (msg.video) {
+      const file = await this.bot.getFile(msg.video.file_id);
+      if (!file.file_path) {
+        return null;
+      }
+
+      return {
+        type: 'video',
+        fileId: msg.video.file_id,
+        filePath: file.file_path,
+        fileUrl: buildUrl(file.file_path),
+        caption,
+        date,
+        chatMessageId,
+        thumbnail: null,
+      };
+    }
+
+    if (msg.animation) {
+      const file = await this.bot.getFile(msg.animation.file_id);
+      if (!file.file_path) {
+        return null;
+      }
+
+      return {
+        type: 'gif',
+        fileId: msg.animation.file_id,
+        filePath: file.file_path,
+        fileUrl: buildUrl(file.file_path),
+        caption,
+        date,
+        chatMessageId,
+        thumbnail: null,
+      };
+    }
+
+    if (msg.document) {
+      const isVideoDoc =
+        msg.document.mime_type?.startsWith('video/') ||
+        !!msg.document.file_name?.match(/\.(mp4|webm|ogg|mov)$/i);
+      const isGifDoc =
+        msg.document.mime_type === 'image/gif' ||
+        !!msg.document.file_name?.toLowerCase().endsWith('.gif');
+
+      if (!isVideoDoc && !isGifDoc) {
+        return null;
+      }
+
+      const file = await this.bot.getFile(msg.document.file_id);
+      if (!file.file_path) {
+        return null;
+      }
+
+      const type: TelegramVideoMediaType = isGifDoc ? 'gif' : 'video';
+
+      return {
+        type,
+        fileId: msg.document.file_id,
+        filePath: file.file_path,
+        fileUrl: buildUrl(file.file_path),
+        caption,
+        date,
+        chatMessageId,
+        thumbnail: null,
+      };
+    }
+
+    return null;
   }
 
   private processMessage(msg: Message, isEdit: boolean = false): ChatMessage | null {
@@ -345,4 +445,3 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
     }
   }
 }
-

@@ -133,11 +133,19 @@ export class MessageHistoryService {
   }
 
   /**
-   * Add messages to history, keeping only the last kMaxMessages messages
+   * Add messages to history, keeping only the last kMaxMessages messages.
+   * Replaces existing entries with the same id.
    */
   add(messages: ChatMessage[]): void {
-    // Add new messages to history
-    this.messageHistory.push(...messages);
+    for (const message of messages) {
+      const existingIndex = this.messageHistory.findIndex(m => m.id === message.id);
+
+      if (existingIndex !== -1) {
+        this.messageHistory[existingIndex] = message;
+      } else {
+        this.messageHistory.push(message);
+      }
+    }
 
     // Sort by timestamp
     this.messageHistory.sort((a, b) => a.timestamp - b.timestamp);
@@ -149,6 +157,21 @@ export class MessageHistoryService {
 
     // Schedule save (throttled)
     this.scheduleSave();
+  }
+
+  /**
+   * Find a message by id
+   */
+  getById(id: string): ChatMessage | undefined {
+    return this.messageHistory.find(m => m.id === id);
+  }
+
+  /**
+   * Replace a message by id (or add if missing)
+   */
+  upsert(message: ChatMessage): ChatMessage {
+    this.add([message]);
+    return message;
   }
 
   /**

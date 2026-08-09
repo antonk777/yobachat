@@ -1,13 +1,14 @@
 import { EventEmitter } from 'node:events';
 import type { Request, Response } from 'express';
 
-import type { ChatMessage, ChatMessageDelete, Platform, PlatformType, TelegramServiceConfig, TwitchServiceConfig, VKVideoServiceConfig, YouTubeServiceConfig, KickServiceConfig, GoodgameServiceConfig, SharedConfig } from '@shared/shared-types.js';
+import type { ChatMessage, ChatMessageDelete, Platform, PlatformType, TelegramServiceConfig, TwitchServiceConfig, VKVideoServiceConfig, YouTubeServiceConfig, KickServiceConfig, GoodgameServiceConfig, SharedConfig, TelegramVideoItem } from '@shared/shared-types.js';
 
 // Base interface for all service events
 export interface PlatformServiceEvents {
   'messageUpdated': [message: ChatMessage];
   'messageDeleted': [deleteEvent: ChatMessageDelete];
   'status': [active: boolean];
+  'videoReceived': [video: Omit<TelegramVideoItem, 'id' | 'pendingDate'>];
 }
 
 // Interfaces

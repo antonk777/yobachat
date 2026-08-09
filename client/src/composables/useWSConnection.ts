@@ -7,6 +7,7 @@ import { decodeWSMessage, encodeWSMessage } from '@shared/shared-messenger';
 import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
+import { useTelegramVideosStore } from '@/stores/telegramVideos';
 import { useAuth } from '@/composables/useAuth';
 
 import { getWsUrl } from '@shared/shared-urls';
@@ -31,6 +32,7 @@ export const useWSConnection = createGlobalState(() => {
   const messagesStore = useMessagesStore();
   const settingsStore = useSettingsStore();
   const uiStore = useUIStore();
+  const telegramVideosStore = useTelegramVideosStore();
 
   // --- Build URL with token ---
   function buildWsUrl(): string {
@@ -125,6 +127,14 @@ export const useWSConnection = createGlobalState(() => {
 
         case kWSMessageType.adminPlatformStatusUpdate:
           uiStore.updatePlatformStatus(parsed.data.platform);
+          break;
+
+        case kWSMessageType.tgVideoPendingUpdated:
+          telegramVideosStore.setPending(parsed.data.pending);
+          break;
+
+        case kWSMessageType.tgVideoApproved:
+          telegramVideosStore.setApproved(parsed.data);
           break;
 
         default:
@@ -270,6 +280,20 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
+  function approveTgVideo(id: number): void {
+    send({
+      type: kWSMessageType.adminTgVideoApprove,
+      data: { id }
+    });
+  }
+
+  function rejectTgVideo(id: number): void {
+    send({
+      type: kWSMessageType.adminTgVideoReject,
+      data: { id }
+    });
+  }
+
   function updateChatSettings(settings: Partial<ChatSettings>): void {
     send({
       type: kWSMessageType.adminUpdateSettings,
@@ -297,6 +321,8 @@ export const useWSConnection = createGlobalState(() => {
     updateBadWords,
     clearAllMessages,
     refreshWidget,
+    approveTgVideo,
+    rejectTgVideo,
     updateChatSettings,
   };
 });

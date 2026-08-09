@@ -184,6 +184,9 @@ export const ChatSettingsSchema = z.object({
   filterBadWords: z.boolean(),
   filterLinks: z.boolean(),
   makeLinksClickable: z.boolean(),
+  showApprovedTgVideosInChat: z.boolean(),
+  tgVideoWidgetMinLoops: z.number().int().min(1).max(100),
+  tgVideoWidgetMinDurationSec: z.number().int().min(1).max(600),
   badWords: z.array(z.string().min(1).max(100)),
   userFont: FontOptionSchema.nullable(),
   adminFont: FontOptionSchema.nullable(),
@@ -257,6 +260,45 @@ const AdminRefreshWidgetSchema = z.object({
   data: z.object({})
 });
 
+const TelegramVideoItemSchema = z.object({
+  id: z.number(),
+  fileId: z.string(),
+  type: z.enum(['video', 'gif']),
+  caption: z.string(),
+  date: z.string(),
+  filePath: z.string(),
+  fileUrl: z.string(),
+  chatMessageId: z.string(),
+  pendingDate: z.string().optional(),
+  thumbnail: z.string().nullable().optional(),
+});
+
+const TgVideoPendingUpdatedSchema = z.object({
+  type: z.literal(kWSMessageType.tgVideoPendingUpdated),
+  data: z.object({
+    pending: z.array(TelegramVideoItemSchema),
+  }),
+});
+
+const TgVideoApprovedSchema = z.object({
+  type: z.literal(kWSMessageType.tgVideoApproved),
+  data: TelegramVideoItemSchema,
+});
+
+const AdminTgVideoApproveSchema = z.object({
+  type: z.literal(kWSMessageType.adminTgVideoApprove),
+  data: z.object({
+    id: z.number(),
+  }),
+});
+
+const AdminTgVideoRejectSchema = z.object({
+  type: z.literal(kWSMessageType.adminTgVideoReject),
+  data: z.object({
+    id: z.number(),
+  }),
+});
+
 const AdminPlatformsStatusSchema = z.object({
   type: z.literal(kWSMessageType.adminPlatformsStatus),
   data: z.object({
@@ -279,10 +321,14 @@ export const WSMessageSchema = z.discriminatedUnion('type', [
   MessageClearAllSchema,
   ChatSettingsWSSchema,
   WidgetRefreshSchema,
+  TgVideoPendingUpdatedSchema,
+  TgVideoApprovedSchema,
   AdminDeleteMessageSchema,
   AdminUpdateSettingsSchema,
   AdminClearAllMessagesSchema,
   AdminRefreshWidgetSchema,
+  AdminTgVideoApproveSchema,
+  AdminTgVideoRejectSchema,
   AdminPlatformsStatusSchema,
   AdminPlatformStatusUpdateSchema
 ]) as z.ZodType<WSMessage>;

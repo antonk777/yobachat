@@ -22,14 +22,6 @@ const showFallbackQueue = computed(() => {
 const pending = computed(() => telegramVideosStore.pending);
 const hasPending = computed(() => pending.value.length > 0);
 
-function formatDate(dateString?: string): string {
-  if (!dateString) {
-    return '';
-  }
-
-  return new Date(dateString).toLocaleString();
-}
-
 function openLightbox(video: TelegramVideoItem): void {
   lightboxVideo.value = {
     fileUrl: video.fileUrl,
@@ -91,25 +83,25 @@ watch(pending, (videos) => {
         :key="video.id"
         class="tg-video-item"
       >
-        <button
-          type="button"
-          class="tg-video-preview-btn"
-          title="Open fullscreen preview"
-          @click="openLightbox(video)"
-        >
-          <video
-            class="tg-video-preview"
-            :src="video.fileUrl"
-            muted
-            playsinline
-            loop
-            autoplay
-          />
-        </button>
+        <div class="tg-video-media">
+          <button
+            type="button"
+            class="tg-video-preview-btn"
+            title="Open fullscreen preview"
+            @click="openLightbox(video)"
+          >
+            <video
+              class="tg-video-preview"
+              :src="video.fileUrl"
+              muted
+              playsinline
+              loop
+              autoplay
+            />
+          </button>
 
-        <p v-if="video.caption" class="tg-video-caption">{{ video.caption }}</p>
-
-        <p class="tg-video-date">{{ formatDate(video.date) }}</p>
+          <p v-if="video.caption" class="tg-video-caption">{{ video.caption }}</p>
+        </div>
 
         <div class="tg-video-actions">
           <button type="button" class="approve" @click="approve(video.id)">
@@ -157,54 +149,88 @@ watch(pending, (videos) => {
 
 .tg-video-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 10px;
+  grid-auto-flow: column;
+  grid-auto-columns: 176px;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.tg-video-list::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tg-video-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tg-video-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
 }
 
 .tg-video-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 2;
   padding: 8px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
 }
 
+.tg-video-media {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
 .tg-video-preview-btn {
-  display: block;
-  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 90px;
+  max-width: 160px;
+  max-height: 90px;
+  flex: 0 0 90px;
   padding: 0;
   border: none;
   border-radius: 4px;
-  background: transparent;
+  overflow: hidden;
+  background: #000;
   cursor: zoom-in;
 }
 
 .tg-video-preview {
   display: block;
   width: 100%;
-  max-height: 160px;
+  height: 100%;
   object-fit: contain;
-  border-radius: 4px;
-  background: #000;
   pointer-events: none;
 }
 
 .tg-video-caption {
   margin: 0;
+  min-height: 0;
   font-size: 0.85rem;
+  line-height: 1.25;
   word-break: break-word;
-}
-
-.tg-video-date {
-  margin: 0;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .tg-video-actions {
   display: flex;
   gap: 6px;
+  align-self: end;
 }
 
 .tg-video-actions button {

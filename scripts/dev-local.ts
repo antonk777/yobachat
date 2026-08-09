@@ -210,7 +210,8 @@ async function waitForFile(path: string, timeoutMs = 60000): Promise<void> {
 function configureServerEnv(): void {
   process.env.NODE_ENV = 'development';
   process.env.CONFIG_PATH = resolve(rootDir, 'config.json');
-  // Run with the server dir as cwd so storage/ and oauth files match the prod layout.
+  process.env.STORAGE_PATH = resolve(rootDir, 'storage');
+  // Match production: run with the server dir as cwd
   process.chdir(serverDir);
 }
 

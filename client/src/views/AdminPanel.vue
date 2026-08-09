@@ -102,17 +102,6 @@ function handleRefreshWidget() {
   closeMoreMenu();
 }
 
-function handleRestartServer() {
-  if (!wsConnected.value) {
-    return;
-  }
-
-  if (confirm('Are you sure you want to restart the server? This will disconnect all clients temporarily.')) {
-    ws.restartServer();
-    closeMoreMenu();
-  }
-}
-
 function handleMessageClick(messageId: string) {
   if (!messagesStore.isSelectionMode) {
     messagesStore.isSelectionMode = true;
@@ -231,15 +220,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
               title="Refresh the chat widget"
             >
               Refresh Widget
-            </button>
-            <button
-              type="button"
-              class="more-menu-item"
-              @click="handleRestartServer"
-              :disabled="!wsConnected"
-              title="Restart the server process"
-            >
-              Restart Server
             </button>
           </div>
         </div>

@@ -10,7 +10,7 @@
     "build:client": "cd client && cross-env CONFIG_PATH=../config.json vite build",
     "prebuild": "tsx scripts/setup-shared-symlinks.ts",
     "dev": "tsx scripts/dev-local.ts",
-    "start": "cd server && cross-env NODE_ENV=production CONFIG_PATH=../config.json node dist/index.js",
+    "start": "cd server && cross-env NODE_ENV=production CONFIG_PATH=../config.json STORAGE_PATH=../storage node dist/index.js",
     "docker:build": "docker compose -f docker-compose.yml -f docker-compose.build.yml build",
     "docker:up": "docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build",
     "docker:down": "docker compose down",

@@ -1,12 +1,13 @@
 import { readFile, writeFile, access, mkdir } from 'fs/promises';
 import { constants } from 'fs';
-import { join, dirname } from 'path';
+import { dirname } from 'path';
 import chalk from 'chalk';
 
 import type { ChatSettings } from '@shared/shared-types.js';
 
 import { kDefaultChatSettings } from '@shared/shared-constants';
 import { validateChatSettings, validatePartialChatSettings } from '@/validation.js';
+import { storageFile } from '@/storage-path.js';
 
 
 /**
@@ -19,7 +20,7 @@ export class SettingsService {
   private filePath: string;
 
   constructor() {
-    this.filePath = join(process.cwd(), 'storage', 'settings.json');
+    this.filePath = storageFile('settings.json');
   }
 
   /**

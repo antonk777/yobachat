@@ -1,6 +1,6 @@
 import { readFile, writeFile, access, mkdir } from 'fs/promises';
 import { constants } from 'fs';
-import { join, dirname } from 'path';
+import { dirname } from 'path';
 import chalk from 'chalk';
 
 import type { ChatMessage } from '@shared/shared-types.js';
@@ -8,8 +8,8 @@ import type { ChatMessage } from '@shared/shared-types.js';
 import { ChatMessageSchema } from '@/validation.js';
 import { kMaxHistoryMessages } from '@shared/shared-constants';
 import { kIsDev } from '@/config';
+import { storageFile } from '@/storage-path.js';
 
-const kMessageHistoryFilePath = join(process.cwd(), 'storage', 'message-history.json');
 const kSaveThrottleMS = 5000; // 5 seconds
 
 /**
@@ -19,7 +19,7 @@ export class MessageHistoryService {
   public logPrefix = chalk.magenta('[MessageHistory]');
 
   private messageHistory: ChatMessage[] = [];
-  private filePath: string = kMessageHistoryFilePath;
+  private filePath: string = storageFile('message-history.json');
   private saveTimeout: NodeJS.Timeout | null = null;
   private pendingSave: boolean = false;
 

@@ -157,7 +157,6 @@ export enum kWSMessageType {
   adminUpdateSettings = 'adminUpdateSettings',
   adminClearAllMessages = 'adminClearAllMessages',
   adminRefreshWidget = 'adminRefreshWidget',
-  adminRestartServer = 'adminRestartServer',
 
   // Admin responses (server -> client)
   adminServerStatus = 'adminServerStatus',
@@ -216,11 +215,6 @@ export interface WSAdminRefreshWidget {
   data: {};
 }
 
-export interface WSAdminRestartServer {
-  type: kWSMessageType.adminRestartServer;
-  data: {};
-}
-
 // Admin response interfaces
 export interface WSAdminPlatformsStatus {
   type: kWSMessageType.adminPlatformsStatus;
@@ -248,7 +242,6 @@ export type WSMessageTypeMap = {
   [kWSMessageType.adminUpdateSettings]: WSAdminUpdateSettings;
   [kWSMessageType.adminClearAllMessages]: WSAdminClearAllMessages;
   [kWSMessageType.adminRefreshWidget]: WSAdminRefreshWidget;
-  [kWSMessageType.adminRestartServer]: WSAdminRestartServer;
   [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
   [kWSMessageType.adminPlatformStatusUpdate]: WSAdminPlatformStatusUpdate;
 }
@@ -264,7 +257,6 @@ export type WSMessage =
   | WSAdminUpdateSettings
   | WSAdminClearAllMessages
   | WSAdminRefreshWidget
-  | WSAdminRestartServer
   | WSAdminPlatformsStatus
   | WSAdminPlatformStatusUpdate;
 

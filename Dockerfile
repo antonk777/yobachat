@@ -37,11 +37,12 @@ COPY config.example.json /app/config.example.json
 COPY docker/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh \
-  && mkdir -p /app/server/storage
+  && mkdir -p /storage
 
 ENV NODE_ENV=production
 ENV CONFIG_PATH=/app/config.json
 ENV CLIENT_DIST_PATH=/app/client/dist
+ENV STORAGE_PATH=/storage
 
 EXPOSE 9012
 

@@ -26,7 +26,8 @@ server/shared/
 # Vue Language Server auto-generated files
 client/src/types/vue-global.d.ts
 
-# Storage files
+# Storage files (settings, message history, etc.)
+/storage/
 server/storage/*.json
 /data/
 

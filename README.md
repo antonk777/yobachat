@@ -36,7 +36,7 @@ Open:
 
 ### Update
 
-From the same directory (keeps your `config.json` and `./data`):
+From the same directory (keeps your `config.json` and `./storage`):
 
 ```bash
 # optional: refresh Compose if it changed upstream
@@ -47,7 +47,12 @@ That pulls the latest `ghcr.io/antonk777/yobachat:latest` image and recreates th
 
 Logs: `docker compose logs -f`  
 Stop: `docker compose down`  
-Data: `./data` → `server/storage`. Image: `ghcr.io/antonk777/yobachat:latest`.
+Persistent data on the host:
+
+- `./config.json` — credentials (bind-mounted read-only)
+- `./storage/` — settings, message history, deleted messages (`STORAGE_PATH=/storage` in the container)
+
+Image: `ghcr.io/antonk777/yobachat:latest`.
 
 ## Local Docker build
 
@@ -68,7 +73,7 @@ Important for local use:
 - `apiPort`: `9012` (HTTP inside the container / for `npm start`)
 - `wsPort` / `webhookPort`: internal only (`9013` / `9014`)
 
-Set `CONFIG_PATH` to override the config file path. Set `CLIENT_DIST_PATH` if the built client is not next to the server.
+Set `CONFIG_PATH` to override the config file path. Set `CLIENT_DIST_PATH` if the built client is not next to the server. Set `STORAGE_PATH` to override where settings/history are stored (default: repo `./storage`, Docker: `/storage`).
 
 ## Local development (without Docker)
 
@@ -101,6 +106,7 @@ npm run dev            # build + watch; open host from config (Docker: :7777, lo
 ├── server/           # Node ingestion + WebSocket + API + static
 ├── shared/           # Shared types/helpers
 ├── docker/           # container entrypoint
+├── storage/          # settings, message history (host-persisted; Docker → /storage)
 ├── config.example.json
 ├── Dockerfile
 ├── docker-compose.yml       # production (pull image)

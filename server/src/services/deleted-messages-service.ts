@@ -1,9 +1,8 @@
 import { readFile, writeFile, access, mkdir } from 'fs/promises';
 import { constants } from 'fs';
-import { join, dirname } from 'path';
+import { dirname } from 'path';
 import { MessageIdSchema } from '@/validation';
-
-const kDeletedMessagesFilePath = join(process.cwd(), 'storage', 'deleted-messages.json');
+import { storageFile } from '@/storage-path.js';
 
 /**
  * Service for managing deleted message IDs
@@ -13,7 +12,7 @@ export class DeletedMessagesService {
   private filePath: string;
 
   constructor() {
-    this.filePath = kDeletedMessagesFilePath;
+    this.filePath = storageFile('deleted-messages.json');
   }
 
   /**

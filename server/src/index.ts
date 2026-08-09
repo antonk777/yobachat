@@ -36,6 +36,7 @@ import { GoodgameService } from '@/services/goodgame-service.js';
 import { SettingsService } from '@/services/settings-service.js';
 import { DeletedMessagesService } from '@/services/deleted-messages-service.js';
 import { MessageHistoryService } from '@/services/message-history-service.js';
+import { getStorageDir } from '@/storage-path.js';
 import { WebhookService } from '@/services/webhook-service.js';
 import { WebSocketService } from '@/services/websocket-service.js';
 import { WebAPIService } from '@/services/webapi-service.js';
@@ -93,6 +94,8 @@ export class ChatServer {
 
   async start(options?: { registerSignalHandlers?: boolean }): Promise<void> {
     // Initialize services (load from disk)
+    console.log(`${this.logPrefix} Storage directory: ${getStorageDir()}`);
+
     await Promise.all([
       this.settings.init(),
       this.deletedMessages.init(),
@@ -494,10 +497,6 @@ export class ChatServer {
         this.broadcastWidgetRefresh();
         console.log(`${this.logPrefix} Admin triggered widget refresh`);
         break;
-
-      case kWSMessageType.adminRestartServer:
-        await this.handleAdminRestartServer(clientId);
-        break;
     }
   }
 
@@ -643,20 +642,6 @@ export class ChatServer {
       console.error(`${this.logPrefix} Failed to update chat settings:`, error);
     }
   }
-
-  /**
-   * Handle admin restart: exit so the process manager (Docker) restarts the container.
-   */
-  private async handleAdminRestartServer(clientId: string): Promise<void> {
-    this.sendServerMessage(clientId, 'Restarting server...');
-    console.log(`${this.logPrefix} Admin triggered server restart — exiting process`);
-
-    // Allow the WS message to flush, then exit. Docker `restart: unless-stopped` brings us back.
-    setTimeout(() => {
-      void this.shutdown(true);
-    }, 250);
-  }
-
 
   /**
    * Broadcast platform status update to all admin clients

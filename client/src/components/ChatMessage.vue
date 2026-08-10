@@ -486,15 +486,15 @@ function onLightboxReject(queueId: number): void {
 
 .tg-video-actions {
   display: flex;
-  gap: 0.375rem;
+  gap: 0.25rem;
 }
 
 .tg-video-approve,
 .tg-video-reject {
   border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.625rem;
-  font-size: 0.8rem;
+  border-radius: 0.1875rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.7rem;
   cursor: pointer;
   color: #fff;
   text-align: center;

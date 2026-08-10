@@ -474,29 +474,30 @@ function onLightboxReject(queueId: number): void {
 
 .tg-chat-video {
   display: block;
-  max-width: min(100%, 320px);
-  max-height: 220px;
+  max-width: min(100%, 20rem);
+  max-height: 13.75rem;
   width: auto;
   height: auto;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background: rgba(0, 0, 0, 0.25);
   pointer-events: none;
 }
 
 .tg-video-actions {
   display: flex;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .tg-video-approve,
 .tg-video-reject {
   border: none;
-  border-radius: 4px;
-  padding: 4px 10px;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.625rem;
   font-size: 0.8rem;
   cursor: pointer;
   color: #fff;
+  text-align: center;
 }
 
 .tg-video-approve {

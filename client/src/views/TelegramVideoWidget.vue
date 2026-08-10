@@ -291,9 +291,9 @@ html.tg-video-page body {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 24px;
+  font-size: 1.5rem;
   text-align: center;
-  text-shadow: 0 2px 10px #000;
+  text-shadow: 0 0.125rem 0.625rem #000;
   font-family: system-ui, sans-serif;
   pointer-events: none;
 }

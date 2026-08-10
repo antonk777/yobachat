@@ -131,9 +131,9 @@ watch(pending, (videos) => {
   top: 2.5rem;
   z-index: 1;
   margin: 0;
-  padding: 12px calc(var(--spacing, 8px) * 0.75);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
+  padding: 0.75rem calc(var(--spacing, 0.5rem) * 0.75);
+  border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(0.5rem);
 }
 
 .tg-video-obs-link {
@@ -144,25 +144,25 @@ watch(pending, (videos) => {
 .tg-video-empty {
   margin: 0;
   color: rgba(255, 255, 255, 0.55);
-  font-size: .8rem;
+  font-size: 0.8rem;
 }
 
 .tg-video-list {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 176px;
+  grid-auto-columns: 9rem;
   grid-template-rows: auto auto;
-  column-gap: 10px;
-  row-gap: 6px;
+  column-gap: 0.625rem;
+  row-gap: 0.375rem;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 4px;
+  padding-bottom: 0.25rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
 }
 
 .tg-video-list::-webkit-scrollbar {
-  height: 6px;
+  height: 0.375rem;
 }
 
 .tg-video-list::-webkit-scrollbar-track {
@@ -171,22 +171,22 @@ watch(pending, (videos) => {
 
 .tg-video-list::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.35);
-  border-radius: 3px;
+  border-radius: 0.1875rem;
 }
 
 .tg-video-item {
   display: grid;
   grid-template-rows: subgrid;
   grid-row: span 2;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
   background: rgba(255, 255, 255, 0.04);
 }
 
 .tg-video-media {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem;
   min-height: 0;
 }
 
@@ -194,14 +194,14 @@ watch(pending, (videos) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 160px;
-  height: 90px;
-  max-width: 160px;
-  max-height: 90px;
-  flex: 0 0 90px;
+  width: 8rem;
+  height: 4.5rem;
+  max-width: 8rem;
+  max-height: 4.5rem;
+  flex: 0 0 4.5rem;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   overflow: hidden;
   background: #000;
   cursor: zoom-in;
@@ -229,18 +229,19 @@ watch(pending, (videos) => {
 
 .tg-video-actions {
   display: flex;
-  gap: 6px;
+  gap: 0.375rem;
   align-self: end;
 }
 
 .tg-video-actions button {
   flex: 1;
   border: none;
-  border-radius: 4px;
-  padding: 6px 8px;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.375rem;
   color: #fff;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.7rem;
+  text-align: center;
 }
 
 .tg-video-actions .approve {

@@ -98,8 +98,11 @@ npm run dev            # build + watch; open host from config (Docker: :7777, lo
 | `npm run build` | Build server + client |
 | `npm run start` | Run built server (serves `client/dist` when present) |
 | `npm run docker:up` | Local: build image and start Compose |
+| `npm run docker:pull` | Pull latest GHCR image |
+| `npm run docker:restart` | Recreate/restart the container |
+| `npm run docker:sync` | Pull latest image and recreate container |
 | `docker compose up -d` | Production: run (after curl compose + edit config.json) |
-| `./scripts/docker-sync.sh` | Pull latest image and recreate |
+| `./scripts/docker-sync.sh` | Same as `docker:sync` (bash) |
 | `npm run docker:down` | Stop stack |
 | `npm run docker:logs` | Follow container logs |
 

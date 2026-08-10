@@ -13,6 +13,9 @@
     "start": "cd server && cross-env NODE_ENV=production CONFIG_PATH=../config.json STORAGE_PATH=../storage node dist/index.js",
     "docker:build": "docker compose -f docker-compose.yml -f docker-compose.build.yml build",
     "docker:up": "docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build",
+    "docker:pull": "docker compose pull",
+    "docker:restart": "docker compose up -d --force-recreate",
+    "docker:sync": "docker compose pull && docker compose up -d --force-recreate",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f"
   },

@@ -118,15 +118,15 @@ watch(() => props.video, (video) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 24px;
+  gap: 0.75rem;
+  padding: 1.5rem;
   background: rgba(0, 0, 0, 0.88);
 }
 
 .tg-video-lightbox-close {
   position: absolute;
-  top: 12px;
-  right: 16px;
+  top: 0.75rem;
+  right: 1rem;
   border: none;
   background: transparent;
   color: #fff;
@@ -141,18 +141,18 @@ watch(() => props.video, (video) => {
 }
 
 .tg-video-lightbox-player {
-  max-width: min(96vw, 1100px);
-  max-height: min(70vh, 800px);
+  max-width: min(96vw, 68.75rem);
+  max-height: min(70vh, 50rem);
   width: auto;
   height: auto;
   object-fit: contain;
   background: #000;
-  border-radius: 6px;
+  border-radius: 0.375rem;
 }
 
 .tg-video-lightbox-caption {
   margin: 0;
-  max-width: min(96vw, 640px);
+  max-width: min(96vw, 40rem);
   color: #e0e0e0;
   text-align: center;
   word-break: break-word;
@@ -160,18 +160,19 @@ watch(() => props.video, (video) => {
 
 .tg-video-lightbox-actions {
   display: flex;
-  gap: 10px;
-  width: min(96vw, 360px);
+  gap: 0.625rem;
+  width: min(96vw, 22.5rem);
 }
 
 .tg-video-lightbox-actions button {
   flex: 1;
   border: none;
-  border-radius: 4px;
-  padding: 10px 14px;
+  border-radius: 0.25rem;
+  padding: 0.625rem 0.875rem;
   color: #fff;
   cursor: pointer;
   font-size: 1rem;
+  text-align: center;
 }
 
 .tg-video-lightbox-actions .approve {

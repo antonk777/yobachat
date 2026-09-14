@@ -268,7 +268,8 @@ function onLightboxReject(queueId: number): void {
 
 .message-header {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
+  vertical-align: middle;
   gap: var(--whitespace);
   flex-wrap: wrap;
   margin-right: var(--whitespace);
@@ -423,6 +424,7 @@ function onLightboxReject(queueId: number): void {
 
 .message-content {
   display: inline;
+  vertical-align: middle;
   color: var(--text-color);
   max-width: 100%;
   hyphens: auto;

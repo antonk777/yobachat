@@ -1,7 +1,6 @@
 import { EventEmitter } from 'node:events';
 import chalk from 'chalk';
-import { Innertube } from 'youtubei.js/web';
-import { YTNodes } from 'youtubei.js/web';
+import { Innertube, Parser, YTNodes } from 'youtubei.js/web';
 import type LiveChat from 'youtubei.js/dist/src/parser/youtube/LiveChat.js';
 import type LiveChatTextMessage from 'youtubei.js/dist/src/parser/classes/livechat/items/LiveChatTextMessage.js';
 import type EmojiRun from 'youtubei.js/dist/src/parser/classes/misc/EmojiRun.js';
@@ -16,6 +15,21 @@ import type {
 import { kYouTubeEmoteMapping } from '@/constants/youtube.js';
 import { randomUUID } from 'node:crypto';
 
+const ignoredDescriptionNodes = new Set(['ItemSection', 'VideoTitleHeaderView']);
+
+// The watch-page description panel includes nodes youtubei.js does not
+// accept there. Live chat does not use that panel.
+Parser.setParserErrorHandler((parserError) => {
+  if (parserError.error_type === 'typecheck' && ignoredDescriptionNodes.has(parserError.classname)) {
+    return;
+  }
+
+  const detail = parserError.error_type === 'parse' && parserError.error instanceof Error
+    ? parserError.error.message
+    : parserError.error_type;
+
+  console.warn(`[YT] youtubei.js parser ${parserError.error_type} at ${parserError.classname}: ${detail}`);
+});
 
 /**
  * Service for watching YouTube live chat messages

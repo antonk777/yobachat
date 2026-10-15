@@ -29,7 +29,7 @@ curl -fsSLO https://raw.githubusercontent.com/antonk777/yobachat/main/docker-com
 docker compose up -d
 ```
 
-Images are published by GitHub Actions on push to `main` (no PAT). After the first successful run, set the GHCR package to **Public** if needed so pulls need no login.
+Images are published to `ghcr.io/antonk777/yobachat:latest` by GitHub Actions on push to `main` (no PAT), or manually with `npm run docker:publish` after `docker login ghcr.io`. After the first successful run, set the GHCR package to **Public** if needed so pulls need no login.
 
 Open:
 
@@ -97,6 +97,8 @@ npm run dev            # build + watch; open host from config (Docker: :7777, lo
 | `npm run dev` | Local watch/dev proxy |
 | `npm run build` | Build server + client |
 | `npm run start` | Run built server (serves `client/dist` when present) |
+| `npm run docker:build` | Build a local image (`yobachat:local`) |
+| `npm run docker:publish` | Build and push `ghcr.io/antonk777/yobachat:latest` (`docker login ghcr.io` first) |
 | `npm run docker:up` | Local: build image and start Compose |
 | `npm run docker:pull` | Pull latest GHCR image |
 | `npm run docker:restart` | Recreate/restart the container |

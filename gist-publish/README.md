@@ -2,7 +2,7 @@
 
 Multi-platform chat overlay for OBS. Host needs **Docker only** (no Node/git).
 
-Image: `ghcr.io/antonk777/yobachat:latest` (keep the GHCR package **Public**).
+Image: `ghcr.io/antonk777/yobachat:latest` for `linux/amd64` and `linux/arm64` (Apple Silicon). Keep the GHCR package **Public**.
 
 ## Setup
 

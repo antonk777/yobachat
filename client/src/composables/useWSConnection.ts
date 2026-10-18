@@ -328,6 +328,13 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
+  function postQr(text: string, url: string): void {
+    send({
+      type: kWSMessageType.adminPostQr,
+      data: { text, url }
+    });
+  }
+
   function updateChatSettings(settings: Partial<ChatSettings>): void {
     send({
       type: kWSMessageType.adminUpdateSettings,
@@ -361,6 +368,7 @@ export const useWSConnection = createGlobalState(() => {
     addEmotes,
     renameEmote,
     deleteEmote,
+    postQr,
     updateChatSettings,
   };
 });

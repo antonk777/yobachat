@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,6 +18,7 @@ import type {
   TwitchServiceConfig,
   VKVideoServiceConfig,
   WSAdminDeleteMessage,
+  WSAdminPostQr,
   WSMessage,
   YouTubeServiceConfig
 } from '@shared/shared-types.js';
@@ -58,6 +60,32 @@ import {
 } from '@/validation.js';
 import { kBatchDelayMS } from '@shared/shared-constants';
 import { getApiOrigin, joinSharedPath } from '@shared/shared-urls.js';
+
+function normalizeHttpUrl(raw: string): string | null {
+  const value = raw.trim();
+
+  if (!value || value.length > 2048) {
+    return null;
+  }
+
+  let url: URL;
+
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+
+  if ((url.protocol !== 'http:' && url.protocol !== 'https:') || !url.hostname) {
+    return null;
+  }
+
+  if (url.href.length > 2048) {
+    return null;
+  }
+
+  return url.href;
+}
 
 export class ChatServer {
   public logPrefix = chalk.yellow('[ChatServer]');
@@ -201,6 +229,10 @@ export class ChatServer {
 
     if (message.badgeImages && Object.keys(message.badgeImages).length > 0) {
       console.log(`  Badges: ${JSON.stringify(message.badgeImages)}`);
+    }
+
+    if (message.qrUrl) {
+      console.log(`  QR: ${message.qrUrl}`);
     }
   }
 
@@ -567,6 +599,10 @@ export class ChatServer {
           this.siteBridge?.sendEmoteDelete(message.data.id);
         });
         break;
+
+      case kWSMessageType.adminPostQr:
+        this.handleAdminPostQr(clientId, message);
+        break;
     }
   }
 
@@ -683,6 +719,41 @@ export class ChatServer {
       this.sendServerMessage(clientId, 'Invalid message IDs format');
       console.error(`${this.logPrefix} Failed to delete messages:`, error);
     }
+  }
+
+  /**
+   * Post a chat line whose link is shown as a QR image.
+   */
+  private handleAdminPostQr(clientId: string, message: WSAdminPostQr): void {
+    if (!this.isClientAuthenticated(clientId)) {
+      return;
+    }
+
+    const text = message.data.text.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 500);
+    const url = normalizeHttpUrl(message.data.url);
+
+    if (!url) {
+      this.sendServerMessage(clientId, 'Invalid link');
+      return;
+    }
+
+    const username = this.config.twitch.channelId.trim() || 'chat';
+    const chatMessage: ChatMessage = {
+      id: `qr-${randomUUID()}`,
+      channel: username,
+      username,
+      message: text,
+      qrUrl: url,
+      timestamp: Date.now(),
+      platform: kSitePlatform,
+    };
+
+    this.handleIncomingMessage({
+      ...kSitePlatform,
+      config: {},
+    } as PlatformWithConfig, chatMessage);
+
+    console.log(`${this.logPrefix} Admin posted QR ${url}`);
   }
 
   /**

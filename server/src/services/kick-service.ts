@@ -664,8 +664,14 @@ export class KickService extends EventEmitter<PlatformServiceEvents> implements 
 
     try {
       socket.removeAllListeners();
+      socket.on('error', () => {});
 
-      if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+      if (socket.readyState === WebSocket.CONNECTING) {
+        socket.terminate();
+        return;
+      }
+
+      if (socket.readyState === WebSocket.OPEN) {
         socket.close();
       }
     } catch {

@@ -20,6 +20,9 @@ type TelegramServiceOptions = {
 
 type ExtractedTelegramVideo = Omit<TelegramVideoItem, 'id' | 'pendingDate'>;
 
+/** Cloud Bot API getFile rejects anything larger than this. */
+const TELEGRAM_BOT_API_MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024;
+
 /**
  * Service for watching Telegram group messages
  */
@@ -237,8 +240,41 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
           this.emit('videoReceived', media);
         }
       } catch (error) {
-        console.error(`${this.logPrefix} Error extracting media:`, error);
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`${this.logPrefix} Error extracting media: ${message}`);
       }
+    }
+  }
+
+  private logMediaTooBig(fileSize?: number): void {
+    const size = fileSize === undefined ? '' : ` (${(fileSize / (1024 * 1024)).toFixed(1)} MB)`;
+    console.warn(
+      `${this.logPrefix} Skipping media${size}: Telegram Bot API cannot download files larger than 20 MB`,
+    );
+  }
+
+  private async downloadFilePath(fileId: string, fileSize?: number): Promise<string | null> {
+    if (!this.bot) {
+      return null;
+    }
+
+    if (fileSize !== undefined && fileSize > TELEGRAM_BOT_API_MAX_DOWNLOAD_BYTES) {
+      this.logMediaTooBig(fileSize);
+      return null;
+    }
+
+    try {
+      const file = await this.bot.getFile(fileId);
+      return file.file_path ?? null;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      if (message.includes('file is too big')) {
+        this.logMediaTooBig(fileSize);
+        return null;
+      }
+
+      throw error;
     }
   }
 
@@ -256,16 +292,16 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       `https://api.telegram.org/file/bot${token}/${filePath}`;
 
     if (msg.video) {
-      const file = await this.bot.getFile(msg.video.file_id);
-      if (!file.file_path) {
+      const filePath = await this.downloadFilePath(msg.video.file_id, msg.video.file_size);
+      if (!filePath) {
         return null;
       }
 
       return {
         type: 'video',
         fileId: msg.video.file_id,
-        filePath: file.file_path,
-        fileUrl: buildUrl(file.file_path),
+        filePath,
+        fileUrl: buildUrl(filePath),
         caption,
         date,
         chatMessageId,
@@ -274,16 +310,16 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
     }
 
     if (msg.animation) {
-      const file = await this.bot.getFile(msg.animation.file_id);
-      if (!file.file_path) {
+      const filePath = await this.downloadFilePath(msg.animation.file_id, msg.animation.file_size);
+      if (!filePath) {
         return null;
       }
 
       return {
         type: 'gif',
         fileId: msg.animation.file_id,
-        filePath: file.file_path,
-        fileUrl: buildUrl(file.file_path),
+        filePath,
+        fileUrl: buildUrl(filePath),
         caption,
         date,
         chatMessageId,
@@ -303,8 +339,8 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
         return null;
       }
 
-      const file = await this.bot.getFile(msg.document.file_id);
-      if (!file.file_path) {
+      const filePath = await this.downloadFilePath(msg.document.file_id, msg.document.file_size);
+      if (!filePath) {
         return null;
       }
 
@@ -313,8 +349,8 @@ export class TelegramService extends EventEmitter<PlatformServiceEvents> impleme
       return {
         type,
         fileId: msg.document.file_id,
-        filePath: file.file_path,
-        fileUrl: buildUrl(file.file_path),
+        filePath,
+        fileUrl: buildUrl(filePath),
         caption,
         date,
         chatMessageId,

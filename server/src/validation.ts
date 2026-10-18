@@ -3,6 +3,15 @@ import chalk from 'chalk';
 
 import type { ChatMessage, ChatSettings, Platform, WSMessage, TwitchServiceConfig, YouTubeServiceConfig, TelegramServiceConfig, VKVideoServiceConfig, KickServiceConfig, GoodgameServiceConfig, SharedConfig } from '@shared/shared-types.js';
 import { kWSMessageType } from '@shared/shared-types.js';
+import {
+  ChatMessageSchema,
+  EmoteAddSchema,
+  EmoteDeleteSchema,
+  EmoteRenameSchema,
+  EmoteReviewSchema,
+  SiteEmoteSchema,
+  parseChatMessage,
+} from 'yobachat-shared';
 import type { AppConfigFile, ServerConfigFile } from '@/types';
 
 
@@ -43,25 +52,6 @@ function sanitizeStringArray(input: unknown, maxLength: number = 50, itemMaxLeng
 }
 
 /**
- * Sanitize a URL string
- */
-function sanitizeUrl(input: unknown): string | undefined {
-  if (typeof input !== 'string' || input.length === 0) {
-    return undefined;
-  }
-
-  const sanitized = sanitizeString(input, 2048);
-
-  // Basic URL validation
-  try {
-    new URL(sanitized);
-    return sanitized;
-  } catch {
-    return undefined;
-  }
-}
-
-/**
  * Validate and sanitize a Google Fonts CSS URL
  */
 function sanitizeGoogleFontsUrl(input: unknown): string | undefined {
@@ -89,24 +79,6 @@ function sanitizeGoogleFontsUrl(input: unknown): string | undefined {
 }
 
 /**
- * Sanitize a color hex string
- */
-function sanitizeColor(input: unknown): string | undefined {
-  if (typeof input !== 'string') {
-    return undefined;
-  }
-
-  // Match hex color format (#RRGGBB)
-  const match = input.match(/^#[A-Fa-f0-9]{6}$/);
-
-  if (match) {
-    return match[0];
-  }
-
-  return undefined;
-}
-
-/**
  * Zod schemas for validation
  */
 
@@ -126,27 +98,7 @@ const PlatformSchema = z.object({
 // Message ID schema
 export const MessageIdSchema = z.string().min(1).max(128);
 
-// ChatMessage schema with sanitization
-export const ChatMessageSchema = z.object({
-  id: MessageIdSchema,
-  channel: z.string().min(1).max(200),
-  username: z.string().min(0).max(100),
-  message: z.string().min(0).max(5000),
-  timestamp: z.number().int().positive(),
-  platform: PlatformSchema,
-  avatar: z.url().max(2048).optional(),
-  badges: z.array(z.string().max(50)).max(20).optional(),
-  badgeImages: z.record(z.string().max(50), z.url().max(2048)).optional(),
-  color: z.string().regex(/^#[A-Fa-f0-9]{6}$/).optional(),
-  isSubscriber: z.boolean().optional(),
-  isModerator: z.boolean().optional(),
-  isVip: z.boolean().optional(),
-  isEdited: z.boolean().optional(),
-  editDate: z.number().int().positive().optional(),
-  emotesMap: z.record(z.string().max(100), z.string().max(2048)).optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-  replyToId: z.string().min(1).max(128).optional(),
-}) satisfies z.ZodType<ChatMessage>;
+export { ChatMessageSchema };
 
 // FontWidth schema (matches width type - number representing percentage)
 const FontWidthSchema = z.number().min(50).max(200);
@@ -302,52 +254,38 @@ const AdminTgVideoRejectSchema = z.object({
   }),
 });
 
-const SiteEmoteRecordSchema = z.object({
-  id: z.string().min(1).max(80),
-  name: z.string().min(1).max(20),
-  code: z.string().min(1).max(24),
-  url: z.string().min(1).max(2048),
-  status: z.enum(['pending', 'approved']),
-  authorName: z.string().max(100),
-});
-
 const EmoteQueueUpdatedSchema = z.object({
   type: z.literal(kWSMessageType.emoteQueueUpdated),
   data: z.object({
-    emotes: z.array(SiteEmoteRecordSchema).max(500),
+    emotes: z.array(SiteEmoteSchema).max(500),
   }),
 });
 
 const AdminEmoteReviewSchema = z.object({
   type: z.literal(kWSMessageType.adminEmoteReview),
-  data: z.object({
-    id: z.string().min(1).max(80),
-    action: z.enum(['approve', 'reject']),
-  }),
+  data: EmoteReviewSchema,
 });
 
 const AdminEmoteAddSchema = z.object({
   type: z.literal(kWSMessageType.adminEmoteAdd),
-  data: z.object({
-    files: z.array(z.object({
-      name: z.string().min(1).max(20),
-      dataBase64: z.string().min(1).max(800000),
-    })).min(1).max(20),
-  }),
+  data: EmoteAddSchema,
 });
 
 const AdminEmoteRenameSchema = z.object({
   type: z.literal(kWSMessageType.adminEmoteRename),
-  data: z.object({
-    id: z.string().min(1).max(80),
-    name: z.string().min(1).max(20),
-  }),
+  data: EmoteRenameSchema,
 });
 
 const AdminEmoteDeleteSchema = z.object({
   type: z.literal(kWSMessageType.adminEmoteDelete),
+  data: EmoteDeleteSchema,
+});
+
+const AdminPostQrSchema = z.object({
+  type: z.literal(kWSMessageType.adminPostQr),
   data: z.object({
-    id: z.string().min(1).max(80),
+    text: z.string().max(500),
+    url: z.string().min(1).max(2048),
   }),
 });
 
@@ -386,6 +324,7 @@ export const WSMessageSchema = z.discriminatedUnion('type', [
   AdminEmoteAddSchema,
   AdminEmoteRenameSchema,
   AdminEmoteDeleteSchema,
+  AdminPostQrSchema,
   AdminPlatformsStatusSchema,
   AdminPlatformStatusUpdateSchema
 ]) as z.ZodType<WSMessage>;
@@ -394,33 +333,9 @@ export const WSMessageSchema = z.discriminatedUnion('type', [
  * Validation functions
  */
 
-/**
- * Validate and sanitize a ChatMessage
- * Always uses fast validation (sanitization only) for performance
- */
+/** Same chat-message rules as the site, from yobachat-shared. */
 export function validateChatMessage(input: unknown): ChatMessage | null {
-  if (typeof input !== 'object' || input === null) {
-    return null;
-  }
-
-  const msg = input as any;
-
-  // Quick type checks
-  if (typeof msg.id !== 'string' || typeof msg.username !== 'string' || typeof msg.message !== 'string') {
-    return null;
-  }
-
-  // Sanitize only critical fields (fast path)
-  return {
-    ...msg,
-    id: MessageIdSchema.parse(msg.id),
-    username: sanitizeString(msg.username, 100),
-    message: sanitizeString(msg.message, 5000),
-    channel: sanitizeString(msg.channel, 200),
-    avatar: msg.avatar ? sanitizeUrl(msg.avatar) : undefined,
-    badges: msg.badges ? sanitizeStringArray(msg.badges, 10, 50) : undefined,
-    color: msg.color ? sanitizeColor(msg.color) : undefined
-  } as ChatMessage;
+  return parseChatMessage(input);
 }
 
 /**

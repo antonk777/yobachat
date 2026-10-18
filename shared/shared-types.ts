@@ -171,6 +171,7 @@ export enum kWSMessageType {
   adminEmoteAdd = 'adminEmoteAdd',
   adminEmoteRename = 'adminEmoteRename',
   adminEmoteDelete = 'adminEmoteDelete',
+  adminPostQr = 'adminPostQr',
 
   emoteQueueUpdated = 'emoteQueueUpdated',
 
@@ -298,6 +299,11 @@ export interface WSAdminEmoteDelete {
   data: { id: string };
 }
 
+export interface WSAdminPostQr {
+  type: kWSMessageType.adminPostQr;
+  data: { text: string; url: string };
+}
+
 export type WSMessageTypeMap = {
   // Client responses (server -> client)
   [kWSMessageType.adminServerStatus]: WSServerStatus;
@@ -321,6 +327,7 @@ export type WSMessageTypeMap = {
   [kWSMessageType.adminEmoteAdd]: WSAdminEmoteAdd;
   [kWSMessageType.adminEmoteRename]: WSAdminEmoteRename;
   [kWSMessageType.adminEmoteDelete]: WSAdminEmoteDelete;
+  [kWSMessageType.adminPostQr]: WSAdminPostQr;
   [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
   [kWSMessageType.adminPlatformStatusUpdate]: WSAdminPlatformStatusUpdate;
 }
@@ -344,6 +351,7 @@ export type WSMessage =
   | WSAdminEmoteAdd
   | WSAdminEmoteRename
   | WSAdminEmoteDelete
+  | WSAdminPostQr
   | WSEmoteQueueUpdated
   | WSAdminPlatformsStatus
   | WSAdminPlatformStatusUpdate;

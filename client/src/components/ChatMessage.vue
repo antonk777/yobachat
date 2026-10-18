@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 
 import type { ChatMessageClient, ChatSettings, TelegramVideoMeta } from '@shared/shared-types.js';
+import { qrImageSrc } from 'yobachat-shared';
 import 'yobachat-shared/assets/chat-icons.css';
 import { useWSConnection } from '@/composables/useWSConnection';
 import TelegramVideoLightbox, {
@@ -33,6 +34,8 @@ const isDeluxe = computed(() => {
 })
 
 const replyTo = computed(() => props.message.replyTo);
+
+const qrSrc = computed(() => props.isQuote ? '' : qrImageSrc(props.message.qrUrl));
 
 const tgVideo = computed((): TelegramVideoMeta | null => {
   const meta = props.message.metadata?.tgVideo;
@@ -239,6 +242,23 @@ function onLightboxReject(queueId: number): void {
         />
       </template>
     </div>
+    <a
+      v-if="qrSrc && isInAdmin"
+      class="qr-link"
+      :href="message.qrUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+      @click.stop
+    >
+      <img class="qr-image" :src="qrSrc" alt="QR" loading="lazy">
+    </a>
+    <img
+      v-else-if="qrSrc"
+      class="qr-image"
+      :src="qrSrc"
+      alt="QR"
+      loading="lazy"
+    >
   </div>
 </template>
 
@@ -490,6 +510,30 @@ function onLightboxReject(queueId: number): void {
 
 .tg-video-reject {
   background: #dc3545;
+}
+
+.qr-link,
+.qr-image {
+  display: block;
+  width: min(100%, 12em);
+  margin-top: 0.35em;
+}
+
+.qr-link {
+  line-height: 0;
+}
+
+.qr-image {
+  height: auto;
+  aspect-ratio: 1;
+  padding: 0.4em;
+  border-radius: 0.2em;
+  background-color: #fff;
+}
+
+.qr-link .qr-image {
+  width: 100%;
+  margin-top: 0;
 }
 </style>
 

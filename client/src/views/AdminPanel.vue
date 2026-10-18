@@ -9,6 +9,7 @@ import CustomEmotes from '@/components/CustomEmotes.vue';
 import TelegramVideoQueue from '@/components/TelegramVideoQueue.vue';
 
 import { useMessagesStore } from '@/stores/messages';
+import { useSiteEmotesStore } from '@/stores/siteEmotes';
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
 import { useWSConnection } from '@/composables/useWSConnection';
@@ -27,6 +28,7 @@ const
   ws = useWSConnection(),
   settingsStore = useSettingsStore(),
   messagesStore = useMessagesStore(),
+  siteEmotesStore = useSiteEmotesStore(),
   uiStore = useUIStore();
 
 /**
@@ -67,6 +69,8 @@ onUnmounted(() => {
 const messagesContainer = useTemplateRef('messagesContainer');
 const moreMenuRef = ref<HTMLElement | null>(null);
 const navMenuRef = ref<HTMLElement | null>(null);
+const qrMenuRef = ref<HTMLElement | null>(null);
+const qrTextInput = ref<HTMLInputElement | null>(null);
 
 // Apply font settings for admin panel
 useFontSettings(() => settingsStore.settings, 'admin');
@@ -78,8 +82,38 @@ const adminLineHeight = computed(() => (settingsStore.settings?.adminLineHeight 
 
 const isMoreMenuOpen = ref(false);
 const isNavMenuOpen = ref(false);
+const isQrMenuOpen = ref(false);
 const adminScreen = ref<'chat' | 'emotes'>('chat');
 const platformsExpanded = ref(false);
+const qrText = ref('');
+const qrLink = ref('');
+const qrError = ref('');
+const kLastQrKey = 'yobachat-last-qr';
+
+function readLastQr(): { text: string, link: string } {
+  try {
+    const raw = localStorage.getItem(kLastQrKey);
+
+    if (!raw) {
+      return { text: '', link: '' };
+    }
+
+    const parsed = JSON.parse(raw) as { text?: unknown, link?: unknown };
+
+    return {
+      text: typeof parsed.text === 'string' ? parsed.text : '',
+      link: typeof parsed.link === 'string' ? parsed.link : '',
+    };
+  } catch {
+    return { text: '', link: '' };
+  }
+}
+
+function restoreLastQr(): void {
+  const last = readLastQr();
+  qrText.value = last.text;
+  qrLink.value = last.link;
+}
 
 const wsConnected = computed(() => ws.connected.value);
 
@@ -93,6 +127,7 @@ function toggleMoreMenu() {
   }
 
   isNavMenuOpen.value = false;
+  isQrMenuOpen.value = false;
   isMoreMenuOpen.value = !isMoreMenuOpen.value;
 }
 
@@ -102,7 +137,32 @@ function closeMoreMenu() {
 
 function toggleNavMenu() {
   isMoreMenuOpen.value = false;
+  isQrMenuOpen.value = false;
   isNavMenuOpen.value = !isNavMenuOpen.value;
+}
+
+async function toggleQrMenu() {
+  if (!wsConnected.value) {
+    return;
+  }
+
+  isMoreMenuOpen.value = false;
+  isNavMenuOpen.value = false;
+  isQrMenuOpen.value = !isQrMenuOpen.value;
+
+  if (!isQrMenuOpen.value) {
+    qrError.value = '';
+    return;
+  }
+
+  restoreLastQr();
+  await nextTick();
+  qrTextInput.value?.focus();
+}
+
+function closeQrMenu() {
+  isQrMenuOpen.value = false;
+  qrError.value = '';
 }
 
 function closeNavMenu() {
@@ -157,14 +217,76 @@ onClickOutside(navMenuRef, () => {
   closeNavMenu();
 });
 
-// Auto-scroll to bottom when new messages arrive
-watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () => {
-  await nextTick();
+onClickOutside(qrMenuRef, () => {
+  closeQrMenu();
+});
 
+function normalizeQrLink(raw: string): string | null {
+  const value = raw.trim();
+
+  if (!value) {
+    return null;
+  }
+
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(value) ? value : `https://${value}`;
+
+  try {
+    const url = new URL(withScheme);
+
+    if ((url.protocol !== 'http:' && url.protocol !== 'https:') || !url.hostname || url.href.length > 2048) {
+      return null;
+    }
+
+    return url.href;
+  } catch {
+    return null;
+  }
+}
+
+function postQr(): void {
+  if (!wsConnected.value) {
+    return;
+  }
+
+  const text = qrText.value.replace(/[\u0000-\u001F\u007F]/g, '').trim();
+  const url = normalizeQrLink(qrLink.value);
+
+  if (!url) {
+    qrError.value = 'Enter a valid link';
+    return;
+  }
+
+  qrError.value = '';
+  ws.postQr(text, url);
+  localStorage.setItem(kLastQrKey, JSON.stringify({ text, link: url }));
+  qrText.value = text;
+  qrLink.value = url;
+  isQrMenuOpen.value = false;
+}
+
+function scrollMessagesToEnd(): void {
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
   }
+}
+
+// Auto-scroll to bottom when new messages arrive
+watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () => {
+  await nextTick();
+  scrollMessagesToEnd();
 });
+
+watch(
+  () => siteEmotesStore.emotes.filter(emote => emote.status === 'pending').length,
+  async (count, previous) => {
+    if (previous === undefined || count <= previous || adminScreen.value !== 'chat') {
+      return;
+    }
+
+    await nextTick();
+    scrollMessagesToEnd();
+  },
+);
 </script>
 
 <template>
@@ -244,12 +366,60 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
         <button
           class="btn btn-secondary"
-          @click="uiStore.isSettingsOpen = true"
+          @click="closeQrMenu(); uiStore.isSettingsOpen = true"
           :disabled="!wsConnected"
           title="Configure chat appearance settings"
         >
           Settings
         </button>
+
+        <div class="qr-menu" ref="qrMenuRef">
+          <button
+            class="btn btn-secondary"
+            type="button"
+            :disabled="!wsConnected"
+            :aria-expanded="isQrMenuOpen"
+            title="Post a link as a QR code"
+            @click="toggleQrMenu"
+            @keydown.escape="closeQrMenu"
+          >
+            QR
+          </button>
+
+          <form
+            v-if="isQrMenuOpen"
+            class="qr-post"
+            @submit.prevent="postQr"
+            @keydown.escape="closeQrMenu"
+          >
+            <input
+              ref="qrTextInput"
+              v-model="qrText"
+              class="qr-post-input"
+              type="text"
+              maxlength="500"
+              placeholder="Text"
+              autocomplete="off"
+            >
+            <input
+              v-model="qrLink"
+              class="qr-post-input"
+              type="text"
+              maxlength="2048"
+              placeholder="Link"
+              autocomplete="off"
+              inputmode="url"
+            >
+            <button
+              class="btn btn-primary qr-post-button"
+              type="submit"
+              :disabled="!wsConnected || !qrLink.trim()"
+            >
+              Post
+            </button>
+            <p v-if="qrError" class="qr-post-error">{{ qrError }}</p>
+          </form>
+        </div>
 
         <div class="more-menu" ref="moreMenuRef">
           <button
@@ -367,6 +537,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
         <div v-if="messagesStore.messages.length === 0" class="empty-state">
           No messages yet
         </div>
+        <CustomEmotes mode="chat" />
       </div>
     </div>
 
@@ -418,7 +589,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
       </div>
     </div>
 
-    <CustomEmotes v-if="adminScreen === 'emotes'" />
+    <CustomEmotes v-if="adminScreen === 'emotes'" mode="manage" />
   </div>
 
   <ChatSettingsModal />
@@ -478,6 +649,8 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 }
 
 .admin-header {
+  position: relative;
+  z-index: 4;
   display: flex;
   align-items: center;
   width: 100%;
@@ -854,6 +1027,56 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
 .platforms-section:not(.expanded) .platform-name {
   display: none;
+}
+
+.qr-menu {
+  position: relative;
+  display: flex;
+}
+
+.qr-menu > .btn {
+  display: flex;
+  align-items: center;
+}
+
+.qr-post {
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 0;
+  z-index: 6;
+
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * .5);
+  width: min(18rem, calc(100vw - 2rem));
+  padding: calc(var(--spacing) * .75);
+
+  border: 1px solid var(--border-color);
+  border-radius: .35rem;
+  background-color: var(--bg-color);
+  box-shadow: 0 10px 30px hsla(0 0% 0% / .35);
+}
+
+.qr-post-input {
+  width: 100%;
+  padding: calc(var(--spacing) * .45) calc(var(--spacing) * .6);
+  border: 1px solid var(--border-color);
+  border-radius: .25rem;
+  background-color: var(--bg-color-dark);
+  color: var(--text-color);
+  font: inherit;
+}
+
+.qr-post-button {
+  align-self: flex-end;
+  text-align: center;
+}
+
+.qr-post-error {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--error-color);
+  font-size: .8rem;
 }
 
 .empty-state {

@@ -31,6 +31,7 @@ export const decodeWSMessage = (message: string) => {
       case kWSMessageType.adminEmoteAdd:
       case kWSMessageType.adminEmoteRename:
       case kWSMessageType.adminEmoteDelete:
+      case kWSMessageType.adminPostQr:
       case kWSMessageType.emoteQueueUpdated:
       case kWSMessageType.adminPlatformsStatus:
       case kWSMessageType.adminPlatformStatusUpdate:

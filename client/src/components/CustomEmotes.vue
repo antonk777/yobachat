@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from 'vue';
 
-import { prepareEmoteFile } from 'yobachat-shared';
+import { parseEmoteName, prepareEmoteFile } from 'yobachat-shared';
 
 import { useWSConnection } from '@/composables/useWSConnection';
 import { useSiteEmotesStore } from '@/stores/siteEmotes';
@@ -14,7 +14,12 @@ interface DraftFile {
   error: string
 }
 
-const NAME_PATTERN = /^[A-Za-z0-9_]{2,20}$/;
+const props = withDefaults(defineProps<{
+  mode?: 'chat' | 'manage';
+}>(), {
+  mode: 'manage',
+});
+
 const MAX_BATCH = 20;
 
 const ws = useWSConnection();
@@ -110,7 +115,7 @@ async function submitDrafts(): Promise<void> {
   const seen = new Set<string>();
   for (const draft of ready) {
     const name = draft.name.trim();
-    if (!NAME_PATTERN.test(name)) {
+    if (!parseEmoteName(name)) {
       formError.value = 'Each name must be 2–20 letters, digits, or _';
       return;
     }
@@ -159,7 +164,7 @@ function fileToBase64(file: File): Promise<string> {
 function saveName(id: string): void {
   const current = emotesStore.emotes.find(item => item.id === id);
   const name = (names.value[id] ?? current?.name ?? '').trim();
-  if (!NAME_PATTERN.test(name)) {
+  if (!parseEmoteName(name)) {
     formError.value = 'Name must be 2–20 letters, digits, or _';
     return;
   }
@@ -170,60 +175,67 @@ function saveName(id: string): void {
 </script>
 
 <template>
-  <section class="custom-emotes">
-    <h2>Custom emotes</h2>
+  <section
+    v-if="props.mode === 'manage' || pending.length > 0"
+    class="custom-emotes"
+    :class="{ 'custom-emotes--chat': props.mode === 'chat' }"
+  >
+    <h2 v-if="props.mode === 'manage'">Custom emotes</h2>
     <p v-if="formError" class="custom-emotes__error">{{ formError }}</p>
 
-    <h3>Pending</h3>
-    <p v-if="pending.length === 0" class="custom-emotes__empty">No pending emotes</p>
-    <ul v-else class="custom-emotes__list">
-      <li v-for="emote in pending" :key="emote.id" class="custom-emotes__row">
-        <img :src="emote.url" :alt="emote.code">
-        <div class="custom-emotes__meta">
-          <span>{{ emote.authorName }}</span>
-        </div>
-        <input
-          :value="shownName(emote.id, emote.name)"
-          maxlength="20"
-          @input="setName(emote.id, ($event.target as HTMLInputElement).value)"
-        >
-        <button type="button" @click="saveName(emote.id)">Save name</button>
-        <button type="button" @click="ws.reviewEmote(emote.id, 'approve')">Approve</button>
-        <button type="button" @click="ws.reviewEmote(emote.id, 'reject')">Reject</button>
-      </li>
-    </ul>
+    <template v-if="props.mode === 'chat'">
+      <h3>Pending emotes</h3>
+      <ul class="custom-emotes__list">
+        <li v-for="emote in pending" :key="emote.id" class="custom-emotes__row">
+          <img :src="emote.url" :alt="emote.code">
+          <div class="custom-emotes__meta">
+            <span>{{ emote.authorName }}</span>
+          </div>
+          <input
+            :value="shownName(emote.id, emote.name)"
+            maxlength="20"
+            @input="setName(emote.id, ($event.target as HTMLInputElement).value)"
+          >
+          <button type="button" @click="saveName(emote.id)">Save name</button>
+          <button type="button" @click="ws.reviewEmote(emote.id, 'approve')">Approve</button>
+          <button type="button" @click="ws.reviewEmote(emote.id, 'reject')">Reject</button>
+        </li>
+      </ul>
+    </template>
 
-    <h3>Approved</h3>
-    <p v-if="approved.length === 0" class="custom-emotes__empty">No custom emotes yet</p>
-    <ul v-else class="custom-emotes__list">
-      <li v-for="emote in approved" :key="emote.id" class="custom-emotes__row">
-        <img :src="emote.url" :alt="emote.code">
-        <input
-          :value="shownName(emote.id, emote.name)"
-          maxlength="20"
-          @input="setName(emote.id, ($event.target as HTMLInputElement).value)"
-        >
-        <button type="button" @click="saveName(emote.id)">Save name</button>
-        <button type="button" @click="ws.deleteEmote(emote.id)">Delete</button>
-      </li>
-    </ul>
+    <template v-if="props.mode === 'manage'">
+      <h3>Approved</h3>
+      <p v-if="approved.length === 0" class="custom-emotes__empty">No custom emotes yet</p>
+      <ul v-else class="custom-emotes__list">
+        <li v-for="emote in approved" :key="emote.id" class="custom-emotes__row">
+          <img :src="emote.url" :alt="emote.code">
+          <input
+            :value="shownName(emote.id, emote.name)"
+            maxlength="20"
+            @input="setName(emote.id, ($event.target as HTMLInputElement).value)"
+          >
+          <button type="button" @click="saveName(emote.id)">Save name</button>
+          <button type="button" @click="ws.deleteEmote(emote.id)">Delete</button>
+        </li>
+      </ul>
 
-    <h3>Add files</h3>
-    <label class="custom-emotes__pick">
-      Choose PNG or GIF files
-      <input type="file" accept="image/png,image/gif" multiple @change="onFiles">
-    </label>
-    <ul v-if="drafts.length" class="custom-emotes__list">
-      <li v-for="draft in drafts" :key="draft.key" class="custom-emotes__row">
-        <img v-if="draft.preview" :src="draft.preview" alt="">
-        <input v-model="draft.name" maxlength="20" placeholder="Name">
-        <span v-if="draft.error" class="custom-emotes__error">{{ draft.error }}</span>
-        <button type="button" @click="removeDraft(draft.key)">Remove</button>
-      </li>
-    </ul>
-    <button type="button" :disabled="saving || drafts.length === 0" @click="submitDrafts">
-      Add emotes
-    </button>
+      <h3>Add files</h3>
+      <label class="custom-emotes__pick">
+        Choose PNG or GIF files
+        <input type="file" accept="image/png,image/gif" multiple @change="onFiles">
+      </label>
+      <ul v-if="drafts.length" class="custom-emotes__list">
+        <li v-for="draft in drafts" :key="draft.key" class="custom-emotes__row">
+          <img v-if="draft.preview" :src="draft.preview" alt="">
+          <input v-model="draft.name" maxlength="20" placeholder="Name">
+          <span v-if="draft.error" class="custom-emotes__error">{{ draft.error }}</span>
+          <button type="button" @click="removeDraft(draft.key)">Remove</button>
+        </li>
+      </ul>
+      <button type="button" :disabled="saving || drafts.length === 0" @click="submitDrafts">
+        Add emotes
+      </button>
+    </template>
   </section>
 </template>
 
@@ -233,6 +245,18 @@ function saveName(id: string): void {
   min-height: 0;
   overflow: auto;
   padding: 1rem 1.25rem 2rem;
+}
+
+.custom-emotes--chat {
+  flex: none;
+  overflow: visible;
+  margin-top: 0.5rem;
+  padding: 0.75rem var(--spacing) 0.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.custom-emotes--chat h3 {
+  margin-top: 0;
 }
 
 h2,
@@ -303,9 +327,24 @@ button,
   cursor: pointer;
 }
 
+.custom-emotes__pick {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  margin-bottom: 0.6rem;
+}
+
 .custom-emotes__pick input {
-  display: block;
-  margin-top: 0.35rem;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  background: transparent;
 }
 
 button:disabled {

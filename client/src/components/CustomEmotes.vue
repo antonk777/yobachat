@@ -79,7 +79,7 @@ async function onFiles(event: Event): Promise<void> {
           ? 'Larger than 512×512'
           : prepared.reason === 'size'
             ? 'Larger than 512 KB'
-            : 'Not a PNG or GIF',
+            : 'Not a PNG, GIF, or WebP',
       });
       continue;
     }
@@ -227,8 +227,8 @@ function saveName(id: string): void {
 
       <h3>Add files</h3>
       <label class="custom-emotes__pick">
-        Choose PNG or GIF files
-        <input type="file" accept="image/png,image/gif" multiple @change="onFiles">
+        Choose PNG, GIF, or WebP files
+        <input type="file" accept="image/png,image/gif,image/webp" multiple @change="onFiles">
       </label>
       <ul v-if="drafts.length" class="custom-emotes__list">
         <li v-for="draft in drafts" :key="draft.key" class="custom-emotes__row">

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 
 import type { ChatMessageClient, ChatSettings, TelegramVideoMeta } from '@shared/shared-types.js';
-import { qrImageSrc } from 'yobachat-shared';
+import { qrImageSrc, isEmoteOnlyMessage } from 'yobachat-shared';
 import 'yobachat-shared/assets/chat-icons.css';
 import { useWSConnection } from '@/composables/useWSConnection';
 import TelegramVideoLightbox, {
@@ -36,6 +36,7 @@ const isDeluxe = computed(() => {
 const replyTo = computed(() => props.message.replyTo);
 
 const qrSrc = computed(() => props.isQuote ? '' : qrImageSrc(props.message.qrUrl));
+const emoteOnly = computed(() => isEmoteOnlyMessage(props.message.segments));
 
 const tgVideo = computed((): TelegramVideoMeta | null => {
   const meta = props.message.metadata?.tgVideo;
@@ -219,7 +220,7 @@ function onLightboxReject(queueId: number): void {
         @reject="onLightboxReject"
       />
     </div>
-    <div v-else class="message-content">
+    <div v-else class="message-content" :class="{ 'is-emote-only': emoteOnly }">
       <template v-for="(segment, index) in message.segments" :key="index">
         <a
           v-if="segment.type === 'link' && props.isInAdmin && settings.makeLinksClickable"
@@ -449,6 +450,11 @@ function onLightboxReject(queueId: number): void {
   height: var(--emote-size);
   object-fit: contain;
   vertical-align: -0.4em;
+}
+
+.message-content.is-emote-only .emote {
+  min-width: calc(var(--emote-size) * 1.25);
+  height: calc(var(--emote-size) * 1.25);
 }
 
 .message-content .link {

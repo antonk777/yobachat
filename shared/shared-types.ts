@@ -1,6 +1,18 @@
 // Types
 
-export type PlatformType = 'twitch' | 'youtube' | 'telegram' | 'vkvideo' | 'kick' | 'goodgame';
+import type {
+  PlatformType,
+  Platform,
+  ChatMessage,
+  ChatMessageSegment,
+} from 'yobachat-shared';
+
+export type {
+  PlatformType,
+  Platform,
+  ChatMessage,
+  ChatMessageSegment,
+};
 
 export type WidgetType = 'user' | 'admin';
 
@@ -48,49 +60,8 @@ export interface SharedConfig {
   wsPath: string;
 }
 
-export interface Platform {
-  id: PlatformType;
-  name: string;
-  color: string;
-  abbr: string;
-}
-
 export interface PlatformWithStatus extends Platform {
   active: boolean;
-}
-
-export type ChatMessageSegment = {
-  type: 'text';
-  content: string;
-} | {
-  type: 'emote';
-  content: string;
-  url: string;
-} | {
-  type: 'link';
-  content: string;
-  url: string;
-};
-
-export interface ChatMessage {
-  id: string;
-  channel: string;
-  username: string;
-  message: string;
-  timestamp: number;
-  platform: Platform;
-  avatar?: string;
-  badges?: string[];
-  badgeImages?: Record<string, string>;
-  color?: string;
-  isSubscriber?: boolean;
-  isModerator?: boolean;
-  isVip?: boolean;
-  isEdited?: boolean;
-  editDate?: number;
-  emotesMap?: Record<string, string>;
-  metadata?: Record<string, unknown>;
-  replyToId?: string; // Message ID of the message this message is replying to
 }
 
 export interface ChatMessageClient extends ChatMessage {
@@ -196,6 +167,12 @@ export enum kWSMessageType {
   adminRefreshWidget = 'adminRefreshWidget',
   adminTgVideoApprove = 'adminTgVideoApprove',
   adminTgVideoReject = 'adminTgVideoReject',
+  adminEmoteReview = 'adminEmoteReview',
+  adminEmoteAdd = 'adminEmoteAdd',
+  adminEmoteRename = 'adminEmoteRename',
+  adminEmoteDelete = 'adminEmoteDelete',
+
+  emoteQueueUpdated = 'emoteQueueUpdated',
 
   // Admin responses (server -> client)
   adminServerStatus = 'adminServerStatus',
@@ -287,6 +264,40 @@ export interface WSAdminPlatformStatusUpdate {
   data: { platform: PlatformWithStatus };
 }
 
+export interface SiteEmoteRecord {
+  id: string;
+  name: string;
+  code: string;
+  url: string;
+  status: 'pending' | 'approved';
+  authorName: string;
+}
+
+export interface WSEmoteQueueUpdated {
+  type: kWSMessageType.emoteQueueUpdated;
+  data: { emotes: SiteEmoteRecord[] };
+}
+
+export interface WSAdminEmoteReview {
+  type: kWSMessageType.adminEmoteReview;
+  data: { id: string; action: 'approve' | 'reject' };
+}
+
+export interface WSAdminEmoteAdd {
+  type: kWSMessageType.adminEmoteAdd;
+  data: { files: { name: string; dataBase64: string }[] };
+}
+
+export interface WSAdminEmoteRename {
+  type: kWSMessageType.adminEmoteRename;
+  data: { id: string; name: string };
+}
+
+export interface WSAdminEmoteDelete {
+  type: kWSMessageType.adminEmoteDelete;
+  data: { id: string };
+}
+
 export type WSMessageTypeMap = {
   // Client responses (server -> client)
   [kWSMessageType.adminServerStatus]: WSServerStatus;
@@ -297,6 +308,7 @@ export type WSMessageTypeMap = {
   [kWSMessageType.widgetRefresh]: WSWidgetRefresh;
   [kWSMessageType.tgVideoPendingUpdated]: WSTgVideoPendingUpdated;
   [kWSMessageType.tgVideoApproved]: WSTgVideoApproved;
+  [kWSMessageType.emoteQueueUpdated]: WSEmoteQueueUpdated;
 
   // Admin commands (client -> server)
   [kWSMessageType.adminDeleteMessage]: WSAdminDeleteMessage;
@@ -305,6 +317,10 @@ export type WSMessageTypeMap = {
   [kWSMessageType.adminRefreshWidget]: WSAdminRefreshWidget;
   [kWSMessageType.adminTgVideoApprove]: WSAdminTgVideoApprove;
   [kWSMessageType.adminTgVideoReject]: WSAdminTgVideoReject;
+  [kWSMessageType.adminEmoteReview]: WSAdminEmoteReview;
+  [kWSMessageType.adminEmoteAdd]: WSAdminEmoteAdd;
+  [kWSMessageType.adminEmoteRename]: WSAdminEmoteRename;
+  [kWSMessageType.adminEmoteDelete]: WSAdminEmoteDelete;
   [kWSMessageType.adminPlatformsStatus]: WSAdminPlatformsStatus;
   [kWSMessageType.adminPlatformStatusUpdate]: WSAdminPlatformStatusUpdate;
 }
@@ -324,6 +340,11 @@ export type WSMessage =
   | WSAdminRefreshWidget
   | WSAdminTgVideoApprove
   | WSAdminTgVideoReject
+  | WSAdminEmoteReview
+  | WSAdminEmoteAdd
+  | WSAdminEmoteRename
+  | WSAdminEmoteDelete
+  | WSEmoteQueueUpdated
   | WSAdminPlatformsStatus
   | WSAdminPlatformStatusUpdate;
 

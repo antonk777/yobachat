@@ -5,6 +5,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch 
 import ChatMessage from '@/components/ChatMessage.vue';
 import ChatSettingsModal from '@/components/ChatSettings.vue';
 import StatusHistoryModal from '@/components/StatusHistoryModal.vue';
+import CustomEmotes from '@/components/CustomEmotes.vue';
 import TelegramVideoQueue from '@/components/TelegramVideoQueue.vue';
 
 import { useMessagesStore } from '@/stores/messages';
@@ -16,6 +17,7 @@ import { useAuth } from '@/composables/useAuth';
 import { useDeluxeUserColor } from '@/composables/useDeluxeUserColor';
 import { getWsUrl } from '@shared/shared-urls';
 import { kSharedConfig } from '@/config';
+import 'yobachat-shared/assets/chat-icons.css';
 
 
 const kDefaultLineHeight = 1.2;
@@ -76,6 +78,7 @@ const adminLineHeight = computed(() => (settingsStore.settings?.adminLineHeight 
 
 const isMoreMenuOpen = ref(false);
 const isNavMenuOpen = ref(false);
+const adminScreen = ref<'chat' | 'emotes'>('chat');
 const platformsExpanded = ref(false);
 
 const wsConnected = computed(() => ws.connected.value);
@@ -193,6 +196,13 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
           </button>
 
           <nav v-if="isNavMenuOpen" class="nav-menu-dropdown" aria-label="Widgets">
+            <button
+              class="nav-menu-item"
+              type="button"
+              @click="adminScreen = adminScreen === 'emotes' ? 'chat' : 'emotes'; closeNavMenu()"
+            >
+              {{ adminScreen === 'emotes' ? 'Chat' : 'Custom emotes' }}
+            </button>
             <a
               class="nav-menu-item"
               href="/widget.html"
@@ -280,6 +290,7 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
     </div>
 
     <div
+      v-if="adminScreen === 'chat'"
       class="admin-section messages-section"
       ref="messagesContainer"
     >
@@ -359,9 +370,10 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
       </div>
     </div>
 
-      <TelegramVideoQueue />
+    <TelegramVideoQueue v-if="adminScreen === 'chat'" />
 
     <div
+      v-if="adminScreen === 'chat'"
       class="admin-section platforms-section"
       :class="{ expanded: platformsExpanded }"
     >
@@ -405,6 +417,8 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
         No platforms yet
       </div>
     </div>
+
+    <CustomEmotes v-if="adminScreen === 'emotes'" />
   </div>
 
   <ChatSettingsModal />
@@ -516,10 +530,16 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
 
 .nav-menu-item {
   display: block;
+  width: 100%;
   padding: .55rem .9rem;
+  border: 0;
+  background: transparent;
   color: var(--text-color);
+  font: inherit;
+  text-align: left;
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
 
   &:hover {
     background-color: color-mix(in srgb, var(--border-color) 80%, white 20%);
@@ -799,30 +819,6 @@ watch(() => messagesStore.messages[messagesStore.messages.length - 1], async () 
     mask-position: center center;
     mask-repeat: no-repeat;
     mask-size: contain;
-
-    &.icon-twitch {
-      mask-image: url('@/assets/twitch.svg');
-    }
-
-    &.icon-youtube {
-      mask-image: url('@/assets/youtube.svg');
-    }
-
-    &.icon-telegram {
-      mask-image: url('@/assets/telegram.svg');
-    }
-
-    &.icon-vkvideo {
-      mask-image: url('@/assets/vkvideo.svg');
-    }
-
-    &.icon-kick {
-      mask-image: url('@/assets/kick.svg');
-    }
-
-    &.icon-goodgame {
-      mask-image: url('@/assets/goodgame.png');
-    }
   }
 
   .platform-badge {

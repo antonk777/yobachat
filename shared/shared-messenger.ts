@@ -27,6 +27,11 @@ export const decodeWSMessage = (message: string) => {
       case kWSMessageType.adminRefreshWidget:
       case kWSMessageType.adminTgVideoApprove:
       case kWSMessageType.adminTgVideoReject:
+      case kWSMessageType.adminEmoteReview:
+      case kWSMessageType.adminEmoteAdd:
+      case kWSMessageType.adminEmoteRename:
+      case kWSMessageType.adminEmoteDelete:
+      case kWSMessageType.emoteQueueUpdated:
       case kWSMessageType.adminPlatformsStatus:
       case kWSMessageType.adminPlatformStatusUpdate:
         return messageParsed;

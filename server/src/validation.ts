@@ -111,7 +111,9 @@ function sanitizeColor(input: unknown): string | undefined {
  */
 
 // Platform type validation
-const PlatformTypeSchema = z.enum(['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame']);
+const PlatformTypeSchema = z.enum(['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame', 'site']);
+
+const ConfigPlatformTypeSchema = z.enum(['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame']);
 
 // Platform schema
 const PlatformSchema = z.object({
@@ -142,7 +144,8 @@ export const ChatMessageSchema = z.object({
   isEdited: z.boolean().optional(),
   editDate: z.number().int().positive().optional(),
   emotesMap: z.record(z.string().max(100), z.string().max(2048)).optional(),
-  metadata: z.record(z.string(), z.unknown()).optional()
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  replyToId: z.string().min(1).max(128).optional(),
 }) satisfies z.ZodType<ChatMessage>;
 
 // FontWidth schema (matches width type - number representing percentage)
@@ -299,6 +302,55 @@ const AdminTgVideoRejectSchema = z.object({
   }),
 });
 
+const SiteEmoteRecordSchema = z.object({
+  id: z.string().min(1).max(80),
+  name: z.string().min(1).max(20),
+  code: z.string().min(1).max(24),
+  url: z.string().min(1).max(2048),
+  status: z.enum(['pending', 'approved']),
+  authorName: z.string().max(100),
+});
+
+const EmoteQueueUpdatedSchema = z.object({
+  type: z.literal(kWSMessageType.emoteQueueUpdated),
+  data: z.object({
+    emotes: z.array(SiteEmoteRecordSchema).max(500),
+  }),
+});
+
+const AdminEmoteReviewSchema = z.object({
+  type: z.literal(kWSMessageType.adminEmoteReview),
+  data: z.object({
+    id: z.string().min(1).max(80),
+    action: z.enum(['approve', 'reject']),
+  }),
+});
+
+const AdminEmoteAddSchema = z.object({
+  type: z.literal(kWSMessageType.adminEmoteAdd),
+  data: z.object({
+    files: z.array(z.object({
+      name: z.string().min(1).max(20),
+      dataBase64: z.string().min(1).max(800000),
+    })).min(1).max(20),
+  }),
+});
+
+const AdminEmoteRenameSchema = z.object({
+  type: z.literal(kWSMessageType.adminEmoteRename),
+  data: z.object({
+    id: z.string().min(1).max(80),
+    name: z.string().min(1).max(20),
+  }),
+});
+
+const AdminEmoteDeleteSchema = z.object({
+  type: z.literal(kWSMessageType.adminEmoteDelete),
+  data: z.object({
+    id: z.string().min(1).max(80),
+  }),
+});
+
 const AdminPlatformsStatusSchema = z.object({
   type: z.literal(kWSMessageType.adminPlatformsStatus),
   data: z.object({
@@ -329,6 +381,11 @@ export const WSMessageSchema = z.discriminatedUnion('type', [
   AdminRefreshWidgetSchema,
   AdminTgVideoApproveSchema,
   AdminTgVideoRejectSchema,
+  EmoteQueueUpdatedSchema,
+  AdminEmoteReviewSchema,
+  AdminEmoteAddSchema,
+  AdminEmoteRenameSchema,
+  AdminEmoteDeleteSchema,
   AdminPlatformsStatusSchema,
   AdminPlatformStatusUpdateSchema
 ]) as z.ZodType<WSMessage>;
@@ -494,9 +551,13 @@ export const AppConfigSchema = SharedConfigSchema.extend({
   // Ignored if present (legacy BetterTTV / Twitch OAuth admin blocks)
   betterttv: z.unknown().optional(),
   admin: z.unknown().optional(),
+  siteBridge: z.object({
+    origin: z.string().regex(/^https?:\/\/[^/\s]+\/?$/),
+    token: z.string().min(8).max(200),
+  }).optional(),
   platforms: z.array(
       z.object({
-      id: PlatformTypeSchema,
+      id: ConfigPlatformTypeSchema,
       name: z.string().min(1).max(100),
       color: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
       abbr: z.string().min(1).max(10)

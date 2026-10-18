@@ -35,6 +35,8 @@
     "centrifuge": "^5.5.2",
     "chalk": "^5.3.0",
     "express": "^4.21.2",
+    "gifenc": "^1.0.3",
+    "gifuct-js": "^2.1.2",
     "http-proxy-middleware": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "node-telegram-bot-api": "^0.66.0",
@@ -47,6 +49,7 @@
     "vue": "^3.4.0",
     "vue-router": "^4.6.3",
     "ws": "^8.18.3",
+    "yobachat-shared": "file:./yobachat-shared",
     "youtubei.js": "^18.1.0",
     "zod": "^4.1.13"
   },

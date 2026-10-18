@@ -44,8 +44,10 @@ import { WebhookService } from '@/services/webhook-service.js';
 import { WebSocketService } from '@/services/websocket-service.js';
 import { WebAPIService } from '@/services/webapi-service.js';
 import { AuthService } from '@/services/auth-service.js';
+import { kSitePlatform, SiteBridgeService } from '@/services/site-bridge-service.js';
 
 import { kWSMessageType } from '@shared/shared-types.js';
+import type { SiteEmote, SiteEmoteFile } from 'yobachat-shared';
 
 import {
   kHiddenBadgesFilter,
@@ -69,9 +71,11 @@ export class ChatServer {
   private deletedMessages = new DeletedMessagesService();
   private messageHistory = new MessageHistoryService();
   private tgVideoQueue = new TelegramVideoQueueService();
+  private siteEmotes: SiteEmote[] = [];
   private webhookService: WebhookService;
   private webApiService: WebAPIService;
   private readonly authService: AuthService;
+  private siteBridge: SiteBridgeService | null = null;
 
   // Message batching
   private messageBatch: ChatMessage[] = [];
@@ -106,6 +110,22 @@ export class ChatServer {
       this.messageHistory.init(),
       this.tgVideoQueue.init(),
     ]);
+
+    if (this.config.siteBridge) {
+      this.siteBridge = new SiteBridgeService(this.config.siteBridge, {
+        getHistory: () => this.messageHistory.getFiltered(this.deletedMessages.getAll()),
+        onSiteMessage: (message) => {
+          this.handleIncomingMessage({
+            ...kSitePlatform,
+            config: {},
+          } as PlatformWithConfig, message);
+        },
+        onEmoteQueue: (emotes) => {
+          this.rememberEmotes(emotes);
+        },
+      });
+      this.siteBridge.start();
+    }
 
     // Start internal listeners before the public HTTP gateway (static + proxies)
     await this.webhookService.start();
@@ -254,6 +274,7 @@ export class ChatServer {
     };
 
     this.websocketService.broadcast(kWSMessageType.messageUpdate, messageData);
+    this.siteBridge?.sendMessages(validMessages);
 
     // Clear batch
     this.messageBatch = [];
@@ -430,6 +451,7 @@ export class ChatServer {
     service.on('messageDeleted', (deleteEvent: ChatMessageDelete) => {
       this.outputToConsoleDelete(deleteEvent.id, platform);
       this.broadcastChatMessageDeletion();
+      this.siteBridge?.sendDeleted([String(deleteEvent.id)]);
     });
 
     service.on('status', (active: boolean) => {
@@ -466,6 +488,7 @@ export class ChatServer {
     if (this.isClientAuthenticated(clientId)) {
       this.sendPlatformsStatus(clientId);
       this.sendTgVideoPending(clientId);
+      this.sendEmoteQueue(clientId);
     }
   }
 
@@ -501,7 +524,9 @@ export class ChatServer {
         break;
 
       case kWSMessageType.adminClearAllMessages:
+        this.messageHistory.clear();
         this.broadcastClearAllMessages();
+        this.siteBridge?.sendClear();
         console.log(`${this.logPrefix} Admin cleared all messages`);
         break;
 
@@ -516,6 +541,31 @@ export class ChatServer {
 
       case kWSMessageType.adminTgVideoReject:
         this.handleAdminTgVideoReject(clientId, message.data.id);
+        break;
+
+      case kWSMessageType.adminEmoteReview:
+        this.forwardEmote(clientId, () => {
+          this.siteBridge?.sendEmoteReview(message.data.id, message.data.action);
+        });
+        break;
+
+      case kWSMessageType.adminEmoteAdd:
+        this.forwardEmote(clientId, () => {
+          const files: SiteEmoteFile[] = message.data.files;
+          this.siteBridge?.sendEmoteAdd(files);
+        });
+        break;
+
+      case kWSMessageType.adminEmoteRename:
+        this.forwardEmote(clientId, () => {
+          this.siteBridge?.sendEmoteRename(message.data.id, message.data.name);
+        });
+        break;
+
+      case kWSMessageType.adminEmoteDelete:
+        this.forwardEmote(clientId, () => {
+          this.siteBridge?.sendEmoteDelete(message.data.id);
+        });
         break;
     }
   }
@@ -626,6 +676,7 @@ export class ChatServer {
 
       // Broadcast deletion to all clients (including the admin panel that requested it)
       this.broadcastChatMessageDeletion();
+      this.siteBridge?.sendDeleted(data.ids);
 
       console.log(`${this.logPrefix} Admin deleted messages: ${data.ids.join(', ')}`);
     } catch (error) {
@@ -687,6 +738,42 @@ export class ChatServer {
     this.websocketService.send(clientId, kWSMessageType.tgVideoPendingUpdated, {
       pending: this.tgVideoQueue.getPending(),
     });
+  }
+
+  private sendEmoteQueue(clientId: string): void {
+    if (!this.isClientAuthenticated(clientId)) {
+      return;
+    }
+
+    this.websocketService.send(clientId, kWSMessageType.emoteQueueUpdated, {
+      emotes: this.siteEmotes,
+    });
+  }
+
+  private rememberEmotes(emotes: SiteEmote[]): void {
+    this.siteEmotes = emotes;
+
+    if (this.config.consoleMode || !this.websocketService) {
+      return;
+    }
+
+    this.websocketService.broadcast(
+      kWSMessageType.emoteQueueUpdated,
+      { emotes },
+      this.isClientAuthenticated.bind(this),
+    );
+  }
+
+  private forwardEmote(clientId: string, send: () => void): void {
+    if (!this.siteBridge?.isOpen()) {
+      this.websocketService.send(clientId, kWSMessageType.adminServerStatus, {
+        connected: true,
+        message: 'Site bridge is down; emote change was not saved',
+      });
+      return;
+    }
+
+    send();
   }
 
   private broadcastTgVideoPending(): void {
@@ -899,6 +986,8 @@ export class ChatServer {
       clearTimeout(this.batchTimeout);
       this.flushMessageBatch();
     }
+
+    this.siteBridge?.stop();
 
     // Save message history immediately
     await this.messageHistory.saveImmediate();

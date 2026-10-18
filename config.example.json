@@ -10,6 +10,10 @@
   "webhookPort": 9014,
   "webhookPath": "webhook/",
   "adminPassword": "CHANGE_ME",
+  "siteBridge": {
+    "origin": "http://127.0.0.1:3000",
+    "token": "replace-with-the-same-token-as-the-site"
+  },
   "telegram": {
     "chatId": -1000000000000,
     "botToken": "REPLACE_WITH_TELEGRAM_BOT_TOKEN",

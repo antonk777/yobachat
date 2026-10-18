@@ -122,6 +122,7 @@ function loadAppConfig(configPath?: string): ServerConfig {
       webhookPort: serverFields.webhookPort,
       webhookPath: serverFields.webhookPath,
       adminPassword: serverFields.adminPassword,
+      siteBridge: serverFields.siteBridge,
       sharedConfig,
       telegram: serverFields.telegram,
       youtube: serverFields.youtube,

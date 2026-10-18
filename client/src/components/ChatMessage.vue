@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 
 import type { ChatMessageClient, ChatSettings, TelegramVideoMeta } from '@shared/shared-types.js';
+import 'yobachat-shared/assets/chat-icons.css';
 import { useWSConnection } from '@/composables/useWSConnection';
 import TelegramVideoLightbox, {
   type TelegramVideoLightboxSource,
@@ -24,7 +25,7 @@ const lightboxVideo = ref<TelegramVideoLightboxSource | null>(null);
 
 const hasPlatformIcon = computed(() => {
   const platformId = props.message.platform.id;
-  return ['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame'].includes(platformId);
+  return ['twitch', 'youtube', 'telegram', 'vkvideo', 'kick', 'goodgame', 'site'].includes(platformId);
 });
 
 const isDeluxe = computed(() => {
@@ -138,7 +139,7 @@ function onLightboxReject(queueId: number): void {
       <div class="reply-icon" v-if="isQuote" />
 
       <div
-        v-if="hasPlatformIcon && !isQuote"
+        v-if="hasPlatformIcon && message.platform.id !== 'site' && !isQuote"
         class="platform-icon"
         :class="`icon-${message.platform.id}`"
         :aria-label="message.platform.abbr"
@@ -297,7 +298,6 @@ function onLightboxReject(queueId: number): void {
   background-color: var(--src-color);
   background-color: hsl(from var(--src-color) h calc(s * .5) calc(l * .9));
 
-  mask-image: url('@/assets/arrow-reply-5.svg');
   mask-position: center center;
   mask-repeat: no-repeat;
   mask-size: contain;
@@ -315,30 +315,6 @@ function onLightboxReject(queueId: number): void {
   mask-position: center center;
   mask-repeat: no-repeat;
   mask-size: contain;
-
-  &.icon-twitch {
-    mask-image: url('@/assets/twitch.svg');
-  }
-
-  &.icon-youtube {
-    mask-image: url('@/assets/youtube.svg');
-  }
-
-  &.icon-telegram {
-    mask-image: url('@/assets/telegram.svg');
-  }
-
-  &.icon-vkvideo {
-    mask-image: url('@/assets/vkvideo.svg');
-  }
-
-  &.icon-kick {
-    mask-image: url('@/assets/kick.svg');
-  }
-
-  &.icon-goodgame {
-    mask-image: url('@/assets/goodgame.png');
-  }
 }
 
 .moderator-badge {
@@ -350,7 +326,9 @@ function onLightboxReject(queueId: number): void {
   height: var(--moderator-badge-size);
 
   background-color: var(--moderator-color);
-  mask: url('@/assets/all-seeing-eye.webp') center center / contain no-repeat;
+  mask-position: center center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
 }
 
 .vip-badge {
@@ -362,7 +340,9 @@ function onLightboxReject(queueId: number): void {
   height: var(--vip-badge-size);
 
   background-color: var(--vip-color);
-  mask: url('@/assets/vip.svg') center center / contain no-repeat;
+  mask-position: center center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
 }
 
 .edited-badge {
@@ -371,7 +351,9 @@ function onLightboxReject(queueId: number): void {
   flex: none;
   width: var(--edited-badge-size);
   height: var(--edited-badge-size);
-  mask: url('@/assets/edited.svg') center center / contain no-repeat;
+  mask-position: center center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
   background-color: var(--text-muted);
 }
 

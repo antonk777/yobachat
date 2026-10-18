@@ -10,6 +10,7 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY yobachat-shared ./yobachat-shared
 RUN npm ci
 
 COPY . .

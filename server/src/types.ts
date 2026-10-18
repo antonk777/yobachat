@@ -26,6 +26,11 @@ export type ServerConfigFile = {
   webhookPath: string;
   /** Password required for admin panel login */
   adminPassword: string;
+  siteBridge?: {
+    /** Site origin only, for example `http://127.0.0.1:3000` or `https://example.com`. */
+    origin: string;
+    token: string;
+  };
   telegram: TelegramServiceConfig;
   youtube: YouTubeServiceConfig;
   twitch: TwitchServiceConfig;

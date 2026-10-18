@@ -8,6 +8,7 @@ import { useMessagesStore } from '@/stores/messages';
 import { useSettingsStore } from '@/stores/settings';
 import { useUIStore } from '@/stores/ui';
 import { useTelegramVideosStore } from '@/stores/telegramVideos';
+import { useSiteEmotesStore } from '@/stores/siteEmotes';
 import { useAuth } from '@/composables/useAuth';
 
 import { getWsUrl } from '@shared/shared-urls';
@@ -33,6 +34,7 @@ export const useWSConnection = createGlobalState(() => {
   const settingsStore = useSettingsStore();
   const uiStore = useUIStore();
   const telegramVideosStore = useTelegramVideosStore();
+  const siteEmotesStore = useSiteEmotesStore();
 
   // --- Build URL with token ---
   function buildWsUrl(): string {
@@ -135,6 +137,10 @@ export const useWSConnection = createGlobalState(() => {
 
         case kWSMessageType.tgVideoApproved:
           telegramVideosStore.setApproved(parsed.data);
+          break;
+
+        case kWSMessageType.emoteQueueUpdated:
+          siteEmotesStore.setEmotes(parsed.data.emotes);
           break;
 
         default:
@@ -294,6 +300,34 @@ export const useWSConnection = createGlobalState(() => {
     });
   }
 
+  function reviewEmote(id: string, action: 'approve' | 'reject'): void {
+    send({
+      type: kWSMessageType.adminEmoteReview,
+      data: { id, action }
+    });
+  }
+
+  function addEmotes(files: { name: string; dataBase64: string }[]): void {
+    send({
+      type: kWSMessageType.adminEmoteAdd,
+      data: { files }
+    });
+  }
+
+  function renameEmote(id: string, name: string): void {
+    send({
+      type: kWSMessageType.adminEmoteRename,
+      data: { id, name }
+    });
+  }
+
+  function deleteEmote(id: string): void {
+    send({
+      type: kWSMessageType.adminEmoteDelete,
+      data: { id }
+    });
+  }
+
   function updateChatSettings(settings: Partial<ChatSettings>): void {
     send({
       type: kWSMessageType.adminUpdateSettings,
@@ -323,6 +357,10 @@ export const useWSConnection = createGlobalState(() => {
     refreshWidget,
     approveTgVideo,
     rejectTgVideo,
+    reviewEmote,
+    addEmotes,
+    renameEmote,
+    deleteEmote,
     updateChatSettings,
   };
 });

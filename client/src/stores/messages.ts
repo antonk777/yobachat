@@ -2,20 +2,10 @@ import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 
 import type { ChatMessage, ChatMessageSegment, ChatMessageClient } from '@shared/shared-types.js';
+import { getMessageSegments as splitMessageSegments } from 'yobachat-shared';
 
 import { useSettingsStore } from '@/stores/settings';
 import { kMaxHistoryMessages } from '@shared/shared-constants';
-
-interface Match {
-  type: 'url' | 'emote';
-  index: number;
-  length: number;
-  content: string;
-  url?: string;
-}
-
-// URL regex pattern - matches http(s):// URLs and common patterns
-const urlRegex = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/gi;
 
 export const useMessagesStore = defineStore('messages', () => {
   const settingsStore = useSettingsStore();
@@ -140,7 +130,6 @@ export const useMessagesStore = defineStore('messages', () => {
    * @returns Array of segments
    */
   function getMessageSegments(message: ChatMessage): ChatMessageSegment[] {
-    // Filter bad words but not links (we'll handle links separately based on context)
     let filtered = message.message;
 
     if (settingsStore.filterBadWords && settingsStore.badWords.length > 0) {
@@ -154,132 +143,10 @@ export const useMessagesStore = defineStore('messages', () => {
       }
     }
 
-    const segments: ChatMessageSegment[] = [];
-
-    const showEmotes = (
-      settingsStore.settings?.showEmotes &&
-      message.emotesMap &&
-      Object.keys(message.emotesMap).length > 0
-    )
-
-    const matches: Match[] = [];
-
-    // Find all URLs
-    urlRegex.lastIndex = 0;
-
-    let urlMatch;
-
-    while ((urlMatch = urlRegex.exec(filtered)) !== null) {
-      matches.push({
-        type: 'url',
-        index: urlMatch.index,
-        length: urlMatch[0].length,
-        content: urlMatch[0]
-      });
-    }
-
-    // Find all emotes if enabled
-    if (showEmotes) {
-      const emoteIds = Object.keys(message.emotesMap!)
-        .sort((a, b) => b.length - a.length);
-
-      for (const emoteId of emoteIds) {
-        let searchIndex = 0;
-
-        while (true) {
-          const index = filtered.indexOf(emoteId, searchIndex);
-          if (index === -1) break;
-
-          matches.push({
-            type: 'emote',
-            index,
-            length: emoteId.length,
-            content: emoteId,
-            url: message.emotesMap![emoteId]
-          });
-
-          searchIndex = index + 1;
-        }
-      }
-    }
-
-    // Sort matches by position
-    matches.sort((a, b) => a.index - b.index);
-
-    // Remove overlapping matches (emotes take precedence over URLs)
-    const filteredMatches: Match[] = [];
-    let lastProcessedEnd = 0;
-
-    for (const match of matches) {
-      const matchEnd = match.index + match.length;
-      const isOverlapping = match.index < lastProcessedEnd;
-
-      if (!isOverlapping) {
-        // No overlap, add the match
-        filteredMatches.push(match);
-        lastProcessedEnd = matchEnd;
-      } else if (match.type === 'emote') {
-        // Emote overlaps with previous matches - remove overlapping URLs
-        while (filteredMatches.length > 0) {
-          const lastMatch = filteredMatches[filteredMatches.length - 1];
-          const lastMatchEnd = lastMatch.index + lastMatch.length;
-
-          if (lastMatchEnd <= match.index) {
-            break; // No more overlaps
-          }
-
-          filteredMatches.pop();
-        }
-
-        filteredMatches.push(match);
-        lastProcessedEnd = matchEnd;
-      }
-      // If it's an overlapping URL, skip it (emotes take precedence)
-    }
-
-    // Build segments from matches
-    let lastIndex = 0;
-    for (const match of filteredMatches) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        segments.push({
-          type: 'text',
-          content: filtered.substring(lastIndex, match.index)
-        });
-      }
-
-      // Add the match as a segment
-      if (match.type === 'url') {
-        segments.push({
-          type: 'link',
-          content: match.content,
-          url: match.content
-        });
-      } else {
-        segments.push({
-          type: 'emote',
-          content: match.content,
-          url: match.url!
-        });
-      }
-
-      lastIndex = match.index + match.length;
-    }
-
-    // Add remaining text after the last match
-    if (lastIndex < filtered.length) {
-      segments.push({
-        type: 'text',
-        content: filtered.substring(lastIndex)
-      });
-    }
-
-    // If no matches were found, return the original text as a single segment
-    if (segments.length === 0) {
-      return [{ type: 'text', content: filtered }];
-    }
-
-    return segments;
+    return splitMessageSegments(
+      { message: filtered, emotesMap: message.emotesMap },
+      { showEmotes: settingsStore.settings?.showEmotes === true },
+    );
   }
 
   function deepCloneMessage(message: ChatMessageClient, visited = new WeakSet<object>()): ChatMessageClient {

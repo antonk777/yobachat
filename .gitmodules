@@ -1,0 +1,3 @@
+[submodule "yobachat-shared"]
+	path = yobachat-shared
+	url = file:///S:/yobachat-shared

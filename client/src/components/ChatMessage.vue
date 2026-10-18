@@ -124,7 +124,8 @@ function onLightboxReject(queueId: number): void {
     class="chat-message"
     :class="[`platform-${message.platform.id}`, {
       'is-quote': isQuote,
-      'is-deluxe': isDeluxe
+      'is-deluxe': isDeluxe,
+      'has-qr': Boolean(qrSrc),
     }]"
     :style="{
       '--user-color': message.color ?? null,
@@ -138,7 +139,7 @@ function onLightboxReject(queueId: number): void {
       :is-quote="true"
     />
 
-    <div class="message-header">
+    <div v-if="!qrSrc" class="message-header">
       <div class="reply-icon" v-if="isQuote" />
 
       <div
@@ -435,6 +436,10 @@ function onLightboxReject(queueId: number): void {
   .chat-message.is-quote & {
     color: var(--text-muted);
   }
+
+  .chat-message.has-qr > & {
+    color: var(--color-link, hsl(145, 75%, 43%));
+  }
 }
 
 .message-content .emote {
@@ -515,7 +520,7 @@ function onLightboxReject(queueId: number): void {
 .qr-link,
 .qr-image {
   display: block;
-  width: min(100%, 12em);
+  width: min(100%, 7.2em);
   margin-top: 0.35em;
 }
 
@@ -526,7 +531,7 @@ function onLightboxReject(queueId: number): void {
 .qr-image {
   height: auto;
   aspect-ratio: 1;
-  padding: 0.4em;
+  padding: 0.24em;
   border-radius: 0.2em;
   background-color: #fff;
 }

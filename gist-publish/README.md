@@ -21,7 +21,8 @@ docker compose up -d
 Persistent on the host (survives `docker compose pull` / recreate):
 
 - `./config.json` — credentials
-- `./storage/` — settings, message history, deleted messages, telegram video queue (mounted at `/storage`)
+- `./storage/` — settings, message history, deleted messages, telegram video queue
+- `./data/` — same files from older installs; leave it in place, the container still reads it
 
 Open:
 
@@ -38,7 +39,7 @@ curl -fsSLO https://gist.githubusercontent.com/antonk777/29a033e95acf294dfbbe103
 docker compose pull && docker compose up -d
 ```
 
-Keeps `config.json` and `./storage`. Logs: `docker compose logs -f`. Stop: `docker compose down`.
+Keeps `config.json`, `./storage`, and `./data`. Do not delete those folders. Logs: `docker compose logs -f`. Stop: `docker compose down` (without `-v`).
 
 ## Security
 

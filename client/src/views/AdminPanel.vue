@@ -346,7 +346,6 @@ watch(
           </nav>
         </div>
 
-        <h1 class="admin-header-title">yobachat</h1>
       </div>
 
       <div class="admin-header-actions">
@@ -365,12 +364,16 @@ watch(
         </div>
 
         <button
-          class="btn btn-secondary"
+          class="btn btn-secondary admin-icon-btn"
+          type="button"
+          aria-label="Settings"
           @click="closeQrMenu(); uiStore.isSettingsOpen = true"
           :disabled="!wsConnected"
-          title="Configure chat appearance settings"
+          title="Settings"
         >
-          Settings
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.22-1.14.53-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.64.22l2.39-.96c.49.41 1.04.72 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.22 1.14-.53 1.63-.94l2.39.96c.25.09.51 0 .64-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z" />
+          </svg>
         </button>
 
         <div class="qr-menu" ref="qrMenuRef">
@@ -719,39 +722,15 @@ watch(
   }
 }
 
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
+.admin-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-.admin-header-title {
-  flex: none;
-  margin: 0;
-  padding-block: .15em;
-  padding-inline: .06em;
-  font-family: 'Futura PT', var(--font-family);
-  font-size: .75rem;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-
-  background: linear-gradient(135deg, #4a9eff 0%, #995eff 50%, #ff74b9 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-size: 200% 200%;
-  animation: gradient-shift 10s ease infinite;
-
-  @media (width > 400px) {
-    font-size: 1rem;
-  }
-
-  @media (width > 450px) {
-    font-size: 1.5rem;
+  svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
   }
 }
 

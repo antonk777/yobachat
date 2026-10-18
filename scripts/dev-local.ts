@@ -238,7 +238,13 @@ async function reloadServer(): Promise<void> {
     console.log('[DevLocal] Server bundle changed, restarting...');
 
     if (chatServer) {
-      await chatServer.shutdown(false);
+      try {
+        await chatServer.shutdown(false);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`[DevLocal] Shutdown failed, replacing the server anyway: ${message}`);
+      }
+
       chatServer = null;
     }
 

@@ -6,7 +6,7 @@ if [ ! -f /app/config.json ]; then
   exit 1
 fi
 
-mkdir -p "${STORAGE_PATH:-/storage}"
+mkdir -p "${STORAGE_PATH:-/storage}" /app/server/storage
 
 cd /app/server
 exec env CONFIG_PATH=/app/config.json CLIENT_DIST_PATH=/app/client/dist STORAGE_PATH="${STORAGE_PATH:-/storage}" NODE_ENV=production node dist/index.js

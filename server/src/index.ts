@@ -823,6 +823,8 @@ export class ChatServer {
 
   private rememberEmotes(emotes: SiteEmote[]): void {
     this.siteEmotes = emotes;
+    const pending = emotes.filter(emote => emote.status === 'pending').length;
+    console.log(`${this.logPrefix} Site emotes: ${emotes.length} (${pending} pending)`);
 
     if (this.config.consoleMode || !this.websocketService) {
       return;

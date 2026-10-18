@@ -41,7 +41,7 @@ Approve/reject Telegram videos in Admin (queue section, or in-chat when “Show 
 
 ### Update
 
-From the same directory (keeps your `config.json` and `./storage`):
+From the same directory (keeps your `config.json`, `./storage`, and the older `./data` folder):
 
 ```bash
 # optional: refresh Compose if it changed upstream
@@ -56,6 +56,7 @@ Persistent data on the host:
 
 - `./config.json` — credentials (bind-mounted read-only)
 - `./storage/` — settings, message history, deleted messages, telegram video queue (`STORAGE_PATH=/storage` in the container)
+- `./data/` — previous location of those files (`/app/server/storage`). Still mounted; if it holds the saved fonts or history, that copy is the one that is used
 
 Image: `ghcr.io/antonk777/yobachat:latest`.
 

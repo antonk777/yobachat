@@ -187,18 +187,22 @@ function saveName(id: string): void {
       <h3>Pending emotes</h3>
       <ul class="custom-emotes__list">
         <li v-for="emote in pending" :key="emote.id" class="custom-emotes__row">
-          <img :src="emote.url" :alt="emote.code">
-          <div class="custom-emotes__meta">
-            <span>{{ emote.authorName }}</span>
+          <span class="custom-emotes__thumb">
+            <img :src="emote.url" alt="">
+          </span>
+          <div class="custom-emotes__body">
+            <span class="custom-emotes__author">{{ emote.authorName }}</span>
+            <div class="custom-emotes__actions">
+              <input
+                :value="shownName(emote.id, emote.name)"
+                maxlength="20"
+                @input="setName(emote.id, ($event.target as HTMLInputElement).value)"
+              >
+              <button type="button" @click="saveName(emote.id)">Save name</button>
+              <button type="button" @click="ws.reviewEmote(emote.id, 'approve')">Approve</button>
+              <button type="button" @click="ws.reviewEmote(emote.id, 'reject')">Reject</button>
+            </div>
           </div>
-          <input
-            :value="shownName(emote.id, emote.name)"
-            maxlength="20"
-            @input="setName(emote.id, ($event.target as HTMLInputElement).value)"
-          >
-          <button type="button" @click="saveName(emote.id)">Save name</button>
-          <button type="button" @click="ws.reviewEmote(emote.id, 'approve')">Approve</button>
-          <button type="button" @click="ws.reviewEmote(emote.id, 'reject')">Reject</button>
         </li>
       </ul>
     </template>
@@ -208,7 +212,9 @@ function saveName(id: string): void {
       <p v-if="approved.length === 0" class="custom-emotes__empty">No custom emotes yet</p>
       <ul v-else class="custom-emotes__list">
         <li v-for="emote in approved" :key="emote.id" class="custom-emotes__row">
-          <img :src="emote.url" :alt="emote.code">
+          <span class="custom-emotes__thumb">
+            <img :src="emote.url" alt="">
+          </span>
           <input
             :value="shownName(emote.id, emote.name)"
             maxlength="20"
@@ -287,29 +293,60 @@ h3 {
 
 .custom-emotes__row {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: 0.6rem;
+  min-width: 0;
 }
 
-.custom-emotes__row img {
-  width: 32px;
-  height: 32px;
+.custom-emotes__row > img {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
   object-fit: contain;
   background: var(--bg-color-bright);
 }
 
-.custom-emotes__meta {
-  display: flex;
-  flex-direction: column;
-  min-width: 8rem;
+.custom-emotes__thumb {
+  display: block;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background: var(--bg-color-bright);
 }
 
-.custom-emotes__meta span {
+.custom-emotes__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.custom-emotes__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.custom-emotes__author {
   color: var(--text-muted);
   font-size: 0.85rem;
 }
 
+.custom-emotes__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
 input {
+  flex: 1 1 6rem;
+  min-width: 0;
   border: 1px solid var(--border-color);
   border-radius: 0.35rem;
   background: var(--bg-color);

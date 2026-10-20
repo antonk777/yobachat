@@ -143,6 +143,11 @@ export class ChatServer {
       this.siteBridge = new SiteBridgeService(this.config.siteBridge, {
         getHistory: () => this.messageHistory.getFiltered(this.deletedMessages.getAll()),
         onSiteMessage: (message) => {
+          // The site resends anything it saw no ack for, so some of these already arrived.
+          if (this.isKnownMessage(message.id)) {
+            return;
+          }
+
           this.handleIncomingMessage({
             ...kSitePlatform,
             config: {},
@@ -277,6 +282,12 @@ export class ChatServer {
     this.batchTimeout = setTimeout(() => {
       this.flushMessageBatch();
     }, kBatchDelayMS);
+  }
+
+  private isKnownMessage(id: string): boolean {
+    return this.deletedMessages.has(id)
+      || this.messageBatch.some(message => message.id === id)
+      || this.messageHistory.getById(id) !== undefined;
   }
 
   /**

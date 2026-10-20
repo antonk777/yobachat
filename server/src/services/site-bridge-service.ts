@@ -30,7 +30,7 @@ interface SiteBridgeHandlers {
 }
 
 const kMinRetryMs = 1000;
-const kMaxRetryMs = 30000;
+const kMaxRetryMs = 5000;
 const kConnectTimeoutMs = 5000;
 const kHeartbeatMs = 10000;
 
@@ -134,6 +134,7 @@ export class SiteBridgeService {
       this.send({
         type: 'hello',
         messages: this.handlers.getHistory(),
+        siteAcks: true,
       });
     });
 
@@ -238,9 +239,16 @@ export class SiteBridgeService {
 
     if (!result.success || result.data.platform.id !== 'site') {
       console.warn(`${this.logPrefix} Rejected site message`);
+      const id = (parsed.message as { id?: unknown } | null)?.id;
+
+      if (typeof id === 'string') {
+        this.send({ type: 'site-ack', ids: [], rejected: [id] });
+      }
+
       return;
     }
 
     this.handlers.onSiteMessage(result.data);
+    this.send({ type: 'site-ack', ids: [result.data.id] });
   }
 }

@@ -4,12 +4,13 @@ import chalk from 'chalk';
 import type { ChatMessage, Platform } from '@shared/shared-types.js';
 import {
   chatBridgeSocketUrl,
+  isSiteMessageId,
   type BridgeEvent,
   type SiteEmote,
   type SiteEmoteFile,
 } from 'yobachat-shared';
 
-import { ChatMessageSchema } from '@/validation.js';
+import { ChatMessageSchema, MessageIdSchema } from '@/validation.js';
 
 export const kSitePlatform: Platform = {
   id: 'site',
@@ -25,7 +26,10 @@ export interface SiteBridgeConfig {
 
 interface SiteBridgeHandlers {
   getHistory: () => ChatMessage[];
+  /** Words the site keeps out of nicknames; empty while the filter is off. */
+  getWordFilter: () => string[];
   onSiteMessage: (message: ChatMessage) => void;
+  onSiteDelete: (ids: string[]) => void;
   onEmoteQueue: (emotes: SiteEmote[]) => void;
 }
 
@@ -86,6 +90,10 @@ export class SiteBridgeService {
     this.send({ type: 'clear' });
   }
 
+  sendWordFilter(words: string[]): void {
+    this.send({ type: 'word-filter', words });
+  }
+
   isOpen(): boolean {
     return this.socket?.readyState === WebSocket.OPEN;
   }
@@ -136,6 +144,7 @@ export class SiteBridgeService {
         messages: this.handlers.getHistory(),
         siteAcks: true,
       });
+      this.sendWordFilter(this.handlers.getWordFilter());
     });
 
     socket.on('message', (data) => {
@@ -228,6 +237,21 @@ export class SiteBridgeService {
 
     if (parsed.type === 'emote-queue' && Array.isArray(parsed.emotes)) {
       this.handlers.onEmoteQueue(parsed.emotes);
+      return;
+    }
+
+    if (parsed.type === 'site-delete') {
+      // The site checks that authors remove only their own posts; this keeps it to site posts.
+      const ids = Array.isArray(parsed.ids)
+        ? parsed.ids.filter((id): id is string => (
+          typeof id === 'string' && MessageIdSchema.safeParse(id).success && isSiteMessageId(id)
+        ))
+        : [];
+
+      if (ids.length > 0) {
+        this.handlers.onSiteDelete(ids);
+      }
+
       return;
     }
 

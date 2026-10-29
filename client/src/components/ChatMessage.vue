@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import type { ChatMessageClient, ChatSettings, TelegramVideoMeta } from '@shared/shared-types.js';
 import { qrImageSrc, isEmoteOnlyMessage } from 'yobachat-shared';
@@ -37,6 +37,13 @@ const replyTo = computed(() => props.message.replyTo);
 
 const qrSrc = computed(() => props.isQuote ? '' : qrImageSrc(props.message.qrUrl));
 const emoteOnly = computed(() => isEmoteOnlyMessage(props.message.segments));
+
+// An avatar that fails to load, like one a site viewer has since removed, is left out instead of shown broken.
+const avatarBroken = ref(false);
+
+watch(() => props.message.avatar, () => {
+  avatarBroken.value = false;
+});
 
 const tgVideo = computed((): TelegramVideoMeta | null => {
   const meta = props.message.metadata?.tgVideo;
@@ -172,9 +179,10 @@ function onLightboxReject(queueId: number): void {
 
       <img
         class="avatar"
-        v-if="settings.showAvatars && message.avatar && !isQuote"
+        v-if="settings.showAvatars && message.avatar && !isQuote && !avatarBroken"
         :src="message.avatar"
         :alt="message.usernameFiltered"
+        @error="avatarBroken = true"
       />
 
       <div class="username">

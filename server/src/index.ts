@@ -142,9 +142,10 @@ export class ChatServer {
     if (this.config.siteBridge) {
       this.siteBridge = new SiteBridgeService(this.config.siteBridge, {
         getHistory: () => this.messageHistory.getFiltered(this.deletedMessages.getAll()),
+        getWordFilter: () => this.siteWordFilter(),
         onSiteMessage: (message) => {
           // The site resends anything it saw no ack for, so some of these already arrived.
-          if (this.isKnownMessage(message.id)) {
+          if (this.isKnownMessage(message.id) && !this.isNewerSiteEdit(message)) {
             return;
           }
 
@@ -152,6 +153,11 @@ export class ChatServer {
             ...kSitePlatform,
             config: {},
           } as PlatformWithConfig, message);
+        },
+        onSiteDelete: (ids) => {
+          this.deleteMessages(ids)
+            .then(() => console.log(`${this.logPrefix} Site authors deleted messages: ${ids.join(', ')}`))
+            .catch(error => console.error(`${this.logPrefix} Failed to delete site messages:`, error));
         },
         onEmoteQueue: (emotes) => {
           this.rememberEmotes(emotes);
@@ -288,6 +294,20 @@ export class ChatServer {
     return this.deletedMessages.has(id)
       || this.messageBatch.some(message => message.id === id)
       || this.messageHistory.getById(id) !== undefined;
+  }
+
+  /**
+   * An author's edit of a site post that is already here; an older copy is just a resend.
+   */
+  private isNewerSiteEdit(message: ChatMessage): boolean {
+    if (!message.editDate || this.deletedMessages.has(message.id)) {
+      return false;
+    }
+
+    const known = this.messageBatch.filter(item => item.id === message.id).at(-1)
+      ?? this.messageHistory.getById(message.id);
+
+    return (known?.editDate ?? 0) < message.editDate;
   }
 
   /**
@@ -716,20 +736,27 @@ export class ChatServer {
 
     // Validate and sanitize message IDs
     try {
-      await this.deletedMessages.add(data.ids);
-
-      // Remove deleted messages from history
-      this.messageHistory.removeByIds(data.ids);
-
-      // Broadcast deletion to all clients (including the admin panel that requested it)
-      this.broadcastChatMessageDeletion();
-      this.siteBridge?.sendDeleted(data.ids);
+      await this.deleteMessages(data.ids);
 
       console.log(`${this.logPrefix} Admin deleted messages: ${data.ids.join(', ')}`);
     } catch (error) {
       this.sendServerMessage(clientId, 'Invalid message IDs format');
       console.error(`${this.logPrefix} Failed to delete messages:`, error);
     }
+  }
+
+  /**
+   * Delete messages for good and tell every client, the site included
+   */
+  private async deleteMessages(ids: string[]): Promise<void> {
+    await this.deletedMessages.add(ids);
+
+    // Remove deleted messages from history
+    this.messageHistory.removeByIds(ids);
+
+    // Broadcast deletion to all clients (including the admin panel that requested it)
+    this.broadcastChatMessageDeletion();
+    this.siteBridge?.sendDeleted(ids);
   }
 
   /**
@@ -767,6 +794,12 @@ export class ChatServer {
     console.log(`${this.logPrefix} Admin posted QR ${url}`);
   }
 
+  /** The bad-word list as the site applies it to nicknames: nothing while filtering is off. */
+  private siteWordFilter(): string[] {
+    const settings = this.settings.getChatSettings();
+    return settings.filterBadWords ? settings.badWords : [];
+  }
+
   /**
    * Handle admin update settings command
    */
@@ -788,6 +821,7 @@ export class ChatServer {
     try {
       await this.settings.updateChatSettings(validatedSettings);
       this.broadcastChatSettings();
+      this.siteBridge?.sendWordFilter(this.siteWordFilter());
 
       console.log(`${this.logPrefix} Admin updated chat settings`);
     } catch (error) {
